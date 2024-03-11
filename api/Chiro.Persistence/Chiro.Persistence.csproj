@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="8.102.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Chiro.Domain\Chiro.Domain.csproj" />
+    <ProjectReference Include="..\Chiro.Infra\Chiro.Infra.csproj" />
+  </ItemGroup>
+
+</Project>
