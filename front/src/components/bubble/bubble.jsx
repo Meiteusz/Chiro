@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ColorPicker from "@/components/ColorPicker";
+import ColorPicker from "@/components/bubble/colorPicker";
 import { Rnd } from "react-rnd";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { TextField } from "@mui/material";
@@ -13,7 +13,7 @@ const style = {
   width: "200px",
 };
 
-export default function Box({ box, boxes, setBoxes }) {
+function Bubble({ box, boxes, setBoxes }) {
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [boxColor, setBoxColor] = useState("#DEDEDE");
   const [text, setText] = useState("");
@@ -91,8 +91,14 @@ export default function Box({ box, boxes, setBoxes }) {
         variant="standard"
         value={text}
         onChange={handleTextChange}
-        InputProps={{ disableUnderline: true }}
-        style={{ color: "white" }}
+        InputProps={{
+          disableUnderline: true,
+          style: {
+            color: "#FFFFFF",
+            textAlign: "center",
+            fontWeight: "bold",
+          },
+        }}
       />
       <div
         style={{
@@ -100,7 +106,8 @@ export default function Box({ box, boxes, setBoxes }) {
           top: "5px",
           right: "5px",
           cursor: "pointer",
-          color: "#2196f3",
+          color: "#FFFF",
+          marginLeft: "20px",
         }}
         onClick={handleColorPickerToggle}
       >
@@ -109,9 +116,11 @@ export default function Box({ box, boxes, setBoxes }) {
       {isColorPickerOpen && (
         <ColorPicker
           onSelect={handleColorSelect}
-          position={{ top: 20, left: style.width, marginLeft: "10px" }}
+          position={{ top: 20, left: style.width }}
         />
       )}
     </Rnd>
   );
 }
+
+export default Bubble;

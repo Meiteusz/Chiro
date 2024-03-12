@@ -1,14 +1,18 @@
 "use client";
 
+import { useState } from "react";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
-import Box from "@/components/Box";
-import Calendar from "@/components/calendar";
+import MenuIcon from "@mui/icons-material/Menu";
 
-import "./globals.css";
+import Bubble from "@/components/bubble/bubble";
+import Timeline from "@/components/timeline";
 
-export default function Home() {
+import "../app/globals.css";
+
+function MainBoard() {
   const containerStyle = {
     display: "flex",
     flexDirection: "column",
@@ -34,7 +38,8 @@ export default function Home() {
   };
 
   const addButtonStyle = {
-    margin: "100px 100px",
+    margin: "0 30px",
+    marginTop: "30px",
     padding: "25px",
     borderRadius: "50%",
     backgroundColor: "#2196f3",
@@ -61,18 +66,29 @@ export default function Home() {
 
   return (
     <div style={containerStyle}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton edge="start" color="inherit" aria-label="menu">
+            <MenuIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
       <div style={topRowStyle}>
         <IconButton style={addButtonStyle} onClick={addBox}>
           <AddIcon />
         </IconButton>
         {boxes.map((box) => (
-          <Box key={box.id} box={box} boxes={boxes} setBoxes={setBoxes} />
+          <Bubble key={box.id} box={box} boxes={boxes} setBoxes={setBoxes} />
         ))}
       </div>
+
       <div style={middleRowStyle}>
-        <Calendar />
+        <Timeline />
       </div>
+
       <div style={rowStyle}></div>
     </div>
   );
 }
+
+export default MainBoard;
