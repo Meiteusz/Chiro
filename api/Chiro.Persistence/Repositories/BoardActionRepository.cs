@@ -17,8 +17,10 @@ namespace Chiro.Persistence.Repositories
                     Color = createBoardActionDTO.Color,
                     Height = createBoardActionDTO.Height,
                     Width = createBoardActionDTO.Width,
-                    PositionX = createBoardActionDTO.PositionX,
-                    PositionY = createBoardActionDTO.PositionY,
+                    PositionLeft = createBoardActionDTO.PositionLeft,
+                    PositionRight = createBoardActionDTO.PositionRight,
+                    PositionTop = createBoardActionDTO.PositionTop,
+                    PositionBottom = createBoardActionDTO.PositionBottom,
                 });
 
                 return await context.SaveChangesAsync() > 0;
@@ -54,8 +56,10 @@ namespace Chiro.Persistence.Repositories
             {
                 return await context.BoardActions.Where(w => w.Id == moveBoardActionDTO.Id).UpdateFromQueryAsync(x => new BoardAction
                 {
-                    PositionX = moveBoardActionDTO.PositionX,
-                    PositionY = moveBoardActionDTO.PositionY,
+                    PositionLeft = moveBoardActionDTO.PositionLeft,
+                    PositionRight = moveBoardActionDTO.PositionRight,
+                    PositionTop = moveBoardActionDTO.PositionTop,
+                    PositionBottom = moveBoardActionDTO.PositionBottom
                 }) > 0;
             }
         }

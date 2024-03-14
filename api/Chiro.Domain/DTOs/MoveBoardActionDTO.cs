@@ -3,7 +3,9 @@
     public class MoveBoardActionDTO
     {
         public long Id { get; set; }
-        public double PositionX { get; set; }
-        public double PositionY { get; set; }
+        public double PositionLeft { get; set; }
+        public double PositionRight { get; set; }
+        public double PositionTop { get; set; }
+        public double PositionBottom { get; set; }
     }
 }
