@@ -25,18 +25,11 @@ namespace Chiro.Persistence.Repositories
             }
         }
 
-        public async Task<bool> CreateProjectAsync(CreateProjectDTO createProjectDTO)
+        public async Task<bool> CreateProjectAsync(Domain.Entities.Project project)
         {
             using (var context = new ProjectContext())
             {
-                await context.Projects.AddAsync(new Domain.Entities.Project
-                {
-                    Name = createProjectDTO.Name,
-                    Password = createProjectDTO.Password,
-                    Board = new(),
-                    Timeline = new(),
-                });
-
+                await context.Projects.AddAsync(project);
                 return await context.SaveChangesAsync() > 0;
             }
         }

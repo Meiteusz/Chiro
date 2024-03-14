@@ -1,3 +1,4 @@
+using Chiro.Application.Services;
 using Chiro.Domain.Interfaces;
 using Chiro.Domain.Services;
 using Chiro.Infra.Interfaces;
@@ -14,7 +15,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<IBoardActionServices, BoardActionService>();
 builder.Services.AddTransient<IBoardActionRepository, BoardActionRepository>();
+builder.Services.AddTransient<IProjectServices, ProjectServices>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
+builder.Services.AddTransient<ITimelineActionServices, TimelineActionServices>();
 builder.Services.AddTransient<ITimelineActionRepository, TimelineActionRepository>();
 
 var app = builder.Build();
