@@ -7,60 +7,36 @@ namespace Chiro.Persistence.Repositories
 {
     public class BoardActionRepository : IBoardActionRepository
     {
-        public async Task<bool> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO)
+        public async Task<bool> CreateBoardActionAsync(BoardAction boardAction)
         {
             using (var context = new ProjectContext())
             {
-                await context.BoardActions.AddRangeAsync(new BoardAction
-                {
-                    Content = createBoardActionDTO.Content,
-                    Color = createBoardActionDTO.Color,
-                    Height = createBoardActionDTO.Height,
-                    Width = createBoardActionDTO.Width,
-                    PositionLeft = createBoardActionDTO.PositionLeft,
-                    PositionRight = createBoardActionDTO.PositionRight,
-                    PositionTop = createBoardActionDTO.PositionTop,
-                    PositionBottom = createBoardActionDTO.PositionBottom,
-                });
-
+                await context.BoardActions.AddRangeAsync(boardAction);
                 return await context.SaveChangesAsync() > 0;
             }
         }
 
-        public async Task<bool> ChangeColorAsync(ChangeBoardActionColorDTO changeBoardActionColorDTO)
+        public async Task<bool> ChangeColorAsync(BoardAction boardAction)
         {
             using (var context = new ProjectContext())
             {
-                return await context.BoardActions.Where(w => w.Id == changeBoardActionColorDTO.Id).UpdateFromQueryAsync(x => new BoardAction
-                {
-                    Color = changeBoardActionColorDTO.Color,
-                }) > 0;
+                return await context.BoardActions.Where(w => w.Id == boardAction.Id).UpdateFromQueryAsync(x => boardAction) > 0;
             }
         }
 
-        public async Task<bool> ResizeAsync(ResizeBoardActionDTO resizeBoardActionDTO)
+        public async Task<bool> ResizeAsync(BoardAction boardAction)
         {
             using (var context = new ProjectContext())
             {
-                return await context.BoardActions.Where(w => w.Id == resizeBoardActionDTO.Id).UpdateFromQueryAsync(x => new BoardAction
-                {
-                    Width = resizeBoardActionDTO.Width,
-                    Height = resizeBoardActionDTO.Height,
-                }) > 0;
+                return await context.BoardActions.Where(w => w.Id == boardAction.Id).UpdateFromQueryAsync(x => boardAction) > 0;
             }
         }
 
-        public async Task<bool> MoveAsync(MoveBoardActionDTO moveBoardActionDTO)
+        public async Task<bool> MoveAsync(BoardAction boardAction)
         {
             using (var context = new ProjectContext())
             {
-                return await context.BoardActions.Where(w => w.Id == moveBoardActionDTO.Id).UpdateFromQueryAsync(x => new BoardAction
-                {
-                    PositionLeft = moveBoardActionDTO.PositionLeft,
-                    PositionRight = moveBoardActionDTO.PositionRight,
-                    PositionTop = moveBoardActionDTO.PositionTop,
-                    PositionBottom = moveBoardActionDTO.PositionBottom
-                }) > 0;
+                return await context.BoardActions.Where(w => w.Id == boardAction.Id).UpdateFromQueryAsync(x => boardAction) > 0;
             }
         }
     }
