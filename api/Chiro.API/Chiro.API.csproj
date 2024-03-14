@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Chiro.Application\Chiro.Application.csproj" />
     <ProjectReference Include="..\Chiro.Infra\Chiro.Infra.csproj" />
     <ProjectReference Include="..\Chiro.Persistence\Chiro.Persistence.csproj" />
   </ItemGroup>

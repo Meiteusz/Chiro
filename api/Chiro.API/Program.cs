@@ -1,3 +1,5 @@
+using Chiro.Domain.Interfaces;
+using Chiro.Domain.Services;
 using Chiro.Infra.Interfaces;
 using Chiro.Persistence.Repositories;
 
@@ -10,6 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddTransient<IBoardActionServices, BoardActionService>();
 builder.Services.AddTransient<IBoardActionRepository, BoardActionRepository>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
 builder.Services.AddTransient<ITimelineActionRepository, TimelineActionRepository>();

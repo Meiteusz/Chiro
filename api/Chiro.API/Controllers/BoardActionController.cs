@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Chiro.Domain.DTOs;
 using Chiro.Infra.Interfaces;
+using Chiro.Domain.Interfaces;
 
 namespace Chiro.API.Controllers
 {
@@ -9,12 +10,12 @@ namespace Chiro.API.Controllers
     public class BoardActionController : ControllerBase
     {
         private readonly ILogger<BoardActionController> _logger;
-        private readonly IBoardActionRepository _boardActionRepository;
+        private readonly IBoardActionServices _boardActionServices;
 
-        public BoardActionController(ILogger<BoardActionController> logger, IBoardActionRepository boardActionRepository)
+        public BoardActionController(ILogger<BoardActionController> logger, IBoardActionServices boardActionServices)
         {
             _logger = logger;
-            _boardActionRepository = boardActionRepository;
+            _boardActionServices = boardActionServices;
         }
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace Chiro.API.Controllers
         [HttpPost()]
         public async Task<IActionResult> CreateAsync([FromBody] CreateBoardActionDTO createBoardActionDTO)
         {
-            await _boardActionRepository.CreateBoardActionAsync(createBoardActionDTO);
+            await _boardActionServices.CreateBoardAction(createBoardActionDTO);
             return Ok("Board Action Created.");
         }
 
@@ -37,7 +38,7 @@ namespace Chiro.API.Controllers
         [HttpPost("change-color")]
         public async Task<IActionResult> ChangeColorAsync([FromBody] ChangeBoardActionColorDTO changeBoardActionColorDTO)
         {
-            await _boardActionRepository.ChangeColorAsync(changeBoardActionColorDTO);
+            await _boardActionServices.ChangeColor(changeBoardActionColorDTO);
             return Ok("Color Changed.");
         }
 
@@ -49,7 +50,7 @@ namespace Chiro.API.Controllers
         [HttpPost("resize")]
         public async Task<IActionResult> ResizeAsync([FromBody] ResizeBoardActionDTO resizeBoardActionDTO)
         {
-            await _boardActionRepository.ResizeAsync(resizeBoardActionDTO);
+            await _boardActionServices.Resize(resizeBoardActionDTO);
             return Ok("Board Action Resized.");
         }
 
@@ -61,7 +62,7 @@ namespace Chiro.API.Controllers
         [HttpPost("move")]
         public async Task<IActionResult> MoveAsync([FromBody] MoveBoardActionDTO moveBoardActionDTO)
         {
-            await _boardActionRepository.MoveAsync(moveBoardActionDTO);
+            await _boardActionServices.Move(moveBoardActionDTO);
             return Ok("Board Action Moved.");
         }
     }
