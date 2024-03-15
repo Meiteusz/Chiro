@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ColorPicker from "@/components/bubble/colorPicker";
 import { Rnd } from "react-rnd";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { TextField } from "@mui/material";
+import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 
 const style = {
   position: "absolute",
@@ -16,7 +16,6 @@ const style = {
 function Bubble({ box, boxes, setBoxes }) {
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [boxColor, setBoxColor] = useState("#DEDEDE");
-  const [text, setText] = useState("");
 
   const handleColorPickerToggle = () => {
     setIsColorPickerOpen(!isColorPickerOpen);
@@ -47,18 +46,45 @@ function Bubble({ box, boxes, setBoxes }) {
   };
 
   const handleResizeStop = (id, direction, style, delta) => {
+    // Calcula a altura mínima necessária com base no conteúdo do TextField
+    const textField = document.getElementById(`textfield-${id}`);
+    const textHeight = textField ? textField.scrollHeight : 0;
+    const minHeight = Math.max(70, textHeight + 20); // 20 é uma folga para garantir que o texto não fique espremido
+
     setBoxes((prevBoxes) =>
-      prevBoxes.map((box) =>
-        box.id === id
-          ? { ...box, width: style.width, height: style.height }
-          : box
+      prevBoxes.map((prevBox) =>
+        prevBox.id === id
+          ? {
+              ...prevBox,
+              width: style.width,
+              height: Math.max(style.height, minHeight),
+            }
+          : prevBox
       )
     );
   };
 
-  const handleTextChange = (event) => {
+  const [text, setText] = useState("");
+  const textareaRef = useRef(null);
+
+  const handleChange = (event) => {
     setText(event.target.value);
+    // Ajusta a altura da textarea conforme o conteúdo
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+
+    setBoxes((prevBoxes) =>
+      prevBoxes.map((prevBox) =>
+        prevBox.id === box.id
+          ? {
+              ...prevBox,
+              height: textareaRef.current.style.height,
+            }
+          : prevBox
+      )
+    );
   };
+  // onMouseDown={(e) => e.stopPropagation()}  <- FAZ O  CANCELAMENTO DO DRAG NA TEXTFIELD
 
   return (
     <Rnd
@@ -68,6 +94,8 @@ function Bubble({ box, boxes, setBoxes }) {
         borderRadius: "10px",
         backgroundColor: boxColor,
         color: "black",
+        display: "inline-block",
+        padding: "10px 40px 0px 10px",
       }}
       default={{
         x: box.x,
@@ -85,19 +113,25 @@ function Bubble({ box, boxes, setBoxes }) {
         handleResizeStop(box.id, direction, style, delta)
       }
     >
-      <TextField
-        multiline
-        fullWidth
+      <textarea
+        ref={textareaRef}
         variant="standard"
         value={text}
-        onChange={handleTextChange}
-        InputProps={{
-          disableUnderline: true,
-          style: {
-            color: "#FFFFFF",
-            textAlign: "center",
-            fontWeight: "bold",
-          },
+        onChange={handleChange}
+        onMouseDown={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          background: "none",
+          minHeight: "50px",
+          border: "none",
+          outline: "none",
+          //marginLeft: "15px",
+          //marginRight: "30px",
+          resize: "none",
+          overflow: "hidden",
+          color: "#FFFFFF",
+          textAlign: "center",
+          fontWeight: "bold",
         }}
       />
       <div
@@ -107,7 +141,6 @@ function Bubble({ box, boxes, setBoxes }) {
           right: "5px",
           cursor: "pointer",
           color: "#FFFF",
-          marginLeft: "20px",
         }}
         onClick={handleColorPickerToggle}
       >
