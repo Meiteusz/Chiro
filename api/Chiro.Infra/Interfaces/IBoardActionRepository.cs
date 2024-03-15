@@ -1,15 +1,16 @@
 ﻿using Chiro.Domain.DTOs;
+using Chiro.Domain.Entities;
 
 namespace Chiro.Infra.Interfaces
 {
     public interface IBoardActionRepository
     {
-        Task<bool> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO);
+        Task<bool> CreateBoardActionAsync(BoardAction boardAction);
 
-        Task<bool> ChangeColorAsync(ChangeBoardActionColorDTO changeBoardActionColorDTO);
+        Task<bool> ChangeColorAsync(BoardAction boardAction);
 
-        Task<bool> ResizeAsync(ResizeBoardActionDTO resizeBoardActionDTO);
+        Task<bool> ResizeAsync(BoardAction boardAction);
 
-        Task<bool> MoveAsync(MoveBoardActionDTO moveBoardActionDTO);
+        Task<bool> MoveAsync(BoardAction boardAction);
     }
 }

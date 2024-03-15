@@ -8,6 +8,6 @@ namespace Chiro.Infra.Interfaces
 
         Task<Domain.Entities.Project> GetProjectAsync(long projectId);
 
-        Task<bool> CreateProjectAsync(CreateProjectDTO createProjectDTO);
+        Task<bool> CreateProjectAsync(Domain.Entities.Project project);
     }
 }

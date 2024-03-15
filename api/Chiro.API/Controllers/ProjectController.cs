@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Chiro.Domain.DTOs;
-using Chiro.Infra.Interfaces;
+using Chiro.Domain.Interfaces;
 
 namespace Chiro.API.Controllers
 {
@@ -9,12 +9,12 @@ namespace Chiro.API.Controllers
     public class ProjectController : ControllerBase
     {
         private readonly ILogger<BoardActionController> _logger;
-        private readonly IProjectRepository _projectRepository;
+        private readonly IProjectServices _projectService;
 
-        public ProjectController(ILogger<BoardActionController> logger, IProjectRepository ProjectRepository)
+        public ProjectController(ILogger<BoardActionController> logger, IProjectServices projectService)
         {
             _logger = logger;
-            _projectRepository = ProjectRepository;
+            _projectService = projectService;
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Chiro.API.Controllers
         [HttpPost()]
         public async Task<IActionResult> CreateProjectAsync([FromBody] CreateProjectDTO createProjectDTO)
         {
-            await _projectRepository.CreateProjectAsync(createProjectDTO);
+            await _projectService.CreateProject(createProjectDTO);
             return Ok("Project Created.");
         }
 
@@ -36,7 +36,7 @@ namespace Chiro.API.Controllers
         [HttpGet()]
         public async Task<IActionResult> GetProjectsAsync()
         {
-            var result = await _projectRepository.GetProjectsAsync();
+            var result = await _projectService.GetProjects();
             return Ok(result);
         }
 
@@ -48,7 +48,7 @@ namespace Chiro.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProjectAsync(long id)
         {
-            var result = await _projectRepository.GetProjectAsync(id);
+            var result = await _projectService.GetProject(id);
             return Ok(result);
         }
     }
