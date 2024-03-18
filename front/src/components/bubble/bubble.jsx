@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
-import ColorPicker from "@/components/bubble/colorPicker";
+import ColorConfigModal from "@/components/bubble/colorConfigModal";
+import { useState, useRef } from "react";
 import { Rnd } from "react-rnd";
-import SettingsIcon from "@mui/icons-material/Settings";
-import { TextareaAutosize } from "@mui/base/TextareaAutosize";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import "./styles.css";
 
 const style = {
   position: "absolute",
@@ -13,17 +14,11 @@ const style = {
   width: "200px",
 };
 
-function Bubble({ box, boxes, setBoxes }) {
-  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
-  const [boxColor, setBoxColor] = useState("#DEDEDE");
-
-  const handleColorPickerToggle = () => {
-    setIsColorPickerOpen(!isColorPickerOpen);
-  };
+function Bubble({ box, boxes, setBoxes, onDragStop }) {
+  const [boxColor, setBoxColor] = useState("#1F1F1F");
 
   const handleColorSelect = (color) => {
     setBoxColor(color);
-    setIsColorPickerOpen(false);
   };
 
   const handleDrag = (id, e, d) => {
@@ -46,18 +41,13 @@ function Bubble({ box, boxes, setBoxes }) {
   };
 
   const handleResizeStop = (id, direction, style, delta) => {
-    // Calcula a altura mínima necessária com base no conteúdo do TextField
-    const textField = document.getElementById(`textfield-${id}`);
-    const textHeight = textField ? textField.scrollHeight : 0;
-    const minHeight = Math.max(70, textHeight + 20); // 20 é uma folga para garantir que o texto não fique espremido
-
     setBoxes((prevBoxes) =>
       prevBoxes.map((prevBox) =>
         prevBox.id === id
           ? {
               ...prevBox,
               width: style.width,
-              height: Math.max(style.height, minHeight),
+              height: style.height,
             }
           : prevBox
       )
@@ -84,18 +74,21 @@ function Bubble({ box, boxes, setBoxes }) {
       )
     );
   };
-  // onMouseDown={(e) => e.stopPropagation()}  <- FAZ O  CANCELAMENTO DO DRAG NA TEXTFIELD
+
+  const handleDragStop = (e, d) => {
+    onDragStop(box.id, d.x, d.y);
+  };
 
   return (
     <Rnd
       key={box.id}
+      grid={[50, 50]}
       style={{
         border: "1px solid #ddd",
-        borderRadius: "10px",
+        borderRadius: "8px",
         backgroundColor: boxColor,
-        color: "black",
-        display: "inline-block",
-        padding: "10px 40px 0px 10px",
+        paddingBottom: "23px",
+        margin: "20px",
       }}
       default={{
         x: box.x,
@@ -103,55 +96,63 @@ function Bubble({ box, boxes, setBoxes }) {
         width: box.width,
         height: box.height,
       }}
-      minWidth={180}
+      minWidth={190}
       maxWidth={500}
-      minHeight={70}
+      minHeight={91}
       maxHeight={160}
-      bounds="parent"
+      bounds="window"
       onDrag={(e, d) => handleDrag(box.id, e, d)}
+      onDragStop={handleDragStop}
       onResizeStop={(e, direction, style, delta) =>
         handleResizeStop(box.id, direction, style, delta)
       }
     >
-      <textarea
-        ref={textareaRef}
-        variant="standard"
-        value={text}
-        onChange={handleChange}
-        onMouseDown={(e) => e.stopPropagation()}
-        style={{
-          width: "100%",
-          background: "none",
-          minHeight: "50px",
-          border: "none",
-          outline: "none",
-          //marginLeft: "15px",
-          //marginRight: "30px",
-          resize: "none",
-          overflow: "hidden",
-          color: "#FFFFFF",
-          textAlign: "center",
-          fontWeight: "bold",
-        }}
-      />
       <div
         style={{
-          position: "absolute",
-          top: "5px",
-          right: "5px",
-          cursor: "pointer",
-          color: "#FFFF",
+          width: "100%",
+          height: "20px",
+          borderRadius: "8px",
+          justifyContent: "flex-end",
+          display: "flex",
+          marginTop: "3px",
         }}
-        onClick={handleColorPickerToggle}
       >
-        <SettingsIcon />
-      </div>
-      {isColorPickerOpen && (
-        <ColorPicker
-          onSelect={handleColorSelect}
-          position={{ top: 20, left: style.width }}
+        <DeleteIcon
+          fontSize="small"
+          style={{ cursor: "pointer" }}
+          onClick={() =>
+            setBoxes((prevBoxes) => prevBoxes.filter((b) => b.id !== box.id))
+          }
         />
-      )}
+        <ColorConfigModal onSelectColor={handleColorSelect} left={box.width} />
+      </div>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          borderBottomLeftRadius: "8px",
+          borderBottomRightRadius: "8px",
+          overflowY: "auto",
+        }}
+      >
+        <textarea
+          ref={textareaRef}
+          value={text}
+          onChange={handleChange}
+          onMouseDown={(e) => e.stopPropagation()}
+          style={{
+            width: "100%",
+            background: "none",
+            border: "none",
+            outline: "none",
+            resize: "none",
+            color: "#FFFFFF",
+            textAlign: "center",
+            fontWeight: "bold",
+            fontSize: "20px",
+          }}
+        />
+      </div>
     </Rnd>
   );
 }
