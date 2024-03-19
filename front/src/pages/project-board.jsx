@@ -9,6 +9,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Bubble from "@/components/bubble/bubble";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { Grid } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -71,7 +73,7 @@ function ProjectBoard() {
   };
 
   const [bubbles, setBubbles] = useState([]);
-  const [selectedBubble, setSelectedBubble] = useState(null);
+  const [selectedIdBubble, setSelectedIdBubble] = useState(null);
   const [isBubbleInRow, setIsBubbleInRow] = useState(false);
   const [open, setOpen] = useState(false);
   const [startDate, setStartDate] = useState(null);
@@ -83,10 +85,13 @@ function ProjectBoard() {
     // y = vertical
     // x = horizontal
 
+    // Bubble valores default
     setBubbles((prevbubbles) => [
       ...prevbubbles,
       {
         id: new Date().getTime(),
+        content: "",
+        color: "#1F1F1F",
         x: 300,
         y: 20,
         width: 190,
@@ -108,7 +113,7 @@ function ProjectBoard() {
       ) {
         setIsBubbleInRow(true);
         handleOpen();
-        setSelectedBubble(id);
+        setSelectedIdBubble(id);
       } else {
         setIsBubbleInRow(false);
       }
@@ -118,8 +123,12 @@ function ProjectBoard() {
   const handleSubmit = () => {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
 
+    const selectedBubbleInfo = bubbles.find((x) => x.id === selectedIdBubble);
+
     console.log(
-      `Atividade ${selectedBubble} definida para começar ${new Date(
+      `Informações da bolha: ${JSON.stringify(
+        selectedBubbleInfo
+      )}\nAtividade definida para começar ${new Date(
         startDate
       ).toLocaleDateString("pt-BR", options)} e terminar ${new Date(
         endDate
@@ -131,27 +140,15 @@ function ProjectBoard() {
   const handleClose = () => {
     setOpen(false);
 
-    // Caso houver o cancelamento da data, a bubble deve voltar para onde estava no board de cima
-
-    //if (!startDate || !endDate) {
-    //  setBubbles((prevBubbles) => {
-    //    const index = prevBubbles.findIndex(
-    //      (bubble) => bubble.id === selectedBubble
-    //    );
-    //
-    //    if (index === -1) return prevBubbles;
-    //
-    //    const updatedBubbles = [...prevBubbles];
-    //
-    //    updatedBubbles[index] = {
-    //      ...updatedBubbles[index],
-    //      x: 300,
-    //      y: 20,
-    //    };
-    //
-    //    return updatedBubbles;
-    //  });
-    //}
+    if (!startDate || !endDate) {
+      // Manipular uma ref de um componente em outro componente: https://frontendroom.com/access-ref-from-different-component/
+      // Código que era para funcionar mas não funciona
+      //setBubbles((prevBoxes) =>
+      //  prevBoxes.map((box) =>
+      //    box.id === selectedIdBubble ? { ...box, x: 300, y: 20 } : box
+      //  )
+      //);
+    }
   };
 
   const ModalComponente = () => {
@@ -206,13 +203,36 @@ function ProjectBoard() {
     );
   };
 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <div style={containerStyle}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu">
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={handleClick}
+          >
             <MenuIcon />
           </IconButton>
+          <Menu anchorEl={anchorEl} open={openMenu} onClose={handleCloseMenu}>
+            <MenuItem onClick={() => window.location.replace("/")}>
+              Novo Projeto
+            </MenuItem>
+            <MenuItem onClick={() => window.location.replace("/")}>
+              Ver Projetos
+            </MenuItem>
+            <MenuItem onClick={handleCloseMenu}>Criar Link</MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
       <div style={topRowStyle}>

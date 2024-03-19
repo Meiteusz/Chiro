@@ -1,24 +1,21 @@
 import ColorConfigModal from "@/components/bubble/colorConfigModal";
-import { useState, useRef } from "react";
-import { Rnd } from "react-rnd";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { Rnd } from "react-rnd";
 
 import "./styles.css";
 
-const style = {
-  position: "absolute",
-  border: "1px dashed gray",
-  padding: "0.5rem 1rem",
-  cursor: "move",
-  overflow: "hidden",
-  width: "200px",
-};
-
 function Bubble({ box, boxes, setBoxes, onDragStop }) {
-  const [boxColor, setBoxColor] = useState("#1F1F1F");
-
   const handleColorSelect = (color) => {
-    setBoxColor(color);
+    setBoxes((prevBoxes) =>
+      prevBoxes.map((prevBox) =>
+        prevBox.id === box.id
+          ? {
+              ...prevBox,
+              color: color,
+            }
+          : prevBox
+      )
+    );
   };
 
   const handleDrag = (id, e, d) => {
@@ -54,21 +51,13 @@ function Bubble({ box, boxes, setBoxes, onDragStop }) {
     );
   };
 
-  const [text, setText] = useState("");
-  const textareaRef = useRef(null);
-
   const handleChange = (event) => {
-    setText(event.target.value);
-    // Ajusta a altura da textarea conforme o conteúdo
-    textareaRef.current.style.height = "auto";
-    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-
     setBoxes((prevBoxes) =>
       prevBoxes.map((prevBox) =>
         prevBox.id === box.id
           ? {
               ...prevBox,
-              height: textareaRef.current.style.height,
+              content: event.target.value,
             }
           : prevBox
       )
@@ -81,12 +70,13 @@ function Bubble({ box, boxes, setBoxes, onDragStop }) {
 
   return (
     <Rnd
+      //ref={bubbleRef}
       key={box.id}
-      grid={[50, 50]}
+      //dragGrid={[50, 50]}
       style={{
         border: "1px solid #ddd",
         borderRadius: "8px",
-        backgroundColor: boxColor,
+        backgroundColor: box.color ?? "#1F1F1F",
         paddingBottom: "23px",
         margin: "20px",
       }}
@@ -136,8 +126,7 @@ function Bubble({ box, boxes, setBoxes, onDragStop }) {
         }}
       >
         <textarea
-          ref={textareaRef}
-          value={text}
+          value={box.content ?? ""}
           onChange={handleChange}
           onMouseDown={(e) => e.stopPropagation()}
           style={{
