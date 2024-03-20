@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
+using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
-using Chiro.Domain.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chiro.API.Controllers
 {
@@ -25,7 +25,12 @@ namespace Chiro.API.Controllers
         [HttpPost()]
         public async Task<IActionResult> CreateProjectAsync([FromBody] CreateProjectDTO createProjectDTO)
         {
-            await _projectService.CreateProject(createProjectDTO);
+            var projectCreated = await _projectService.CreateProject(createProjectDTO);
+            if (!projectCreated)
+            {
+                return BadRequest("Project couldn't be created.");
+            }
+
             return Ok("Project Created.");
         }
 
@@ -36,7 +41,7 @@ namespace Chiro.API.Controllers
         [HttpGet()]
         public async Task<IActionResult> GetProjectsAsync()
         {
-            var result = await _projectService.GetProjects();
+            var result = await _projectService.GetProjectsAsync();
             return Ok(result);
         }
 
@@ -48,7 +53,12 @@ namespace Chiro.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProjectAsync(long id)
         {
-            var result = await _projectService.GetProject(id);
+            var result = await _projectService.GetProjectAsync(id);
+            if (result is null)
+            {
+                return NotFound();
+            }
+
             return Ok(result);
         }
     }

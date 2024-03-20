@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
+using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
-using Chiro.Infra.Interfaces;
-using Chiro.Domain.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chiro.API.Controllers
 {
@@ -26,7 +25,12 @@ namespace Chiro.API.Controllers
         [HttpPost()]
         public async Task<IActionResult> CreateAsync([FromBody] CreateBoardActionDTO createBoardActionDTO)
         {
-            await _boardActionServices.CreateBoardAction(createBoardActionDTO);
+            var createdBoardAction = await _boardActionServices.CreateBoardAction(createBoardActionDTO);
+            if (!createdBoardAction)
+            {
+                return BadRequest("Board Action couldn't be created.");
+            }
+
             return Ok("Board Action Created.");
         }
 
@@ -38,7 +42,12 @@ namespace Chiro.API.Controllers
         [HttpPost("change-color")]
         public async Task<IActionResult> ChangeColorAsync([FromBody] ChangeBoardActionColorDTO changeBoardActionColorDTO)
         {
-            await _boardActionServices.ChangeColor(changeBoardActionColorDTO);
+            var changedColor = await _boardActionServices.ChangeColor(changeBoardActionColorDTO);
+            if (!changedColor)
+            {
+                return BadRequest("Color couldn't be changed.");
+            }
+
             return Ok("Color Changed.");
         }
 
@@ -50,7 +59,12 @@ namespace Chiro.API.Controllers
         [HttpPost("resize")]
         public async Task<IActionResult> ResizeAsync([FromBody] ResizeBoardActionDTO resizeBoardActionDTO)
         {
-            await _boardActionServices.Resize(resizeBoardActionDTO);
+            var resized = await _boardActionServices.Resize(resizeBoardActionDTO);
+            if (!resized)
+            {
+                return BadRequest("Board Action couldn't be resized.");
+            }
+
             return Ok("Board Action Resized.");
         }
 
@@ -62,7 +76,12 @@ namespace Chiro.API.Controllers
         [HttpPost("move")]
         public async Task<IActionResult> MoveAsync([FromBody] MoveBoardActionDTO moveBoardActionDTO)
         {
-            await _boardActionServices.Move(moveBoardActionDTO);
+            var moved = await _boardActionServices.Move(moveBoardActionDTO);
+            if (!moved)
+            {
+                return BadRequest("Board Action couldn't be moved.");
+            }
+
             return Ok("Board Action Moved.");
         }
     }

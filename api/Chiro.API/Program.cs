@@ -1,7 +1,6 @@
+using Chiro.Application.Interfaces;
 using Chiro.Application.Services;
 using Chiro.Domain.Interfaces;
-using Chiro.Domain.Services;
-using Chiro.Infra.Interfaces;
 using Chiro.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +16,7 @@ builder.Services.AddTransient<IBoardActionServices, BoardActionService>();
 builder.Services.AddTransient<IBoardActionRepository, BoardActionRepository>();
 builder.Services.AddTransient<IProjectServices, ProjectServices>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
-builder.Services.AddTransient<ITimelineActionServices, TimelineActionServices>();
+builder.Services.AddTransient<ITimelineActionService, TimelineActionService>();
 builder.Services.AddTransient<ITimelineActionRepository, TimelineActionRepository>();
 
 var app = builder.Build();

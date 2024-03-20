@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Chiro.Domain.Entities;
+﻿using Chiro.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chiro.Infra
 {

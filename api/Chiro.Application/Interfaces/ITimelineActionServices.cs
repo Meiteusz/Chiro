@@ -1,10 +1,13 @@
 ﻿using Chiro.Domain.DTOs;
 
-namespace Chiro.Domain.Interfaces
+namespace Chiro.Application.Interfaces
 {
-    public interface ITimelineActionServices
+    public interface ITimelineActionService
     {
         Task<bool> CreateTimelineAction(CreateTimelineActionDTO createTimelineActionDTO);
+
         Task<bool> ChangePeriod(ChangePeriodDTO changePeriodDTO);
+
+        Task<bool> ConcludeTimelineAction(ConcludeTimelineActionDTO concludeTimelineActionDTO);
     }
 }

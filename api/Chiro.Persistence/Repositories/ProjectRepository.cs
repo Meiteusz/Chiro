@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Chiro.Domain.DTOs;
+﻿using Chiro.Domain.Interfaces;
 using Chiro.Infra;
-using Chiro.Infra.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chiro.Persistence.Repositories
 {
