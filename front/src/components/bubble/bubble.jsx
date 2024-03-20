@@ -1,10 +1,17 @@
+import React, { useState, useEffect, useRef } from "react";
 import ColorConfigModal from "@/components/bubble/colorConfigModal";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Rnd } from "react-rnd";
 
 import "./styles.css";
 
-function Bubble({ box, boxes, setBoxes, onDragStop }) {
+function Bubble({ refFromChild, box, boxes, setBoxes, onDragStop }) {
+  const bubbleRef = useRef();
+
+  useEffect(() => {
+    refFromChild(bubbleRef);
+  }, []);
+
   const handleColorSelect = (color) => {
     setBoxes((prevBoxes) =>
       prevBoxes.map((prevBox) =>
@@ -68,9 +75,14 @@ function Bubble({ box, boxes, setBoxes, onDragStop }) {
     onDragStop(box.id, d.x, d.y);
   };
 
+  const handleDragStart = (e, d) => {
+    // Talvez com o método onDragStart do react-rnd a gente consiga salvar
+    // a posição atual da bubble para caso tenha cancelamento de data, ela volta para a posição que estava
+  };
+
   return (
     <Rnd
-      //ref={bubbleRef}
+      ref={bubbleRef}
       key={box.id}
       //dragGrid={[50, 50]}
       style={{

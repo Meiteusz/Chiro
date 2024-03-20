@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -81,6 +81,8 @@ function ProjectBoard() {
 
   const handleOpen = () => setOpen(true);
 
+  const [bubbleRef, setBubbleRef] = useState(null);
+
   const addBox = () => {
     // y = vertical
     // x = horizontal
@@ -140,15 +142,32 @@ function ProjectBoard() {
   const handleClose = () => {
     setOpen(false);
 
+    // Volta a bubble para o começo caso uma data não tenha sido definida
     if (!startDate || !endDate) {
-      // Manipular uma ref de um componente em outro componente: https://frontendroom.com/access-ref-from-different-component/
-      // Código que era para funcionar mas não funciona
-      //setBubbles((prevBoxes) =>
-      //  prevBoxes.map((box) =>
-      //    box.id === selectedIdBubble ? { ...box, x: 300, y: 20 } : box
-      //  )
-      //);
+      if (bubbleRef) {
+        bubbleRef.current.updatePosition({ x: 300, y: 20 });
+      }
+
+      // Problema: Conseguimos fazer com que a bubble troque de posicao caso a data não seja informada, porém caso tenha mais de uma bubble, dá problema
+      // Quando uma nova bubble é criada, a useRef dentro do componente Bubble assume como referencia essa nova bubble, ou seja,
+      // a regra irá funcionar apenas para a ultima bubble adicionada, talvez teriamos que fazer uma lista de ref, ou fazer que cada bubble tenha sua propria ref
+
+      // Precisamos fazer o padrão para chamadas de api tambem
+      // https://www.freecodecamp.org/news/how-work-with-restful-apis-in-react-simplified-steps-and-practical-examples/
+      // https://medium.com/weekly-webtips/patterns-for-doing-api-calls-in-reactjs-8fd9a42ac7d4
+      // https://medium.com/weekly-webtips/implementing-a-rest-api-with-react-hooks-using-patterns-2ea1476e2a05
+      // https://dev.to/bytebodger/controlling-react-api-calls-with-hooks-a79
+
+      setBubbles((prevBoxes) =>
+        prevBoxes.map((box) =>
+          box.id === selectedIdBubble ? { ...box, x: 300, y: 20 } : box
+        )
+      );
     }
+  };
+
+  const handleRef = (ref) => {
+    setBubbleRef(ref);
   };
 
   const ModalComponente = () => {
@@ -242,6 +261,7 @@ function ProjectBoard() {
         </IconButton>
         {bubbles.map((box) => (
           <Bubble
+            refFromChild={handleRef}
             key={box.id}
             box={box}
             boxes={bubbles}
