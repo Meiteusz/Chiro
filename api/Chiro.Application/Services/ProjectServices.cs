@@ -1,13 +1,14 @@
-﻿using Chiro.Domain.DTOs;
+﻿using Chiro.Application.Interfaces;
+using Chiro.Domain.DTOs;
 using Chiro.Domain.Entities;
 using Chiro.Domain.Interfaces;
-using Chiro.Infra.Interfaces;
 
 namespace Chiro.Application.Services
 {
     public class ProjectServices : IProjectServices
     {
         private readonly IProjectRepository _repository;
+
         public ProjectServices(IProjectRepository repository)
         {
             _repository = repository;
@@ -26,14 +27,14 @@ namespace Chiro.Application.Services
             return await _repository.CreateProjectAsync(project);
         }
 
-        public async Task<Project> GetProject(long projectId)
+        public async Task<Project> GetProjectAsync(long projectId)
         {
-            return await _repository.GetProjectAsync(projectId);   
+            return await _repository.GetProjectAsync(projectId);
         }
 
-        public async Task<List<Project>> GetProjects()
+        public async Task<List<Project>> GetProjectsAsync()
         {
-            return await _repository.GetProjectsAsync(); 
+            return await _repository.GetProjectsAsync();
         }
     }
 }

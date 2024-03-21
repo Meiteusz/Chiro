@@ -1,27 +1,27 @@
-﻿using Chiro.Domain.DTOs;
+﻿using Chiro.Application.Interfaces;
+using Chiro.Domain.DTOs;
 using Chiro.Domain.Entities;
 using Chiro.Domain.Interfaces;
-using Chiro.Infra.Interfaces;
 
-namespace Chiro.Domain.Services
+namespace Chiro.Application.Services
 {
     public class BoardActionService : IBoardActionServices
     {
-        private readonly IBoardActionRepository _boardActionRepository;
+        private readonly IBoardActionRepository _repository;
+
         public BoardActionService(IBoardActionRepository boardActionRepository)
         {
-            _boardActionRepository = boardActionRepository;
+            _repository = boardActionRepository;
         }
 
         public async Task<bool> ChangeColor(ChangeBoardActionColorDTO changeBoardActionColorDTO)
         {
             var boardAction = new BoardAction
             {
-                Id = changeBoardActionColorDTO.Id,
                 Color = changeBoardActionColorDTO.Color,
             };
 
-            return await _boardActionRepository.ChangeColorAsync(boardAction);
+            return await _repository.ChangeColorAsync(changeBoardActionColorDTO.Id, boardAction);
         }
 
         public async Task<bool> CreateBoardAction(CreateBoardActionDTO createBoardActionDTO)
@@ -38,33 +38,31 @@ namespace Chiro.Domain.Services
                 PositionBottom = createBoardActionDTO.PositionBottom
             };
 
-            return await _boardActionRepository.CreateBoardActionAsync(boardAction);
+            return await _repository.CreateBoardActionAsync(boardAction);
         }
 
         public async Task<bool> Move(MoveBoardActionDTO moveBoardActionDTO)
         {
             var boardAction = new BoardAction
             {
-                Id = moveBoardActionDTO.Id,
                 PositionLeft = moveBoardActionDTO.PositionLeft,
                 PositionRight = moveBoardActionDTO.PositionRight,
                 PositionBottom = moveBoardActionDTO.PositionBottom,
                 PositionTop = moveBoardActionDTO.PositionTop,
             };
 
-            return await _boardActionRepository.MoveAsync(boardAction);
+            return await _repository.MoveAsync(moveBoardActionDTO.Id, boardAction);
         }
 
         public async Task<bool> Resize(ResizeBoardActionDTO resizeBoardActionDTO)
         {
             var boardAction = new BoardAction
             {
-                Id = resizeBoardActionDTO.Id,
                 Width = resizeBoardActionDTO.Width,
                 Height = resizeBoardActionDTO.Height,
             };
 
-            return await _boardActionRepository.ResizeAsync(boardAction);
+            return await _repository.ResizeAsync(resizeBoardActionDTO.Id, boardAction);
         }
     }
 }

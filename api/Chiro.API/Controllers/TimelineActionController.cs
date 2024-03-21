@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
+using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
-using Chiro.Infra.Interfaces;
-using Chiro.Domain.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chiro.API.Controllers
 {
@@ -10,12 +9,12 @@ namespace Chiro.API.Controllers
     public class TimelineActionController : ControllerBase
     {
         private readonly ILogger<BoardActionController> _logger;
-        private readonly ITimelineActionServices _timelineActionServices;
+        private readonly ITimelineActionService _timelineActionService;
 
-        public TimelineActionController(ILogger<BoardActionController> logger, ITimelineActionServices timelineActionServices)
+        public TimelineActionController(ILogger<BoardActionController> logger, ITimelineActionService timelineActionServices)
         {
             _logger = logger;
-            _timelineActionServices = timelineActionServices;
+            _timelineActionService = timelineActionServices;
         }
 
         /// <summary>
@@ -26,7 +25,12 @@ namespace Chiro.API.Controllers
         [HttpPost()]
         public async Task<IActionResult> CreateAsync([FromBody] CreateTimelineActionDTO createTimelineActionDTO)
         {
-            await _timelineActionServices.CreateTimelineAction(createTimelineActionDTO);
+            var createdTimelineAction = await _timelineActionService.CreateTimelineAction(createTimelineActionDTO);
+            if (!createdTimelineAction)
+            {
+                return BadRequest("Timeline Action couldn't be created.");
+            }
+
             return Ok("Timeline Action Created.");
         }
 
@@ -38,8 +42,30 @@ namespace Chiro.API.Controllers
         [HttpPost("change-period")]
         public async Task<IActionResult> ChangePeriodAsync([FromBody] ChangePeriodDTO changePeriodDTO)
         {
-            await _timelineActionServices.ChangePeriod(changePeriodDTO);
+            var chengedPeriod = await _timelineActionService.ChangePeriod(changePeriodDTO);
+            if (!chengedPeriod)
+            {
+                return BadRequest("Period couldn't be changed.");
+            }
+
             return Ok("Period Changed.");
+        }
+
+        /// <summary>
+        /// Altera o tempo de uma timeline action dentro da timeline.
+        /// </summary>
+        /// <param name="changePeriodDTO"></param>
+        /// <returns></returns>
+        [HttpPost("conclude")]
+        public async Task<IActionResult> ConcludeAsync([FromBody] ConcludeTimelineActionDTO concludeTimelineActionDTO)
+        {
+            var chengedPeriod = await _timelineActionService.ConcludeTimelineAction(concludeTimelineActionDTO);
+            if (!chengedPeriod)
+            {
+                return BadRequest("Timeline Action couldn't be concluded.");
+            }
+
+            return Ok("Timeline Action Concluded.");
         }
     }
 }

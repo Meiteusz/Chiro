@@ -1,7 +1,6 @@
-﻿using Chiro.Domain.DTOs;
-using Chiro.Domain.Entities;
+﻿using Chiro.Domain.Entities;
+using Chiro.Domain.Interfaces;
 using Chiro.Infra;
-using Chiro.Infra.Interfaces;
 
 namespace Chiro.Persistence.Repositories
 {
@@ -16,27 +15,30 @@ namespace Chiro.Persistence.Repositories
             }
         }
 
-        public async Task<bool> ChangeColorAsync(BoardAction boardAction)
+        public async Task<bool> ChangeColorAsync(long boardActionId, BoardAction boardAction)
         {
             using (var context = new ProjectContext())
             {
-                return await context.BoardActions.Where(w => w.Id == boardAction.Id).UpdateFromQueryAsync(x => boardAction) > 0;
+                return await context.BoardActions.Where(w => w.Id == boardActionId)
+                                                 .UpdateFromQueryAsync(x => boardAction) > 0;
             }
         }
 
-        public async Task<bool> ResizeAsync(BoardAction boardAction)
+        public async Task<bool> ResizeAsync(long boardActionId, BoardAction boardAction)
         {
             using (var context = new ProjectContext())
             {
-                return await context.BoardActions.Where(w => w.Id == boardAction.Id).UpdateFromQueryAsync(x => boardAction) > 0;
+                return await context.BoardActions.Where(w => w.Id == boardActionId)
+                                                 .UpdateFromQueryAsync(x => boardAction) > 0;
             }
         }
 
-        public async Task<bool> MoveAsync(BoardAction boardAction)
+        public async Task<bool> MoveAsync(long boardActionId, BoardAction boardAction)
         {
             using (var context = new ProjectContext())
             {
-                return await context.BoardActions.Where(w => w.Id == boardAction.Id).UpdateFromQueryAsync(x => boardAction) > 0;
+                return await context.BoardActions.Where(w => w.Id == boardActionId)
+                                                 .UpdateFromQueryAsync(x => boardAction) > 0;
             }
         }
     }
