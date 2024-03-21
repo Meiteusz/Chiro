@@ -16,61 +16,73 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
+import { usePost } from "@/services/api-methods";
+import { ENDPOINTS } from "@/services/endpoints";
+
 import "../app/globals.css";
 import ClassicButton from "@/components/ui/buttons";
 
+// CSS - Passar para arquivo
+
+const containerStyle = {
+  display: "flex",
+  flexDirection: "column",
+  height: "100vh",
+};
+
+const rowStyle = {
+  display: "flex",
+  flex: 1,
+  border: "1px solid white",
+};
+
+const topRowStyle = {
+  ...rowStyle,
+  position: "relative",
+  display: "block",
+  flex: 1,
+};
+
+const middleRowStyle = {
+  ...rowStyle,
+  flex: 0.05,
+};
+
+const bottomRowStyle = {
+  ...rowStyle,
+};
+
+const addButtonStyle = {
+  margin: "0 30px",
+  marginTop: "30px",
+  padding: "25px",
+  borderRadius: "50%",
+  backgroundColor: "#2196f3",
+  color: "#fff",
+};
+
+const styleModal = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 380,
+  bgcolor: "background.paper",
+  color: "#1F1F1F",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+  padding: "30px 20px 30px 30px",
+  borderRadius: "10px",
+};
+
+//
+
 function ProjectBoard() {
-  const containerStyle = {
-    display: "flex",
-    flexDirection: "column",
-    height: "100vh",
-  };
-
-  const rowStyle = {
-    display: "flex",
-    flex: 1,
-    border: "1px solid white",
-  };
-
-  const topRowStyle = {
-    ...rowStyle,
-    position: "relative",
-    display: "block",
-    flex: 1,
-  };
-
-  const middleRowStyle = {
-    ...rowStyle,
-    flex: 0.05,
-  };
-
-  const bottomRowStyle = {
-    ...rowStyle,
-  };
-
-  const addButtonStyle = {
-    margin: "0 30px",
-    marginTop: "30px",
-    padding: "25px",
-    borderRadius: "50%",
-    backgroundColor: "#2196f3",
-    color: "#fff",
-  };
-
-  const styleModal = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 380,
-    bgcolor: "background.paper",
-    color: "#1F1F1F",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-    padding: "30px 20px 30px 30px",
-    borderRadius: "10px",
-  };
+  //const { isLoading, data, execute } = usePost(ENDPOINTS.controller.metodo, {
+  //  prop1: "valor",
+  //  prop2: "valor",
+  //});
 
   const [bubbles, setBubbles] = useState([]);
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
@@ -151,12 +163,6 @@ function ProjectBoard() {
       // Problema: Conseguimos fazer com que a bubble troque de posicao caso a data não seja informada, porém caso tenha mais de uma bubble, dá problema
       // Quando uma nova bubble é criada, a useRef dentro do componente Bubble assume como referencia essa nova bubble, ou seja,
       // a regra irá funcionar apenas para a ultima bubble adicionada, talvez teriamos que fazer uma lista de ref, ou fazer que cada bubble tenha sua propria ref
-
-      // Precisamos fazer o padrão para chamadas de api tambem
-      // https://www.freecodecamp.org/news/how-work-with-restful-apis-in-react-simplified-steps-and-practical-examples/
-      // https://medium.com/weekly-webtips/patterns-for-doing-api-calls-in-reactjs-8fd9a42ac7d4
-      // https://medium.com/weekly-webtips/implementing-a-rest-api-with-react-hooks-using-patterns-2ea1476e2a05
-      // https://dev.to/bytebodger/controlling-react-api-calls-with-hooks-a79
 
       setBubbles((prevBoxes) =>
         prevBoxes.map((box) =>

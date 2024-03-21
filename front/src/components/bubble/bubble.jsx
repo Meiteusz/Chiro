@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import ColorConfigModal from "@/components/bubble/colorConfigModal";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Rnd } from "react-rnd";
