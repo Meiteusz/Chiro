@@ -88,8 +88,10 @@ function ProjectBoard() {
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
   const [isBubbleInRow, setIsBubbleInRow] = useState(false);
   const [open, setOpen] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [currentStartsDate, setCurrentStartsDate] = useState(null);
+  const [currentEndsDate, setCurrentEndsDate] = useState(null);
+  const openMenu = Boolean(anchorEl);
   const bubbleRefs = useRef([]);
 
   const handleOpen = () => setOpen(true);
@@ -110,6 +112,10 @@ function ProjectBoard() {
         y: 20,
         width: 190,
         height: 91,
+        startsDate: null,
+        endsDate: null,
+        lastPositionX: 300,
+        lastPositionY: 20,
       },
     ]);
     bubbleRefs.current.push(newBubbleRef);
@@ -138,28 +144,11 @@ function ProjectBoard() {
   const handleSubmit = () => {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
 
-    const selectedBubbleInfo = bubbles.find((x) => x.id === selectedIdBubble);
-
-    console.log(
-      `Informações da bolha: ${JSON.stringify(
-        selectedBubbleInfo
-      )}\nAtividade definida para começar ${new Date(
-        startDate
-      ).toLocaleDateString("pt-BR", options)} e terminar ${new Date(
-        endDate
-      ).toLocaleDateString("pt-BR", options)}`
-    );
-    handleClose();
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-
     if (
-      !startDate ||
-      isNaN(new Date(startDate)) ||
-      !endDate ||
-      isNaN(new Date(endDate))
+      !currentStartsDate ||
+      isNaN(new Date(currentStartsDate)) ||
+      !currentEndsDate ||
+      isNaN(new Date(currentEndsDate))
     ) {
       const bubbleIndex = bubbles.findIndex(
         (bubble) => bubble.id === selectedIdBubble
@@ -168,16 +157,125 @@ function ProjectBoard() {
       if (bubbleIndex !== -1) {
         const bubbleRef = bubbleRefs.current[bubbleIndex];
         if (bubbleRef && bubbleRef.current) {
-          bubbleRef.current.updatePosition({ x: 300, y: 20 });
+          bubbleRef.current.updatePosition({
+            x:
+              bubbles.find((x) => x.id === selectedIdBubble).lastPositionX ??
+              300,
+            y:
+              bubbles.find((x) => x.id === selectedIdBubble).lastPositionY ??
+              20,
+          });
         }
       }
 
       setBubbles((prevBoxes) =>
         prevBoxes.map((box) =>
-          box.id === selectedIdBubble ? { ...box, x: 300, y: 20 } : box
+          box.id === selectedIdBubble
+            ? {
+                ...box,
+                x:
+                  bubbles.find((x) => x.id === selectedIdBubble)
+                    .lastPositionX ?? 300,
+                y:
+                  bubbles.find((x) => x.id === selectedIdBubble)
+                    .lastPositionY ?? 20,
+              }
+            : box
         )
       );
     }
+
+    setBubbles((prevBubbles) =>
+      prevBubbles.map((prevBubble) =>
+        prevBubble.id === selectedIdBubble
+          ? {
+              ...prevBubble,
+              startsDate: new Date(currentStartsDate),
+              endsDate: new Date(currentEndsDate),
+            }
+          : prevBubble
+      )
+    );
+
+    const selectedBubbleInfo = bubbles.find((x) => x.id === selectedIdBubble);
+
+    console.log(
+      `Informações da bolha: ${JSON.stringify(
+        selectedBubbleInfo
+      )}\nAtividade definida para começar ${new Date(
+        currentStartsDate
+      ).toLocaleDateString("pt-BR", options)} e terminar ${new Date(
+        currentEndsDate
+      ).toLocaleDateString("pt-BR", options)}`
+    );
+
+    setCurrentStartsDate(null);
+    setCurrentEndsDate(null);
+    handleClose();
+  };
+
+  const handleClose = (event, reason) => {
+    if (!reason) {
+      setOpen(false);
+      return;
+    }
+
+    let startsDate = bubbles.find((x) => x.id === selectedIdBubble).startsDate;
+    let endsDate = bubbles.find((x) => x.id === selectedIdBubble).endsDate;
+
+    if (
+      !startsDate ||
+      isNaN(new Date(startsDate)) ||
+      !endsDate ||
+      isNaN(new Date(endsDate))
+    ) {
+      const bubbleIndex = bubbles.findIndex(
+        (bubble) => bubble.id === selectedIdBubble
+      );
+
+      if (bubbleIndex !== -1) {
+        const bubbleRef = bubbleRefs.current[bubbleIndex];
+        if (bubbleRef && bubbleRef.current) {
+          bubbleRef.current.updatePosition({
+            x:
+              bubbles.find((x) => x.id === selectedIdBubble).lastPositionX ??
+              300,
+            y:
+              bubbles.find((x) => x.id === selectedIdBubble).lastPositionY ??
+              20,
+          });
+        }
+      }
+
+      setBubbles((prevBoxes) =>
+        prevBoxes.map((box) =>
+          box.id === selectedIdBubble
+            ? {
+                ...box,
+                x:
+                  bubbles.find((x) => x.id === selectedIdBubble)
+                    .lastPositionX ?? 300,
+                y:
+                  bubbles.find((x) => x.id === selectedIdBubble)
+                    .lastPositionY ?? 20,
+              }
+            : box
+        )
+      );
+
+      setCurrentStartsDate(null);
+      setCurrentEndsDate(null);
+    }
+
+    setOpen(false);
+  };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
   };
 
   const ModalComponente = () => {
@@ -199,8 +297,8 @@ function ProjectBoard() {
                   sx={{ marginTop: "5px" }}
                   slotProps={{ textField: { variant: "standard" } }}
                   format="DD/MM/YYYY"
-                  value={startDate}
-                  onChange={(value) => setStartDate(value)}
+                  value={currentStartsDate}
+                  onChange={(value) => setCurrentStartsDate(value)}
                 />
               </Grid>
               <Grid item xs={8}>
@@ -211,8 +309,8 @@ function ProjectBoard() {
                   sx={{ marginTop: "5px" }}
                   slotProps={{ textField: { variant: "standard" } }}
                   format="DD/MM/YYYY"
-                  value={endDate}
-                  onChange={(value) => setEndDate(value)}
+                  value={currentEndsDate}
+                  onChange={(value) => setCurrentEndsDate(value)}
                 />
               </Grid>
             </Grid>
@@ -230,15 +328,6 @@ function ProjectBoard() {
         </Box>
       </Modal>
     );
-  };
-
-  const [anchorEl, setAnchorEl] = useState(null);
-  const openMenu = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
   };
 
   return (
