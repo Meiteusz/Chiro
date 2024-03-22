@@ -61,5 +61,17 @@ namespace Chiro.API.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AuthenticateProjectSessionAsync([FromBody] AuthenticateProjectSessionDTO authenticateProjectSessionDTO)
+        {
+            var authenticated = await _projectService.AuthenticateProjectSessionAsync(authenticateProjectSessionDTO);
+            if (!authenticated)
+            {
+                return Unauthorized("Wrong password.");
+            }
+
+            return Ok("Authenticated.")
+        }
     }
 }

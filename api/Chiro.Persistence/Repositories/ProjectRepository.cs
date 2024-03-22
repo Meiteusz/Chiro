@@ -31,5 +31,10 @@ namespace Chiro.Persistence.Repositories
             await _context.Projects.AddAsync(project);
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> AuthenticateProjectSessionAsync(long projectId, string password)
+        {
+            return await _context.Projects.AnyAsync(w => w.Id == projectId && w.Password == password);
+        }
     }
 }
