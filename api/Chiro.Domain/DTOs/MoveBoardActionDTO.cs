@@ -1,4 +1,6 @@
-﻿namespace Chiro.Domain.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Chiro.Domain.DTOs
 {
     public class MoveBoardActionDTO
     {

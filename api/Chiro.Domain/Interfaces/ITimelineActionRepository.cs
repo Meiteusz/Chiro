@@ -8,6 +8,6 @@ namespace Chiro.Domain.Interfaces
 
         Task<bool> ChangePeriodAsync(long timelineActionId, TimelineAction timelineAction);
 
-        Task<bool> ConcludeTimelineAction(long timelineActionId, TimelineAction timelineAction);
+        Task<bool> ConcludeTimelineActionAsync(long timelineActionId, TimelineAction timelineAction);
     }
 }

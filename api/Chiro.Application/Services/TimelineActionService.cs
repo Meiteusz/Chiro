@@ -1,4 +1,5 @@
-﻿using Chiro.Application.Interfaces;
+﻿using Chiro.Application.Exceptions;
+using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
 using Chiro.Domain.Entities;
 using Chiro.Domain.Interfaces;
@@ -44,7 +45,7 @@ namespace Chiro.Application.Services
                 ConcludedAt = DateTime.Now
             };
 
-            return await _repository.ConcludeTimelineAction(concludeTimelineActionDTO.Id, timeline);
+            return await _repository.ConcludeTimelineActionAsync(concludeTimelineActionDTO.Id, timeline);
         }
     }
 }

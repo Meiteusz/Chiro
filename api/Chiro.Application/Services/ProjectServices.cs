@@ -2,6 +2,7 @@
 using Chiro.Domain.DTOs;
 using Chiro.Domain.Entities;
 using Chiro.Domain.Interfaces;
+using Chiro.Domain.Utils;
 
 namespace Chiro.Application.Services
 {
@@ -19,7 +20,7 @@ namespace Chiro.Application.Services
             var project = new Domain.Entities.Project
             {
                 Name = createProjectDTO.Name,
-                Password = createProjectDTO.Password,
+                Password = Hasher.Encrypt(createProjectDTO.Password),
                 Board = new(),
                 Timeline = new(),
             };
