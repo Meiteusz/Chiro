@@ -62,7 +62,12 @@ namespace Chiro.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
+        /// <summary>
+        /// Autentica a senha com o projeto (v1).
+        /// </summary>
+        /// <param name="authenticateProjectSessionDTO"></param>
+        /// <returns></returns>
+        [HttpPost("authenticate")]
         public async Task<IActionResult> AuthenticateProjectSessionAsync([FromBody] AuthenticateProjectSessionDTO authenticateProjectSessionDTO)
         {
             var authenticated = await _projectService.AuthenticateProjectSessionAsync(authenticateProjectSessionDTO);
@@ -71,7 +76,7 @@ namespace Chiro.API.Controllers
                 return Unauthorized("Wrong password.");
             }
 
-            return Ok("Authenticated.")
+            return Ok("Authenticated.");
         }
     }
 }
