@@ -69,8 +69,17 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
   };
 
   const handleDragStart = (e, d) => {
-    // Talvez com o método onDragStart do react-rnd a gente consiga salvar
-    // a posição atual da bubble para caso tenha cancelamento de data, ela volta para a posição que estava
+    setBoxes((prevBoxes) =>
+      prevBoxes.map((prevBox) =>
+        prevBox.id === box.id
+          ? {
+              ...prevBox,
+              lastPositionX: d.x,
+              lastPositionY: d.y,
+            }
+          : prevBox
+      )
+    );
   };
 
   return (
@@ -98,6 +107,7 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
       bounds="window"
       onDrag={(e, d) => handleDrag(box.id, e, d)}
       onDragStop={handleDragStop}
+      onDragStart={handleDragStart}
       onResizeStop={(e, direction, style, delta) =>
         handleResizeStop(box.id, direction, style, delta)
       }
