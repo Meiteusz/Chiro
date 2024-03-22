@@ -6,40 +6,46 @@ namespace Chiro.Persistence.Repositories
 {
     public class BoardActionRepository : IBoardActionRepository
     {
+        private readonly ProjectContext _context;
+
+        public BoardActionRepository(ProjectContext context)
+        {
+            _context = context;
+        }
+
         public async Task<bool> CreateBoardActionAsync(BoardAction boardAction)
         {
-            using (var context = new ProjectContext())
-            {
-                await context.BoardActions.AddRangeAsync(boardAction);
-                return await context.SaveChangesAsync() > 0;
-            }
+            await _context.BoardActions.AddRangeAsync(boardAction);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> ChangeColorAsync(long boardActionId, BoardAction boardAction)
         {
-            using (var context = new ProjectContext())
-            {
-                return await context.BoardActions.Where(w => w.Id == boardActionId)
-                                                 .UpdateFromQueryAsync(x => boardAction) > 0;
-            }
+            return await _context.BoardActions.Where(w => w.Id == boardActionId)
+                                              .UpdateFromQueryAsync(x => new BoardAction
+                                              {
+                                                  Color = boardAction.Color
+                                              }) > 0;
         }
 
         public async Task<bool> ResizeAsync(long boardActionId, BoardAction boardAction)
         {
-            using (var context = new ProjectContext())
-            {
-                return await context.BoardActions.Where(w => w.Id == boardActionId)
-                                                 .UpdateFromQueryAsync(x => boardAction) > 0;
-            }
+            return await _context.BoardActions.Where(w => w.Id == boardActionId)
+                                              .UpdateFromQueryAsync(x => new BoardAction
+                                              {
+                                                  Width = boardAction.Width,
+                                                  Height = boardAction.Height
+                                              }) > 0;
         }
 
         public async Task<bool> MoveAsync(long boardActionId, BoardAction boardAction)
         {
-            using (var context = new ProjectContext())
-            {
-                return await context.BoardActions.Where(w => w.Id == boardActionId)
-                                                 .UpdateFromQueryAsync(x => boardAction) > 0;
-            }
+            return await _context.BoardActions.Where(w => w.Id == boardActionId)
+                                              .UpdateFromQueryAsync(x => new BoardAction
+                                              {
+                                                  PositionX = boardAction.PositionX,
+                                                  PositionY = boardAction.PositionY
+                                              }) > 0;
         }
     }
 }
