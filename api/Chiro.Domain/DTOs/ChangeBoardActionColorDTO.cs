@@ -8,7 +8,7 @@ namespace Chiro.Domain.DTOs
         public long Id { get; set; }
 
         [Required(ErrorMessage = "O campo Color deve ser preenchido.")]
-        [RegularExpression("^(0x|0X)?[a-fA-F0-9]+$'", ErrorMessage = "Hexadecimal inválido para o campo Color.")]
+        [RegularExpression("^#(?:[0-9a-fA-F]{3}){1,2}$", ErrorMessage = "Hexadecimal inválido para o campo Color.")]
         public string Color { get; set; }
     }
 }

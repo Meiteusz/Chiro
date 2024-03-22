@@ -17,7 +17,7 @@ namespace Chiro.Infra.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.16")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -130,6 +130,9 @@ namespace Chiro.Infra.Migrations
 
                     b.Property<long>("BoardActionId")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("ConcludedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
