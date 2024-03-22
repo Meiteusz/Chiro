@@ -32,10 +32,8 @@ namespace Chiro.Application.Services
                 Color = createBoardActionDTO.Color,
                 Height = createBoardActionDTO.Height,
                 Width = createBoardActionDTO.Width,
-                PositionLeft = createBoardActionDTO.PositionLeft,
-                PositionRight = createBoardActionDTO.PositionRight,
-                PositionTop = createBoardActionDTO.PositionTop,
-                PositionBottom = createBoardActionDTO.PositionBottom
+                PositionX = createBoardActionDTO.PositionX,
+                PositionY = createBoardActionDTO.PositionY
             };
 
             return await _repository.CreateBoardActionAsync(boardAction);
@@ -45,10 +43,8 @@ namespace Chiro.Application.Services
         {
             var boardAction = new BoardAction
             {
-                PositionLeft = moveBoardActionDTO.PositionLeft,
-                PositionRight = moveBoardActionDTO.PositionRight,
-                PositionBottom = moveBoardActionDTO.PositionBottom,
-                PositionTop = moveBoardActionDTO.PositionTop,
+                PositionX = moveBoardActionDTO.PositionX,
+                PositionY = moveBoardActionDTO.PositionY,
             };
 
             return await _repository.MoveAsync(moveBoardActionDTO.Id, boardAction);

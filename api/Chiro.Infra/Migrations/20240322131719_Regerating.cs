@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Chiro.Infra.Migrations
 {
     /// <inheritdoc />
-    public partial class MigracaoInicialNpgsql : Migration
+    public partial class Regerating : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,8 +44,8 @@ namespace Chiro.Infra.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Content = table.Column<string>(type: "text", nullable: false),
                     Color = table.Column<string>(type: "text", nullable: false),
-                    PositionX = table.Column<double>(type: "double precision", nullable: false),
                     PositionY = table.Column<double>(type: "double precision", nullable: false),
+                    PositionX = table.Column<double>(type: "double precision", nullable: false),
                     Width = table.Column<double>(type: "double precision", nullable: false),
                     Height = table.Column<double>(type: "double precision", nullable: false),
                     BoardId = table.Column<long>(type: "bigint", nullable: true)
@@ -96,6 +97,7 @@ namespace Chiro.Infra.Migrations
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AdjustedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ConcludedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     BoardActionId = table.Column<long>(type: "bigint", nullable: false),
                     TimelineId = table.Column<long>(type: "bigint", nullable: true)
                 },
