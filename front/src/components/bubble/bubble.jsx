@@ -1,17 +1,10 @@
-import React, { useEffect, useRef } from "react";
 import ColorConfigModal from "@/components/bubble/colorConfigModal";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Rnd } from "react-rnd";
 
 import "./styles.css";
 
-function Bubble({ refFromChild, box, boxes, setBoxes, onDragStop }) {
-  const bubbleRef = useRef();
-
-  useEffect(() => {
-    refFromChild(bubbleRef);
-  }, []);
-
+function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
   const handleColorSelect = (color) => {
     setBoxes((prevBoxes) =>
       prevBoxes.map((prevBox) =>

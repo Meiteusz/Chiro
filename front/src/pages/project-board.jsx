@@ -90,16 +90,16 @@ function ProjectBoard() {
   const [open, setOpen] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const bubbleRefs = useRef([]);
 
   const handleOpen = () => setOpen(true);
-
-  const [bubbleRef, setBubbleRef] = useState(null);
 
   const addBox = () => {
     // y = vertical
     // x = horizontal
 
     // Bubble valores default
+    const newBubbleRef = React.createRef();
     setBubbles((prevbubbles) => [
       ...prevbubbles,
       {
@@ -112,6 +112,7 @@ function ProjectBoard() {
         height: 91,
       },
     ]);
+    bubbleRefs.current.push(newBubbleRef);
   };
 
   const onBubbleDragStop = (id, x, y) => {
@@ -154,15 +155,22 @@ function ProjectBoard() {
   const handleClose = () => {
     setOpen(false);
 
-    // Volta a bubble para o começo caso uma data não tenha sido definida
-    if (!startDate || !endDate) {
-      if (bubbleRef) {
-        bubbleRef.current.updatePosition({ x: 300, y: 20 });
-      }
+    if (
+      !startDate ||
+      isNaN(new Date(startDate)) ||
+      !endDate ||
+      isNaN(new Date(endDate))
+    ) {
+      const bubbleIndex = bubbles.findIndex(
+        (bubble) => bubble.id === selectedIdBubble
+      );
 
-      // Problema: Conseguimos fazer com que a bubble troque de posicao caso a data não seja informada, porém caso tenha mais de uma bubble, dá problema
-      // Quando uma nova bubble é criada, a useRef dentro do componente Bubble assume como referencia essa nova bubble, ou seja,
-      // a regra irá funcionar apenas para a ultima bubble adicionada, talvez teriamos que fazer uma lista de ref, ou fazer que cada bubble tenha sua propria ref
+      if (bubbleIndex !== -1) {
+        const bubbleRef = bubbleRefs.current[bubbleIndex];
+        if (bubbleRef && bubbleRef.current) {
+          bubbleRef.current.updatePosition({ x: 300, y: 20 });
+        }
+      }
 
       setBubbles((prevBoxes) =>
         prevBoxes.map((box) =>
@@ -170,10 +178,6 @@ function ProjectBoard() {
         )
       );
     }
-  };
-
-  const handleRef = (ref) => {
-    setBubbleRef(ref);
   };
 
   const ModalComponente = () => {
@@ -265,9 +269,9 @@ function ProjectBoard() {
         <IconButton style={addButtonStyle} onClick={addBox}>
           <AddIcon />
         </IconButton>
-        {bubbles.map((box) => (
+        {bubbles.map((box, index) => (
           <Bubble
-            refFromChild={handleRef}
+            bubbleRef={bubbleRefs.current[index]}
             key={box.id}
             box={box}
             boxes={bubbles}
