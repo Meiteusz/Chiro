@@ -30,6 +30,7 @@ namespace Chiro.Application.Services
         {
             var timeline = new TimelineAction
             {
+                ProjectId = createTimelineActionDTO.ProjectId,
                 BoardActionId = createTimelineActionDTO.BoardActionId,
                 StartDate = createTimelineActionDTO.StartDate,
                 EndDate = createTimelineActionDTO.EndDate,
