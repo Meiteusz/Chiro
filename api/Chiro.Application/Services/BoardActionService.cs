@@ -8,7 +8,6 @@ namespace Chiro.Application.Services
     public class BoardActionService : IBoardActionServices
     {
         private readonly IBoardActionRepository _repository;
-
         public BoardActionService(IBoardActionRepository boardActionRepository)
         {
             _repository = boardActionRepository;
@@ -28,6 +27,7 @@ namespace Chiro.Application.Services
         {
             var boardAction = new BoardAction
             {
+                ProjectId = createBoardActionDTO.ProjectId,
                 Content = createBoardActionDTO.Content,
                 Color = createBoardActionDTO.Color,
                 Height = createBoardActionDTO.Height,
@@ -44,7 +44,7 @@ namespace Chiro.Application.Services
             var boardAction = new BoardAction
             {
                 PositionX = moveBoardActionDTO.PositionX,
-                PositionY = moveBoardActionDTO.PositionY,
+                PositionY = moveBoardActionDTO.PositionY
             };
 
             return await _repository.MoveAsync(moveBoardActionDTO.Id, boardAction);

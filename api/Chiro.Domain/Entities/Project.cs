@@ -4,11 +4,7 @@
     {
         public string Password { get; set; }
         public string Name { get; set; }
-
-        public long TimelineId { get; set; }
-        public Timeline Timeline { get; set; }
-
-        public long BoardId { get; set; }
-        public Board Board { get; set; }
+        public List<TimelineAction> TimelineActionsList { get; set; }
+        public List<BoardAction> BoardActionsList { get; set; }
     }
 }

@@ -21,8 +21,6 @@ namespace Chiro.Application.Services
             {
                 Name = createProjectDTO.Name,
                 Password = Hasher.Encrypt(createProjectDTO.Password, "2b!BDp9fUM2OcGYJ"),
-                Board = new(),
-                Timeline = new(),
             };
 
             return await _repository.CreateProjectAsync(project);

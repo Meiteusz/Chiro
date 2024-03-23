@@ -11,5 +11,6 @@ namespace Chiro.Domain.Interfaces
         Task<bool> ResizeAsync(long boardActionId, BoardAction boardAction);
 
         Task<bool> MoveAsync(long boardActionId, BoardAction boardAction);
+        List<BoardAction> GetBoardActionsByProjectId(long projectId);   
     }
 }
