@@ -37,5 +37,10 @@ namespace Chiro.Persistence.Repositories
                                                      ConcludedAt = timelineAction.ConcludedAt,
                                                  }) > 0;
         }
+
+        public List<TimelineAction> GetTimelineActionByProjectId(long projectId)
+        {
+            return _context.TimelineActions.Where(time => time.ProjectId == projectId).ToList();
+        }
     }
 }

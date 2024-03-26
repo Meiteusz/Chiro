@@ -2,6 +2,7 @@
 {
     public class CreateBoardActionDTO
     {
+        public long ProjectId { get; set; }
         public string Content { get; set; }
         public string Color { get; set; }
         public double PositionY { get; set; }

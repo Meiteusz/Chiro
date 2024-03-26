@@ -20,9 +20,7 @@ namespace Chiro.Application.Services
             var project = new Domain.Entities.Project
             {
                 Name = createProjectDTO.Name,
-                Password = Hasher.Encrypt(createProjectDTO.Password),
-                Board = new(),
-                Timeline = new(),
+                Password = Hasher.Encrypt(createProjectDTO.Password, "2b!BDp9fUM2OcGYJ"),
             };
 
             return await _repository.CreateProjectAsync(project);
@@ -36,6 +34,12 @@ namespace Chiro.Application.Services
         public async Task<List<Project>> GetProjectsAsync()
         {
             return await _repository.GetProjectsAsync();
+        }
+
+        public Task<bool> AuthenticateProjectSessionAsync(AuthenticateProjectSessionDTO authenticateProjectSessionDTO)
+        {
+            var password = Hasher.Encrypt(authenticateProjectSessionDTO.Password, "2b!BDp9fUM2OcGYJ");
+            return _repository.AuthenticateProjectSessionAsync(authenticateProjectSessionDTO.Id, password);
         }
     }
 }

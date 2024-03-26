@@ -8,6 +8,7 @@
         public DateTime? ConcludedAt { get; set; }
 
         public long BoardActionId { get; set; }
+        public long ProjectId { get; set; }
         public BoardAction BoardAction { get; set; }
     }
 }

@@ -47,5 +47,11 @@ namespace Chiro.Persistence.Repositories
                                                   PositionY = boardAction.PositionY
                                               }) > 0;
         }
+
+        public List<BoardAction> GetBoardActionsByProjectId(long ProjectId)
+        {
+
+            return _context.BoardActions.Where(board => board.ProjectId == ProjectId).ToList();
+        }
     }
 }

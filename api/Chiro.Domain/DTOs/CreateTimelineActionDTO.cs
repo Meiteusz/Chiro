@@ -6,7 +6,7 @@ namespace Chiro.Domain.DTOs
     {
         [Required(ErrorMessage = "O campo BoardActionId deve ser preenchido.")]
         public long BoardActionId { get; set; }
-
+        public long ProjectId { get; set; }
         [Required(ErrorMessage = "O campo StartDate deve ser preenchido.")]
         public DateTime StartDate { get; set; }
 
