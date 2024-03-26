@@ -2,6 +2,13 @@ import ColorConfigModal from "@/components/bubble/colorConfigModal";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Rnd } from "react-rnd";
 
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+
+import SettingsIcon from "@mui/icons-material/Settings";
+import { useRef, useEffect, useState } from "react";
+import { TwitterPicker } from "react-color";
+
 import "./styles.css";
 
 function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
@@ -82,10 +89,48 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
     );
   };
 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+
+  const handleOpenMenuButtons = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const pickerRef = useRef();
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+
+  const handleColorPickerToggle = () => {
+    setIsColorPickerOpen(!isColorPickerOpen);
+    handleCloseMenu();
+  };
+
+  const handleClickOutside = (event) => {
+    if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+      setIsColorPickerOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleChangeComplete = (color) => {
+    handleColorSelect(color.hex);
+    setIsColorPickerOpen(false);
+  };
+
   return (
     <Rnd
       ref={bubbleRef}
       key={box.id}
+      dragGrid={box.grid}
       //dragGrid={[50, 50]}
       style={{
         border: "1px solid #ddd",
@@ -102,7 +147,7 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
       }}
       minWidth={190}
       maxWidth={500}
-      minHeight={91}
+      minHeight={60}
       maxHeight={160}
       bounds="window"
       onDrag={(e, d) => handleDrag(box.id, e, d)}
@@ -111,26 +156,24 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
       onResizeStop={(e, direction, style, delta) =>
         handleResizeStop(box.id, direction, style, delta)
       }
+      onContextMenu={(e) => {
+        e.preventDefault();
+        handleOpenMenuButtons(e);
+      }}
     >
-      <div
-        style={{
-          width: "100%",
-          height: "20px",
-          borderRadius: "8px",
-          justifyContent: "flex-end",
-          display: "flex",
-          marginTop: "3px",
-        }}
-      >
-        <DeleteIcon
-          fontSize="small"
-          style={{ cursor: "pointer" }}
-          onClick={() =>
-            setBoxes((prevBoxes) => prevBoxes.filter((b) => b.id !== box.id))
-          }
-        />
-        <ColorConfigModal onSelectColor={handleColorSelect} left={box.width} />
-      </div>
+      {isColorPickerOpen && (
+        <div
+          ref={pickerRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: box.width,
+            marginLeft: "20px",
+          }}
+        >
+          <TwitterPicker onChange={handleChangeComplete} />
+        </div>
+      )}
       <div
         style={{
           width: "100%",
@@ -157,6 +200,16 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
           }}
         />
       </div>
+      <Menu anchorEl={anchorEl} open={openMenu} onClose={handleCloseMenu}>
+        <MenuItem
+          onClick={() =>
+            setBoxes((prevBoxes) => prevBoxes.filter((b) => b.id !== box.id))
+          }
+        >
+          Deletar
+        </MenuItem>
+        <MenuItem onClick={handleColorPickerToggle}>Cor</MenuItem>
+      </Menu>
     </Rnd>
   );
 }

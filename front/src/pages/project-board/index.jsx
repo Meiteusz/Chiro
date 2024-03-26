@@ -1,106 +1,44 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
+import React, { useState, useRef } from "react";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
-import MenuIcon from "@mui/icons-material/Menu";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Bubble from "@/components/bubble/bubble";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
+import ClassicButton from "@/components/ui/buttons";
+import Navbar from "@/components/navbar";
+import Timeline from "@/components/timeline";
+import * as styles from "@/pages/project-board/styles";
 import { Grid } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
-import { usePost } from "@/services/api-methods";
-import { ENDPOINTS } from "@/services/endpoints";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
-import "../app/globals.css";
-import ClassicButton from "@/components/ui/buttons";
-
-// CSS - Passar para arquivo
-
-const containerStyle = {
-  display: "flex",
-  flexDirection: "column",
-  height: "100vh",
-};
-
-const rowStyle = {
-  display: "flex",
-  flex: 1,
-  border: "1px solid white",
-};
-
-const topRowStyle = {
-  ...rowStyle,
-  position: "relative",
-  display: "block",
-  flex: 1,
-};
-
-const middleRowStyle = {
-  ...rowStyle,
-  flex: 0.05,
-};
-
-const bottomRowStyle = {
-  ...rowStyle,
-};
-
-const addButtonStyle = {
-  margin: "0 30px",
-  marginTop: "30px",
-  padding: "25px",
-  borderRadius: "50%",
-  backgroundColor: "#2196f3",
-  color: "#fff",
-};
-
-const styleModal = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 380,
-  bgcolor: "background.paper",
-  color: "#1F1F1F",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-  padding: "30px 20px 30px 30px",
-  borderRadius: "10px",
-};
-
-//
+import "@/app/globals.css";
 
 function ProjectBoard() {
-  //const { isLoading, data, execute } = usePost(ENDPOINTS.controller.metodo, {
-  //  prop1: "valor",
-  //  prop2: "valor",
-  //});
-
   const [bubbles, setBubbles] = useState([]);
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
-  const [isBubbleInRow, setIsBubbleInRow] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [dateModalOpened, setDateModalOpened] = useState(false);
   const [currentStartsDate, setCurrentStartsDate] = useState(null);
   const [currentEndsDate, setCurrentEndsDate] = useState(null);
-  const openMenu = Boolean(anchorEl);
+  const [menuBubbleOptions, setMenuBubbleOptions] = useState(null);
   const bubbleRefs = useRef([]);
+  const menuBubbleOptionsOpened = Boolean(menuBubbleOptions);
 
-  const handleOpen = () => setOpen(true);
+  const handleOpenMenuBubbleOptions = (event) => {
+    setMenuBubbleOptions(event.currentTarget);
+  };
 
-  const addBox = () => {
-    // y = vertical
-    // x = horizontal
+  const handleCloseMenuBubbleOptions = () => {
+    setMenuBubbleOptions(null);
+  };
 
-    // Bubble valores default
+  const handleAddBubble = () => {
     const newBubbleRef = React.createRef();
     setBubbles((prevbubbles) => [
       ...prevbubbles,
@@ -111,14 +49,17 @@ function ProjectBoard() {
         x: 300,
         y: 20,
         width: 190,
-        height: 91,
+        height: 60,
+        // propriedades abaixo nao vao para a requisição
         startsDate: null,
         endsDate: null,
         lastPositionX: 300,
         lastPositionY: 20,
+        grid: null,
       },
     ]);
     bubbleRefs.current.push(newBubbleRef);
+    handleCloseMenuBubbleOptions();
   };
 
   const onBubbleDragStop = (id, x, y) => {
@@ -132,16 +73,34 @@ function ProjectBoard() {
         y >= rowRect.top - buffer &&
         y <= rowRect.bottom + buffer
       ) {
-        setIsBubbleInRow(true);
-        handleOpen();
+        setDateModalOpened(true);
         setSelectedIdBubble(id);
+        setBubbles((prevBubbles) =>
+          prevBubbles.map((prevBubble) =>
+            prevBubble.id === selectedIdBubble
+              ? {
+                  ...prevBubble,
+                  grid: [67, 60],
+                }
+              : prevBubble
+          )
+        );
       } else {
-        setIsBubbleInRow(false);
+        setBubbles((prevBubbles) =>
+          prevBubbles.map((prevBubble) =>
+            prevBubble.id === selectedIdBubble
+              ? {
+                  ...prevBubble,
+                  grid: null,
+                }
+              : prevBubble
+          )
+        );
       }
     }
   };
 
-  const handleSubmit = () => {
+  const handleConfirmStartEndDate = () => {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
 
     if (
@@ -211,12 +170,12 @@ function ProjectBoard() {
 
     setCurrentStartsDate(null);
     setCurrentEndsDate(null);
-    handleClose();
+    handleCloseStartEndDateModal();
   };
 
-  const handleClose = (event, reason) => {
+  const handleCloseStartEndDateModal = (event, reason) => {
     if (!reason) {
-      setOpen(false);
+      setDateModalOpened(false);
       return;
     }
 
@@ -267,21 +226,17 @@ function ProjectBoard() {
       setCurrentEndsDate(null);
     }
 
-    setOpen(false);
+    setDateModalOpened(false);
   };
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
-
-  const ModalComponente = () => {
+  const StartsEndDateModal = () => {
     return (
-      <Modal keepMounted open={open} onClose={handleClose}>
-        <Box sx={styleModal}>
+      <Modal
+        keepMounted
+        open={dateModalOpened}
+        onClose={handleCloseStartEndDateModal}
+      >
+        <Box sx={styles.dateModal}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Grid container spacing={6} columns={16}>
               <Grid item xs={8}>
@@ -323,43 +278,50 @@ function ProjectBoard() {
               marginTop: "30px",
             }}
           >
-            <ClassicButton onClick={handleSubmit} title="Confirmar" />
+            <ClassicButton
+              onClick={handleConfirmStartEndDate}
+              title="Confirmar"
+            />
           </div>
         </Box>
       </Modal>
     );
   };
 
+  const divStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 67px)",
+    gridTemplateRows: "repeat(3, 40px)",
+  };
+
+  const cellStyle = {
+    backgroundColor: "transparent",
+    border: "1px solid black",
+  };
+
   return (
-    <div style={containerStyle}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={handleClick}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Menu anchorEl={anchorEl} open={openMenu} onClose={handleCloseMenu}>
-            <MenuItem onClick={() => window.location.replace("/")}>
-              Novo Projeto
-            </MenuItem>
-            <MenuItem onClick={() => window.location.replace("/")}>
-              Ver Projetos
-            </MenuItem>
-            <MenuItem onClick={handleCloseMenu}>Criar Link</MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-      <div style={topRowStyle}>
-        <ModalComponente />
-        <IconButton style={addButtonStyle} onClick={addBox}>
+    <div style={styles.containerBoards}>
+      <Navbar />
+      <div style={styles.topBoard}>
+        <StartsEndDateModal />
+        <IconButton
+          style={styles.addBubble}
+          onClick={handleOpenMenuBubbleOptions}
+        >
           <AddIcon />
         </IconButton>
+        <Menu
+          anchorEl={menuBubbleOptions}
+          open={menuBubbleOptionsOpened}
+          onClose={handleCloseMenuBubbleOptions}
+        >
+          <MenuItem onClick={handleAddBubble}>Tarefa</MenuItem>
+          <MenuItem onClick={handleAddBubble}>Player</MenuItem>
+          <MenuItem onClick={handleAddBubble}>Link</MenuItem>
+        </Menu>
         {bubbles.map((box, index) => (
           <Bubble
+            grid={box.grid}
             bubbleRef={bubbleRefs.current[index]}
             key={box.id}
             box={box}
@@ -369,12 +331,49 @@ function ProjectBoard() {
           />
         ))}
       </div>
-      {/* 
-      <div style={middleRowStyle}>
-        <Timeline 
+      {/*
+        <div style={styles.timeLine}>
+        <Timeline />
       </div>
         */}
-      <div id="bottomRowStyle" style={bottomRowStyle}></div>
+      <div id="bottomRowStyle" style={styles.bottomBoard}>
+        <div style={divStyle}>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+        </div>
+        <div style={divStyle}>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+        </div>
+        <div style={divStyle}>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+        </div>
+        <div style={divStyle}>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+        </div>
+        <div style={divStyle}>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+        </div>
+        <div style={divStyle}>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+          <div style={cellStyle}></div>
+        </div>
+      </div>
     </div>
   );
 }

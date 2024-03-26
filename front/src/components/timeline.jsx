@@ -29,7 +29,7 @@ function Timeline() {
 
   const dayStyle = {
     width: "67.3px",
-    height: "40px",
+    height: "60px",
     border: "1px solid #ddd",
     display: "inline-block",
     textAlign: "center",
