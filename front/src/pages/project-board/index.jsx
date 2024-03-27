@@ -49,13 +49,14 @@ function ProjectBoard() {
         x: 300,
         y: 20,
         width: 190,
-        height: 60,
+        height: 70,
         // propriedades abaixo nao vao para a requisição
         startsDate: null,
         endsDate: null,
         lastPositionX: 300,
         lastPositionY: 20,
         grid: null,
+        borderTeste: false,
       },
     ]);
     bubbleRefs.current.push(newBubbleRef);
@@ -157,6 +158,27 @@ function ProjectBoard() {
     );
 
     const selectedBubbleInfo = bubbles.find((x) => x.id === selectedIdBubble);
+
+    // Ao passar a bubble para a timeline, a bubble será duplica
+    setBubbles((prevbubbles) => [
+      ...prevbubbles,
+      {
+        id: new Date().getTime(),
+        content: "",
+        color: "#1F1F1F",
+        x: selectedBubbleInfo.lastPositionX,
+        y: selectedBubbleInfo.lastPositionY,
+        width: 190,
+        height: 70,
+        // propriedades abaixo nao vao para a requisição
+        startsDate: null,
+        endsDate: null,
+        lastPositionX: selectedBubbleInfo.lastPositionX,
+        lastPositionY: selectedBubbleInfo.lastPositionY,
+        grid: null,
+        borderTeste: true,
+      },
+    ]);
 
     console.log(
       `Informações da bolha: ${JSON.stringify(

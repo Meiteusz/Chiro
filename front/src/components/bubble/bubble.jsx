@@ -1,11 +1,11 @@
-import ColorConfigModal from "@/components/bubble/colorConfigModal";
+import Menu from "@mui/material/Menu";
+import Paper from "@mui/material/Paper";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Rnd } from "react-rnd";
-
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-
-import SettingsIcon from "@mui/icons-material/Settings";
 import { useRef, useEffect, useState } from "react";
 import { TwitterPicker } from "react-color";
 
@@ -89,15 +89,22 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
     );
   };
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const openMenu = Boolean(anchorEl);
+  const [contextMenu, setContextMenu] = useState(null);
 
   const handleOpenMenuButtons = (event) => {
-    setAnchorEl(event.currentTarget);
+    event.preventDefault();
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+          }
+        : null
+    );
   };
 
   const handleCloseMenu = () => {
-    setAnchorEl(null);
+    setContextMenu(null);
   };
 
   const pickerRef = useRef();
@@ -126,6 +133,8 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
     setIsColorPickerOpen(false);
   };
 
+  const [textFieldFocus, setTextFieldFocus] = useState(false);
+
   return (
     <Rnd
       ref={bubbleRef}
@@ -133,11 +142,11 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
       dragGrid={box.grid}
       //dragGrid={[50, 50]}
       style={{
-        border: "1px solid #ddd",
+        border: box.borderTeste ? "5px dotted #ddd" : "1px solid #ddd",
         borderRadius: "8px",
         backgroundColor: box.color ?? "#1F1F1F",
-        paddingBottom: "23px",
         margin: "20px",
+        opacity: box.borderTeste ? "0.7" : "1",
       }}
       default={{
         x: box.x,
@@ -147,7 +156,7 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
       }}
       minWidth={190}
       maxWidth={500}
-      minHeight={60}
+      minHeight={70}
       maxHeight={160}
       bounds="window"
       onDrag={(e, d) => handleDrag(box.id, e, d)}
@@ -166,29 +175,37 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
           ref={pickerRef}
           style={{
             position: "absolute",
-            top: 0,
-            left: box.width,
-            marginLeft: "20px",
+            top: box.height ? box.height + 8 : 78,
+            //left: box.width,
+            //marginLeft: "20px",
           }}
         >
           <TwitterPicker onChange={handleChangeComplete} />
         </div>
       )}
       <div
+        onDoubleClick={() => setTextFieldFocus(true)}
         style={{
           width: "100%",
           height: "100%",
           borderBottomLeftRadius: "8px",
           borderBottomRightRadius: "8px",
-          overflowY: "auto",
         }}
       >
         <textarea
+          autoFocus={textFieldFocus}
           value={box.content ?? ""}
           onChange={handleChange}
-          onMouseDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => {
+            //setTextFieldFocus(!textFieldFocus);
+          }}
+          onMouseLeave={(e) => {
+            e.stopPropagation();
+            setTextFieldFocus(!textFieldFocus);
+          }}
           style={{
             width: "100%",
+            height: "100%",
             background: "none",
             border: "none",
             outline: "none",
@@ -197,19 +214,41 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
             textAlign: "center",
             fontWeight: "bold",
             fontSize: "20px",
+            cursor: (textFieldFocus ? "text" : "move") ?? "move",
           }}
         />
       </div>
-      <Menu anchorEl={anchorEl} open={openMenu} onClose={handleCloseMenu}>
-        <MenuItem
-          onClick={() =>
-            setBoxes((prevBoxes) => prevBoxes.filter((b) => b.id !== box.id))
+
+      <Paper sx={{ width: 320, maxWidth: "100%" }}>
+        <Menu
+          anchorEl={contextMenu}
+          open={contextMenu !== null}
+          onClose={handleCloseMenu}
+          anchorReference="anchorPosition"
+          anchorPosition={
+            contextMenu !== null
+              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+              : undefined
           }
         >
-          Deletar
-        </MenuItem>
-        <MenuItem onClick={handleColorPickerToggle}>Cor</MenuItem>
-      </Menu>
+          <MenuItem onClick={handleColorPickerToggle}>
+            <ListItemIcon>
+              <ColorLensIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Cor</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() =>
+              setBoxes((prevBoxes) => prevBoxes.filter((b) => b.id !== box.id))
+            }
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Deletar</ListItemText>
+          </MenuItem>
+        </Menu>
+      </Paper>
     </Rnd>
   );
 }
