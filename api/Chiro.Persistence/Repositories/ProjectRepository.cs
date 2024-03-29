@@ -6,13 +6,9 @@ namespace Chiro.Persistence.Repositories
 {
     public class ProjectRepository : IProjectRepository
     {
-        private readonly IBoardActionRepository _boardActionRepository;
-        private readonly ITimelineActionRepository _timelineActionRepository;
         private readonly ProjectContext _context;
-        public ProjectRepository(ProjectContext context, IBoardActionRepository boardActionRepository, ITimelineActionRepository timelineActionRepository)
+        public ProjectRepository(ProjectContext context)
         {
-            _boardActionRepository = boardActionRepository;
-            _timelineActionRepository = timelineActionRepository;
             _context = context;
         }
 
@@ -21,17 +17,11 @@ namespace Chiro.Persistence.Repositories
             return await _context.Projects.ToListAsync();
         }
 
-        public async Task<Domain.Entities.Project> GetProjectAsync(long projectId)
+        public async Task<Domain.Entities.Project?> GetProjectAsync(long projectId)
         {
-            var project = await _context.Projects.FirstAsync(w => w.Id == projectId);
-
-            var boardActionsList = _boardActionRepository.GetBoardActionsByProjectId(projectId);
-            var timeLineActionsList = _timelineActionRepository.GetTimelineActionByProjectId(projectId);
-
-            project.BoardActionsList.AddRange(boardActionsList);
-            project.TimelineActionsList.AddRange(timeLineActionsList);
-
-            return project;
+            return await _context.Projects.Include(i => i.BoardActions)
+                                          .Include(i => i.TimelineActions)
+                                          .FirstOrDefaultAsync();
         }
 
         public async Task<bool> CreateProjectAsync(Domain.Entities.Project project)

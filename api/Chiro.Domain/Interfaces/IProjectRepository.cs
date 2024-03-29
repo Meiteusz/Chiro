@@ -4,7 +4,7 @@
     {
         Task<List<Entities.Project>> GetProjectsAsync();
 
-        Task<Entities.Project> GetProjectAsync(long projectId);
+        Task<Entities.Project?> GetProjectAsync(long projectId);
 
         Task<bool> CreateProjectAsync(Entities.Project project);
 

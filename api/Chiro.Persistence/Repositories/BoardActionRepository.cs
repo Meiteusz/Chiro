@@ -48,10 +48,10 @@ namespace Chiro.Persistence.Repositories
                                               }) > 0;
         }
 
-        public List<BoardAction> GetBoardActionsByProjectId(long ProjectId)
+        public List<BoardAction> GetBoardActionsByProjectId(long projectId)
         {
 
-            return _context.BoardActions.Where(board => board.ProjectId == ProjectId).ToList();
+            return _context.BoardActions.Where(board => board.ProjectId == projectId).ToList();
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Chiro.Application.Services
             return await _repository.CreateProjectAsync(project);
         }
 
-        public async Task<Project> GetProjectAsync(long projectId)
+        public async Task<Project?> GetProjectAsync(long projectId)
         {
             return await _repository.GetProjectAsync(projectId);
         }
