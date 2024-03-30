@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  width: 100vw; /* Define a largura da tela */
+  height: 100vh; /* Define a altura da tela */
+}
+
+.first-div, .second-div, .third-div {
+  border: 1px solid black;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Ocupa toda a altura da tela */
+}
+
+.zoomed {
+  transform: scale(1.5); /* Ajusta o fator de escala conforme necessário */
+  transition: transform 0.5s ease; /* Adiciona uma transição suave ao zoom */
+}

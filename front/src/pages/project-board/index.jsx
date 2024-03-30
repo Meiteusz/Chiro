@@ -18,6 +18,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+
 import "@/app/globals.css";
 
 function ProjectBoard() {
@@ -74,7 +76,10 @@ function ProjectBoard() {
         y >= rowRect.top - buffer &&
         y <= rowRect.bottom + buffer
       ) {
-        setDateModalOpened(true);
+        var teste = bubbles.find((x) => x.id === id);
+        if (!teste.startsDate || !teste.endsDate) {
+          setDateModalOpened(true);
+        }
         setSelectedIdBubble(id);
         setBubbles((prevBubbles) =>
           prevBubbles.map((prevBubble) =>
@@ -164,12 +169,12 @@ function ProjectBoard() {
       ...prevbubbles,
       {
         id: new Date().getTime(),
-        content: "",
-        color: "#1F1F1F",
+        content: selectedBubbleInfo.content,
+        color: selectedBubbleInfo.color,
         x: selectedBubbleInfo.lastPositionX,
         y: selectedBubbleInfo.lastPositionY,
-        width: 190,
-        height: 70,
+        width: selectedBubbleInfo.width,
+        height: selectedBubbleInfo.height,
         // propriedades abaixo nao vao para a requisição
         startsDate: null,
         endsDate: null,
@@ -312,8 +317,8 @@ function ProjectBoard() {
 
   const divStyle = {
     display: "grid",
-    gridTemplateColumns: "repeat(4, 67px)",
-    gridTemplateRows: "repeat(3, 40px)",
+    gridTemplateColumns: "repeat(4, 58px)",
+    gridTemplateRows: "repeat(3, 70px)",
   };
 
   const cellStyle = {
@@ -356,48 +361,66 @@ function ProjectBoard() {
           />
         ))}
       </div>
-      {/*
-        <div style={styles.timeLine}>
+      <div style={styles.timeLine}>
         <Timeline />
       </div>
-        */}
       <div id="bottomRowStyle" style={styles.bottomBoard}>
-        <div style={divStyle}>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-        </div>
-        <div style={divStyle}>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-        </div>
-        <div style={divStyle}>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-        </div>
-        <div style={divStyle}>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-        </div>
-        <div style={divStyle}>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-        </div>
-        <div style={divStyle}>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-          <div style={cellStyle}></div>
-        </div>
+        <TransformWrapper
+          onZoom={(e) => console.log(e)}
+          //initialScale={1}
+          //initialPositionX={200}
+          //initialPositionY={100}
+        >
+          {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
+            <>
+              <TransformComponent
+                wrapperStyle={{
+                  width: "100%",
+                  height: "100%",
+                  border: "1px solid black",
+                }}
+                contentStyle={{ width: "100%", height: "100%" }}
+              >
+                <div style={divStyle}>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                </div>
+                <div style={divStyle}>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                </div>
+                <div style={divStyle}>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                </div>
+                <div style={divStyle}>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                </div>
+                <div style={divStyle}>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                </div>
+                <div style={divStyle}>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                  <div style={cellStyle}></div>
+                </div>
+              </TransformComponent>
+            </>
+          )}
+        </TransformWrapper>
       </div>
     </div>
   );

@@ -154,6 +154,7 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
         width: box.width,
         height: box.height,
       }}
+      dragAxis={box.startsDate && box.endsDate ? "x" : "both"}
       minWidth={190}
       maxWidth={500}
       minHeight={70}
