@@ -333,33 +333,44 @@ function ProjectBoard() {
       projectName= "Projeto"
        />
       <div style={styles.topBoard}>
-        <StartsEndDateModal />
-        <IconButton
-          style={styles.addBubble}
-          onClick={handleOpenMenuBubbleOptions}
-        >
-          <AddIcon />
-        </IconButton>
-        <Menu
-          anchorEl={menuBubbleOptions}
-          open={menuBubbleOptionsOpened}
-          onClose={handleCloseMenuBubbleOptions}
-        >
-          <MenuItem onClick={handleAddBubble}>Tarefa</MenuItem>
-          <MenuItem onClick={handleAddBubble}>Player</MenuItem>
-          <MenuItem onClick={handleAddBubble}>Link</MenuItem>
-        </Menu>
-        {bubbles.map((box, index) => (
-          <Bubble
-            grid={box.grid}
-            bubbleRef={bubbleRefs.current[index]}
-            key={box.id}
-            box={box}
-            boxes={bubbles}
-            setBoxes={setBubbles}
-            onDragStop={onBubbleDragStop}
-          />
-        ))}
+        <TransformWrapper onZoom={(e) => console.log(e)} disablePadding>
+          <TransformComponent
+            wrapperStyle={{
+              width: "100%",
+              height: "100%",
+              border: "1px solid black",
+            }}
+            contentStyle={{ width: "100%", height: "100%" }}
+          >
+            <StartsEndDateModal />
+            {bubbles.map((box, index) => (
+              <Bubble
+                grid={box.grid}
+                bubbleRef={bubbleRefs.current[index]}
+                key={box.id}
+                box={box}
+                boxes={bubbles}
+                setBoxes={setBubbles}
+                onDragStop={onBubbleDragStop}
+              />
+            ))}
+          </TransformComponent>
+          <IconButton
+            style={styles.addBubble}
+            onClick={handleOpenMenuBubbleOptions}
+          >
+            <AddIcon />
+          </IconButton>
+          <Menu
+            anchorEl={menuBubbleOptions}
+            open={menuBubbleOptionsOpened}
+            onClose={handleCloseMenuBubbleOptions}
+          >
+            <MenuItem onClick={handleAddBubble}>Tarefa</MenuItem>
+            <MenuItem onClick={handleAddBubble}>Player</MenuItem>
+            <MenuItem onClick={handleAddBubble}>Link</MenuItem>
+          </Menu>
+        </TransformWrapper>
       </div>
       <div style={styles.timeLine}>
         <Timeline />
@@ -371,55 +382,28 @@ function ProjectBoard() {
           //initialPositionX={200}
           //initialPositionY={100}
         >
-          {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
-            <>
-              <TransformComponent
-                wrapperStyle={{
-                  width: "100%",
-                  height: "100%",
-                  border: "1px solid black",
-                }}
-                contentStyle={{ width: "100%", height: "100%" }}
-              >
-                <div style={divStyle}>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                </div>
-                <div style={divStyle}>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                </div>
-                <div style={divStyle}>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                </div>
-                <div style={divStyle}>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                </div>
-                <div style={divStyle}>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                </div>
-                <div style={divStyle}>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                  <div style={cellStyle}></div>
-                </div>
-              </TransformComponent>
-            </>
-          )}
+          <TransformComponent
+            wrapperStyle={{
+              width: "100%",
+              height: "100%",
+              border: "1px solid black",
+            }}
+            contentStyle={{ width: "100%", height: "100%" }}
+          >
+            {/* Talvez um caminho seja fazer uma nova lista de bubbles aqui, assim como é no board de cima */}
+            <div style={divStyle}>
+              <div style={cellStyle}></div>
+              <div style={cellStyle}></div>
+              <div style={cellStyle}></div>
+              <div style={cellStyle}></div>
+            </div>
+            <div style={divStyle}>
+              <div style={cellStyle}></div>
+              <div style={cellStyle}></div>
+              <div style={cellStyle}></div>
+              <div style={cellStyle}></div>
+            </div>
+          </TransformComponent>
         </TransformWrapper>
       </div>
     </div>

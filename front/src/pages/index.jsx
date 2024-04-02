@@ -8,12 +8,12 @@ import BubbleNew from "./bubbleNew";
 
 const ProjectBoard = () => {
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <Navbar projectName="Gerenciador de projetos" showMenu={true} />
-        <div style={styles.topBoard}>
-          <BubbleNew isHorizontal ={false} stopBubble={false}></BubbleNew>
-        </div>    
-      </div>    
+      <div style={styles.topBoard}>
+        <BubbleNew isHorizontal={false} stopBubble={false}></BubbleNew>
+      </div>
+    </div>
   );
 };
 
