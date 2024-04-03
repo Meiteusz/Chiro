@@ -5,7 +5,6 @@ const containerBoards = {
 };
 
 const board = {
-  display: "flex",
   flex: 1,
   border: "1px solid black",
 };
@@ -19,11 +18,7 @@ const topBoard = {
 
 const timeLine = {
   ...board,
-  flex: 0.05,
-};
-
-const bottomBoard = {
-  ...board,
+  flex: 1,
 };
 
 const addBubble = {
@@ -51,4 +46,4 @@ const dateModal = {
   borderRadius: "10px",
 };
 
-export { containerBoards, board, topBoard, timeLine, bottomBoard, addBubble, dateModal };
+export { containerBoards, board, topBoard, timeLine, addBubble, dateModal };

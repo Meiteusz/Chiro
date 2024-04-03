@@ -201,8 +201,8 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
             //setTextFieldFocus(!textFieldFocus);
           }}
           onMouseLeave={(e) => {
-            e.stopPropagation();
-            setTextFieldFocus(!textFieldFocus);
+            //e.stopPropagation();
+            //setTextFieldFocus(!textFieldFocus);
           }}
           style={{
             width: "100%",
@@ -215,7 +215,7 @@ function Bubble({ bubbleRef, box, boxes, setBoxes, onDragStop }) {
             textAlign: "center",
             fontWeight: "bold",
             fontSize: "20px",
-            cursor: (textFieldFocus ? "text" : "move") ?? "move",
+            //cursor: (textFieldFocus ? "text" : "move") ?? "move",
           }}
         />
       </div>

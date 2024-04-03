@@ -315,17 +315,6 @@ function ProjectBoard() {
     );
   };
 
-  const divStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 58px)",
-    gridTemplateRows: "repeat(3, 70px)",
-  };
-
-  const cellStyle = {
-    backgroundColor: "transparent",
-    border: "1px solid black",
-  };
-
   return (
     <div style={styles.containerBoards}>
      <Navbar
@@ -333,7 +322,11 @@ function ProjectBoard() {
       projectName= "Projeto"
        />
       <div style={styles.topBoard}>
-        <TransformWrapper onZoom={(e) => console.log(e)} disablePadding>
+        <TransformWrapper
+          onZoom={(e) => console.log(e)}
+          disablePadding
+          doubleClick={{ disabled: true }}
+        >
           <TransformComponent
             wrapperStyle={{
               width: "100%",
@@ -345,9 +338,7 @@ function ProjectBoard() {
             <StartsEndDateModal />
             {bubbles.map((box, index) => (
               <Bubble
-                grid={box.grid}
                 bubbleRef={bubbleRefs.current[index]}
-                key={box.id}
                 box={box}
                 boxes={bubbles}
                 setBoxes={setBubbles}
@@ -374,37 +365,6 @@ function ProjectBoard() {
       </div>
       <div style={styles.timeLine}>
         <Timeline />
-      </div>
-      <div id="bottomRowStyle" style={styles.bottomBoard}>
-        <TransformWrapper
-          onZoom={(e) => console.log(e)}
-          //initialScale={1}
-          //initialPositionX={200}
-          //initialPositionY={100}
-        >
-          <TransformComponent
-            wrapperStyle={{
-              width: "100%",
-              height: "100%",
-              border: "1px solid black",
-            }}
-            contentStyle={{ width: "100%", height: "100%" }}
-          >
-            {/* Talvez um caminho seja fazer uma nova lista de bubbles aqui, assim como é no board de cima */}
-            <div style={divStyle}>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-            </div>
-            <div style={divStyle}>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-            </div>
-          </TransformComponent>
-        </TransformWrapper>
       </div>
     </div>
   );
