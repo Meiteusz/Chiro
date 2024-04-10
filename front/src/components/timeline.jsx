@@ -5,41 +5,75 @@ import { useDraggable } from "react-use-draggable-scroll";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 const Timeline = () => {
-  const [view, setView] = useState("days"); // Estado para controlar a visualização atual: 'days' para dias, 'months' para meses, 'years' para anos
-  const [QUANTIDADE_ANOS, setQuantidadeAnos] = useState(10); // Quantidade de anos a serem mostrados
-  const [LARGURADIAS, setLarguraDias] = useState(30); // Largura dos dias, meses ou anos
-  const [LARGURAMESES, setLarguraMeses] = useState(30); // Largura dos dias, meses ou anos
-  const [LARGURAANOS, setLarguraAnos] = useState(30); // Largura dos dias, meses ou anos
-
+  const [view, setView] = useState("days");
   const ref = useRef();
   const { events } = useDraggable(ref);
+  const mouthsPTBR = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
 
-  useEffect(() => {
-    setQuantidadeDias(calcularQuantidadeDias());
-  }, [QUANTIDADE_ANOS]);
+  // Parâmetros
+  const initialWidth = 80;
+  const multiplierWidth = 2;
+  const initialHeight = 50;
+  const quantityYears = 1;
+  // ------------------------
 
-  const calcularQuantidadeDias = () => {
-    // Lógica para calcular a quantidade de dias com base nos anos
+  let widthDays = initialWidth;
+  let widthMonths = initialWidth * multiplierWidth;
+  let widthYears = widthMonths * multiplierWidth;
+
+  const calculateDaysQuantity = () => {
     const currentYear = new Date().getFullYear();
-    let totalDias = 0;
-    for (let year = currentYear; year < currentYear + QUANTIDADE_ANOS; year++) {
+    let totalDays = 0;
+    for (let year = currentYear; year < currentYear + quantityYears; year++) {
       for (let month = 0; month < 12; month++) {
-        totalDias += new Date(year, month + 1, 0).getDate();
+        totalDays += new Date(year, month + 1, 0).getDate();
       }
     }
-    return totalDias;
+    return totalDays;
   };
 
-  // Estado para controlar a quantidade de dias na Timeline
-  const [quantidadeDias, setQuantidadeDias] = useState(
-    calcularQuantidadeDias()
+  const calculateQuantityMonths = () => {
+    const currentYear = new Date().getFullYear();
+    let totalMonths = 0;
+
+    for (let year = currentYear; year < currentYear + quantityYears; year++) {
+      for (let month = 0; month < 12; month++) {
+        totalMonths++;
+      }
+    }
+
+    return totalMonths;
+  };
+
+  const [quantityDays, setQuantityDays] = useState(calculateDaysQuantity());
+
+  const [quantityMonths, setQuantityMonths] = useState(
+    calculateQuantityMonths()
   );
 
-  // Função para renderizar os dias do mês atual
+  const [quantityColumns, setQuantityColumns] = useState(quantityDays);
+
+  useEffect(() => {
+    setQuantityDays(calculateDaysQuantity());
+  }, [quantityYears]);
+
   const renderDays = () => {
     const allDays = [];
     const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year < currentYear + QUANTIDADE_ANOS; year++) {
+    for (let year = currentYear; year < currentYear + quantityYears; year++) {
       for (let month = 0; month < 12; month++) {
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const monthDays = [];
@@ -48,13 +82,14 @@ const Timeline = () => {
             <div
               key={`${year}-${month}-${day}`}
               style={{
-                border: "1px solid black",
-                //padding: `5px ${LARGURADIAS}px`, // Ajuste a largura dos dias aqui
+                border: "1px solid gray",
+                borderRadius: "5px",
                 marginTop: "5px",
-                width: "72px",
+                width: `${widthDays}px`,
                 height: "40px",
                 textAlign: "center",
                 display: "inline-block",
+                backgroundColor: "rgba(168, 168, 168, 0.7)",
               }}
             >
               {day}
@@ -63,13 +98,33 @@ const Timeline = () => {
         }
         allDays.push(
           <div key={`${year}-${month}`} style={{ flex: "0 0 auto" }}>
-            <div style={{ border: "1px solid black", marginBottom: "10px" }}>
-              <div style={{ fontWeight: "bold", textAlign: "center" }}>
-                {new Date(year, month).toLocaleString("default", {
-                  month: "long",
-                })}
+            <div>
+              <div
+                style={{
+                  fontWeight: "600",
+                  textAlign: "center",
+                  backgroundColor: "#303030",
+                  padding: "5px",
+                  borderRight: "3px solid white",
+                }}
+              >
+                <label
+                  style={{
+                    color: "#F0F0F0",
+                    marginBottom: "5px",
+                  }}
+                >
+                  {`${mouthsPTBR[month]} | ${year}`}
+                </label>
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  fontWeight: "600",
+                  borderRight: "3px solid white",
+                }}
+              >
                 {monthDays}
               </div>
             </div>
@@ -94,30 +149,48 @@ const Timeline = () => {
     );
   };
 
-  // Função para renderizar os meses do ano
   const renderMonths = () => {
     const allMonths = [];
     const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year < currentYear + QUANTIDADE_ANOS; year++) {
+    for (let year = currentYear; year < currentYear + quantityYears; year++) {
       allMonths.push(
         <div key={year} style={{ display: "inline-block" }}>
-          <div style={{ border: "1px solid black", marginBottom: "10px" }}>
-            <div style={{ fontWeight: "bold", textAlign: "center" }}>
-              {year}
+          <div>
+            <div
+              style={{
+                fontWeight: "600",
+                textAlign: "center",
+                backgroundColor: "#303030",
+                padding: "5px",
+              }}
+            >
+              <label style={{ color: "#F0F0F0", marginBottom: "5px" }}>
+                {year}
+              </label>
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "nowrap",
+                overflowX: "auto",
+              }}
+            >
               {Array.from({ length: 12 }, (_, month) => (
                 <div
                   key={`${year}-${month}`}
                   style={{
-                    border: "1px solid black",
-                    padding: `5px ${LARGURAMESES}px`, // Ajuste a largura dos meses aqui
+                    border: "1px solid gray",
+                    backgroundColor: "rgba(168, 168, 168, 0.7)",
+                    fontWeight: "600",
+                    borderRadius: "5px",
+                    marginTop: "5px",
+                    width: `${widthMonths}px`,
+                    height: "40px",
+                    textAlign: "center",
                     display: "inline-block",
                   }}
                 >
-                  {new Date(year, month).toLocaleString("default", {
-                    month: "long",
-                  })}
+                  {`${mouthsPTBR[month]}`}
                 </div>
               ))}
             </div>
@@ -142,21 +215,27 @@ const Timeline = () => {
     );
   };
 
-  // Função para renderizar os anos
   const renderYears = () => {
     const allYears = [];
     const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year < currentYear + QUANTIDADE_ANOS; year++) {
+    for (let year = currentYear; year < currentYear + quantityYears; year++) {
       allYears.push(
         <div
           key={year}
           style={{
             border: "1px solid black",
-            padding: `5px ${LARGURAANOS}px`, // Ajuste a largura dos anos aqui
+            marginTop: "5px",
+            width: `${widthYears}px`,
+            textAlign: "center",
             display: "inline-block",
+            fontWeight: "600",
+            backgroundColor: "#303030",
+            padding: "5px",
           }}
         >
-          {year}
+          <label style={{ color: "#F0F0F0", marginBottom: "5px" }}>
+            {year}
+          </label>
         </div>
       );
     }
@@ -177,53 +256,6 @@ const Timeline = () => {
     );
   };
 
-  const handleZoom = (e) => {
-    if (e.deltaY > 0) {
-      if (view === "days") {
-        setView("months");
-      } else if (view === "months") {
-        setView("years");
-      }
-    } else {
-      if (view === "years") {
-        setView("months");
-      } else if (view === "months") {
-        setView("days");
-      }
-    }
-  };
-
-  const divStyle = {
-    display: "grid",
-    overflowX: "auto",
-    gridTemplateColumns: "repeat(366, 72px)", // COLUNAS DOS DIAS / MESES / ANOS
-    gridTemplateRows: "repeat(10, 70px)", // LINHAS DOS DIAS / MESES / ANOS
-  };
-
-  const cellStyle = {
-    backgroundColor: "transparent",
-    border: "1px solid black",
-  };
-
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-
-  // https://chat.openai.com/c/2d2d106d-3b6b-41ed-830c-e6488302ff19
-
-  // ESTAMOS REDERIZANDO UMA DIV POR DIA, MAS PROVAVELMENTE QUANDO ALTERAR A VISÃO PARA MES, VAI SER RENDERIZADO UMA DIV POR MES E ASSIM VAI,
-  // VAMOS VER COMO VAI SER A LÓGICA DISSO
-
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-
-  const renderDias = () => {
-    const dias = [];
-    for (let i = 0; i < quantidadeDias; i++) {
-      dias.push(<div style={cellStyle} key={i}></div>);
-    }
-    return dias;
-  };
-
   const handleScroll = (e) => {
     const diasContainer = document.getElementById("diasContainer");
     diasContainer.scrollTo({
@@ -232,28 +264,52 @@ const Timeline = () => {
     });
   };
 
+  const handleZoom = (e) => {
+    if (e.deltaY > 0) {
+      if (view === "days") {
+        setView("months");
+        setQuantityColumns(quantityMonths);
+      } else if (view === "months") {
+        setView("years");
+        setQuantityColumns(quantityYears);
+      }
+    } else {
+      if (view === "years") {
+        setView("months");
+        setQuantityColumns(quantityMonths);
+      } else if (view === "months") {
+        setView("days");
+        setQuantityColumns(quantityDays);
+      }
+    }
+  };
+
+  const getCellWidth = () => {
+    if (view === "days") {
+      return widthDays;
+    } else if (view === "months") {
+      return widthMonths;
+    } else if (view === "years") {
+      return widthYears;
+    }
+  };
+
+  const cellStyle = {
+    width: `${getCellWidth()}px`,
+    height: `${initialHeight}px`,
+    border: "1px solid rgba(168, 168, 168, 0.4)",
+    display: "inline-block",
+  };
+
+  const matrixStyle = {
+    marginTop: "5px",
+    border: "1px solid black",
+    overflowX: "auto",
+    whiteSpace: "nowrap",
+  };
+
   return (
     <div>
-      {/*<div>
-        <button
-          onClick={() => setView("days")}
-          style={{ border: "1px solid #000", marginRight: "10px" }}
-        >
-          Alterar visão - Dias
-        </button>
-        <button
-          onClick={() => setView("months")}
-          style={{ border: "1px solid #000", marginRight: "10px" }}
-        >
-          Alterar visão - Dias
-        </button>
-        <button
-          onClick={() => setView("years")}
-          style={{ border: "1px solid #000", marginRight: "10px" }}
-        >
-          Alterar visão - Dias
-        </button>
-      </div>*/}
       <div onWheel={handleZoom}>
         {view === "days"
           ? renderDays()
@@ -262,62 +318,21 @@ const Timeline = () => {
           : renderYears()}
       </div>
       <div
-        style={divStyle}
+        style={matrixStyle}
         onScroll={handleScroll}
         onWheel={handleZoom}
         {...events}
         ref={ref}
       >
-        {renderDias()}
+        {Array.from({ length: 9 }).map((_, rowIndex) => (
+          <div key={rowIndex}>
+            {Array.from({ length: quantityColumns }).map((_, colIndex) => (
+              <div key={colIndex} style={cellStyle}></div>
+            ))}
+          </div>
+        ))}
       </div>
-      {/*<TransformWrapper
-          disablePadding
-          onZoom={(e) => console.log(e)}
-          //initialScale={1}
-          //initialPositionX={200}
-          //initialPositionY={100}
-        >
-          <TransformComponent
-            wrapperStyle={{
-              width: "100%",
-              height: "100%",
-              border: "1px solid black",
-            }}
-            contentStyle={{ width: "100%", height: "100%" }}
-          >
-            {/**Talvez um caminho seja fazer uma nova lista de bubbles aqui, assim como é no board de cima
-            <div style={divStyle}>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-              <div style={cellStyle}></div>
-            </div>
-          </TransformComponent>
-        </TransformWrapper>*/}
+      {/*Talvez um caminho seja fazer uma nova lista de bubbles aqui, assim como é no board de cima*/}
     </div>
   );
 };
