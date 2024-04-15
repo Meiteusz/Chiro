@@ -323,7 +323,10 @@ function ProjectBoard() {
 
   return (
     <div style={styles.containerBoards}>
-      <Navbar />
+     <Navbar
+      showMenu={true}
+      projectName= "Projeto"
+       />
       <div style={styles.topBoard}>
         <StartsEndDateModal />
         <IconButton
