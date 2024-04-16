@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chiro.Persistence", "Chiro.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{346AE002-5D0E-4D9C-90C9-BB7EC0802A80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chiro.Persistence.Tests", "tests\Chiro.Persistence.Tests\Chiro.Persistence.Tests.csproj", "{BB3033D2-5EFC-410A-915B-0A359066CBE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chiro.Persistence.Tests", "tests\Chiro.Persistence.Tests\Chiro.Persistence.Tests.csproj", "{BB3033D2-5EFC-410A-915B-0A359066CBE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

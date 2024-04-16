@@ -1,4 +1,5 @@
-﻿using Chiro.Domain.Interfaces;
+﻿using Chiro.Domain.Entities;
+using Chiro.Domain.Interfaces;
 using Chiro.Infra;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,4 +1,6 @@
-﻿namespace Chiro.Domain.Interfaces
+﻿using Chiro.Domain.Entities;
+
+namespace Chiro.Domain.Interfaces
 {
     public interface IProjectRepository
     {
