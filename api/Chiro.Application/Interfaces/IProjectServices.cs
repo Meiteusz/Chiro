@@ -12,5 +12,11 @@ namespace Chiro.Application.Interfaces
         Task<Project?> GetProjectAsync(long projectId);
 
         Task<bool> AuthenticateProjectSessionAsync(AuthenticateProjectSessionDTO authenticateProjectSessionDTO);
+
+        Task<bool> ResizeAsync(ResizeProjectDTO resizeProjectDTO);
+
+        Task<bool> MoveAsync(MoveProjectDTO moveProjectDTO);
+
+        Task<bool> ChangeColorAsync(ChangeProjectColorDTO changeProjectColorDTO);
     }
 }

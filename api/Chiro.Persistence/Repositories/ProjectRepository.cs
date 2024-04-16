@@ -34,5 +34,34 @@ namespace Chiro.Persistence.Repositories
         {
             return await _context.Projects.AnyAsync(w => w.Id == projectId && w.Password == password);
         }
+
+        public async Task<bool> ResizeAsync(long projectId, Project project)
+        {
+            return await _context.Projects.Where(p => p.Id == projectId)
+                                              .UpdateFromQueryAsync(x => new Project
+                                              {
+                                                  Width = project.Width,
+                                                  Height = project.Height
+                                              }) > 0;
+        }
+
+        public async Task<bool> MoveAsync(Project project)
+        {
+            return await _context.Projects.Where(p => p.Id == project.Id)
+                                              .UpdateFromQueryAsync(x => new Project
+                                              {
+                                                  PositionX = project.PositionX,
+                                                  PositionY = project.PositionY
+                                              }) > 0;
+        }
+
+        public async Task<bool> ChangeColorAsync(Project project)
+        {
+            return await _context.Projects.Where(p => p.Id == project.Id)
+                                              .UpdateFromQueryAsync(x => new Project
+                                              {
+                                                  Color = project.Color
+                                              }) > 0;
+        }
     }
 }

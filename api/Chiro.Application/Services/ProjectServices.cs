@@ -41,5 +41,39 @@ namespace Chiro.Application.Services
             var password = Hasher.Encrypt(authenticateProjectSessionDTO.Password, "2b!BDp9fUM2OcGYJ");
             return _repository.AuthenticateProjectSessionAsync(authenticateProjectSessionDTO.Id, password);
         }
+
+        public async Task<bool> ResizeAsync(ResizeProjectDTO resizeProjectDTO)
+        {
+            var project = new Project
+            {
+                Width = resizeProjectDTO.Width,
+                Height = resizeProjectDTO.Height
+            };
+
+            return await _repository.ResizeAsync(resizeProjectDTO.Id, project);
+        }
+
+        public async Task<bool> MoveAsync(MoveProjectDTO moveProjectDTO)
+        {
+            var project = new Project
+            {
+                Id = moveProjectDTO.Id,
+                PositionX = moveProjectDTO.PositionX,
+                PositionY = moveProjectDTO.PositionY
+            };
+
+            return await _repository.MoveAsync(project);
+        }
+
+        public async Task<bool> ChangeColorAsync(ChangeProjectColorDTO changeProjectColorDTO)
+        {
+            var project = new Project
+            {
+                Id = changeProjectColorDTO.Id,
+                Color = changeProjectColorDTO.Color
+            };
+
+            return await _repository.ChangeColorAsync(project);
+        }
     }
 }

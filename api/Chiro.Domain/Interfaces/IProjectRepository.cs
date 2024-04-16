@@ -9,5 +9,11 @@
         Task<bool> CreateProjectAsync(Entities.Project project);
 
         Task<bool> AuthenticateProjectSessionAsync(long projectId, string password);
+
+        Task<bool> ResizeAsync(long projectId, Project project);
+
+        Task<bool> MoveAsync(Project project);
+
+        Task<bool> ChangeColorAsync(Project project);
     }
 }
