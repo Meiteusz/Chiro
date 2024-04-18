@@ -4,6 +4,13 @@ import { useRef } from "react";
 import { useDraggable } from "react-use-draggable-scroll";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
+import _ from "lodash";
+import { Responsive, WidthProvider } from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
+
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
+
 const Timeline = () => {
   const [view, setView] = useState("days");
   const ref = useRef();
@@ -82,9 +89,10 @@ const Timeline = () => {
             <div
               key={`${year}-${month}-${day}`}
               style={{
-                border: "1px solid gray",
+                //border: "1px solid gray",
                 borderRadius: "5px",
                 marginTop: "5px",
+                marginLeft: "1px",
                 width: `${widthDays}px`,
                 height: "40px",
                 textAlign: "center",
@@ -105,7 +113,8 @@ const Timeline = () => {
                   textAlign: "center",
                   backgroundColor: "#303030",
                   padding: "5px",
-                  borderRight: "3px solid white",
+                  //marginRight: "3px",
+                  borderRight: "1px solid white",
                 }}
               >
                 <label
@@ -122,7 +131,7 @@ const Timeline = () => {
                   display: "flex",
                   flexWrap: "wrap",
                   fontWeight: "600",
-                  borderRight: "3px solid white",
+                  //marginRight: "3px",
                 }}
               >
                 {monthDays}
@@ -294,45 +303,210 @@ const Timeline = () => {
     }
   };
 
+  function isBissexto(ano) {
+    return (ano % 4 === 0 && ano % 100 !== 0) || ano % 400 === 0;
+  }
+
+  const diasPorMes = [
+    31, // Janeiro
+    28, // Fevereiro
+    31, // Março
+    30, // Abril
+    31, // Maio
+    30, // Junho
+    31, // Julho
+    31, // Agosto
+    30, // Setembro
+    31, // Outubro
+    30, // Novembro
+    31, // Dezembro
+  ];
+
+  const onCellClick = (indexColumn, indexRow) => {
+    indexColumn++;
+    indexRow++;
+    let diaDoAno = 0;
+    let mes = 0;
+    let indexDias = indexColumn;
+
+    if (isBissexto(2024)) {
+      diasPorMes[1] = 29;
+    }
+
+    for (let i = 0; i < diasPorMes.length; i++) {
+      if (indexColumn <= diasPorMes[i]) {
+        mes = i + 1;
+        diaDoAno = indexColumn;
+        break;
+      } else {
+        indexColumn -= diasPorMes[i];
+      }
+    }
+
+    alert(
+      `Dia ${diaDoAno} de ${
+        mouthsPTBR[mes - 1]
+      } de 2024\n\nColuna: ${indexDias}\nLinha: ${indexRow}`
+    );
+  };
+
   const cellStyle = {
     width: `${getCellWidth()}px`,
     height: `${initialHeight}px`,
     border: "1px solid rgba(168, 168, 168, 0.4)",
+    borderRight: "0px",
     display: "inline-block",
   };
 
   const matrixStyle = {
     marginTop: "5px",
-    border: "1px solid black",
-    overflowX: "auto",
     whiteSpace: "nowrap",
   };
 
+  //------------------------------------------------------
+
+  const [layouts, setLayouts] = useState({
+    lg: _.map(_.range(0, 2), function (item, i) {
+      // 2 - quantidade de bubble
+      var y = Math.ceil(Math.random() * 4) + 1;
+      return {
+        x: (_.random(0, 5) * 2) % 12,
+        y: Math.floor(i / 6) * y,
+        w: 5,
+        h: y,
+        i: i.toString(),
+        minW: 2,
+        maxW: 4,
+      };
+    }),
+  });
+  const [currentBreakpoint, setCurrentBreakpoint] = useState("lg");
+  const [mounted, setMounted] = useState(false);
+  const [toolbox, setToolbox] = useState({
+    lg: [],
+  });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const onBreakpointChange = (breakpoint) => {
+    setCurrentBreakpoint(breakpoint);
+    setToolbox({
+      ...toolbox,
+      [breakpoint]: toolbox[breakpoint] || toolbox[currentBreakpoint] || [],
+    });
+  };
+
+  const onLayoutChange = (layout, layouts) => {
+    setLayouts({ ...layouts });
+  };
+
+  const onDrop = (layoutItem, _ev) => {
+    const isNearExistingBlock = layouts.lg.some((existingLayout) => {
+      return (
+        Math.abs(existingLayout.x - layoutItem.x) <= 2 &&
+        Math.abs(existingLayout.y - layoutItem.y) <= 2
+      );
+    });
+
+    layoutItem.static = isNearExistingBlock;
+  };
+
+  const onDragStop = (newItem, _placeholder, _evt, _element) => {
+    const isNearExistingBlock = layouts.lg.some((existingLayout) => {
+      return (
+        Math.abs(existingLayout.x - newItem.x) <= 2 &&
+        Math.abs(existingLayout.y - newItem.y) <= 2
+      );
+    });
+
+    newItem.static = isNearExistingBlock;
+
+    setLayouts((prevLayouts) => {
+      const updatedLayouts = { ...prevLayouts };
+      const index = prevLayouts.lg.findIndex((item) => item.i === newItem.i);
+      updatedLayouts.lg[index] = newItem;
+      return updatedLayouts;
+    });
+  };
+
+  const generateDOM = () => {
+    return _.map(layouts.lg, function (l, i) {
+      return (
+        <div
+          key={i}
+          style={{
+            background: "green",
+            marginTop: "1px",
+            marginLeft: "1px",
+            border: "1px solid green",
+          }}
+        ></div>
+      );
+    });
+  };
+
+  // TIMELINE TA DANDO BOA, POREM QUANDO VAMOS REDIMENSIONAR A BUBBLE,
+  // O EVENTO DE SCROLL É CHAMADO, ASSIM ENVES DE REDIMENSIONAR, A TELA É SCROLLADA
+
   return (
-    <div>
-      <div onWheel={handleZoom}>
-        {view === "days"
-          ? renderDays()
-          : view === "months"
-          ? renderMonths()
-          : renderYears()}
+    <div
+      style={{
+        paddingBottom: "600px",
+        border: "2px solid black",
+        position: "relative",
+        overflowX: "auto",
+      }}
+      onScroll={handleScroll}
+      onWheel={handleZoom}
+      {...events}
+      ref={ref}
+    >
+      <div style={{ position: "absolute" }}>
+        <div onWheel={handleZoom} style={{ marginBottom: "5px" }}>
+          {view === "days"
+            ? renderDays()
+            : view === "months"
+            ? renderMonths()
+            : renderYears()}
+        </div>
+        <ResponsiveReactGridLayout
+          //className="layout"
+          rowHeight={50}
+          cols={{ lg: 360, md: 10, sm: 6, xs: 4, xxs: 2 }}
+          //</div>cols={{ lg: getCellWidth(), md: 10, sm: 6, xs: 4, xxs: 2 }}
+          //breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+          containerPadding={[0, 0]}
+          style={{
+            height: "100%",
+          }}
+          //measureBeforeMount={false}
+          useCSSTransforms={mounted}
+          compactType={null}
+          onLayoutChange={onLayoutChange}
+          //onBreakpointChange={onBreakpointChange}
+          onDrop={onDrop}
+          margin={[2, 6]}
+          onDragStop={onDragStop}
+          isDroppable
+        >
+          {generateDOM()}
+        </ResponsiveReactGridLayout>
+        <div style={matrixStyle}>
+          {Array.from({ length: 9 }).map((_, rowIndex) => (
+            <div key={rowIndex}>
+              {Array.from({ length: quantityColumns }).map((_, colIndex) => (
+                <div
+                  key={colIndex}
+                  style={cellStyle}
+                  onClick={() => onCellClick(colIndex, rowIndex)}
+                ></div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
-      <div
-        style={matrixStyle}
-        onScroll={handleScroll}
-        onWheel={handleZoom}
-        {...events}
-        ref={ref}
-      >
-        {Array.from({ length: 9 }).map((_, rowIndex) => (
-          <div key={rowIndex}>
-            {Array.from({ length: quantityColumns }).map((_, colIndex) => (
-              <div key={colIndex} style={cellStyle}></div>
-            ))}
-          </div>
-        ))}
-      </div>
-      {/*Talvez um caminho seja fazer uma nova lista de bubbles aqui, assim como é no board de cima*/}
     </div>
   );
 };

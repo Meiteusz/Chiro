@@ -10,21 +10,23 @@ const board = {
 
 const topBoard = {
   ...board,
-  position: "relative",
-  display: "block",
   flex: 1,
+  border: "1px solid black",
+  overflowX: "auto",
 };
 
 const timeLine = {
   ...board,
   flex: 1,
+  overflowX: "auto", 
+  border: "1px solid black"
 };
 
 const addBubble = {
-  position: "absolute",
-  top: "30px",
+  position: "fixed",
+  top: "60px",
   right: "30px",
-  padding: "20px",
+  padding: "15px",
   borderRadius: "50%",
   backgroundColor: "#1C1C1C",
   color: "#fff",

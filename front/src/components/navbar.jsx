@@ -24,7 +24,7 @@ function Navbar({
   };
 
   return (
-    <AppBar position="static" style={{ background: "#1C1C1C" }}>
+    <AppBar position="fixed" style={{ background: "#1C1C1C" }}>
       <Toolbar variant="dense">
         {showMenu && (
           <IconButton
