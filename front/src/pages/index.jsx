@@ -11,7 +11,7 @@ const ProjectBoard = () => {
     <div style={{ width: '100%', height: '100%' }}>
       <Navbar projectName="Gerenciador de projetos" showMenu={true} />
         <div style={styles.topBoard}>
-          <BubbleNew></BubbleNew>
+          <BubbleNew isHorizontal ={false} stopBubble={false}></BubbleNew>
         </div>    
       </div>    
   );
