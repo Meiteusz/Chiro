@@ -141,6 +141,7 @@ const handleBubbleNameChange = (event, bubbleId) => {
         items={5}
         margin={[4, 4]}
         rowHeight={30}
+        preventCollision={true}
       >
         {layout.map((item) => (
           <div
