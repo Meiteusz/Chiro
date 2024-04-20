@@ -7,9 +7,9 @@ import * as styles from "@/pages/project-board/styles";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import DeleteIcon from "@mui/icons-material/Delete";
-import OpenBubble from '@mui/icons-material/FolderOpen';
-import Compact from '@uiw/react-color-compact';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import OpenBubble from "@mui/icons-material/FolderOpen";
+import Compact from "@uiw/react-color-compact";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
@@ -22,12 +22,12 @@ const getId = () => {
   return idCounter.toString();
 };
 
-function BubbleNew ({isHorizontal, stopBubble}){
+function BubbleNew({ isHorizontal, stopBubble }) {
   const [layout, setLayout] = useState([]);
   const [contextMenu, setContextMenu] = useState(null);
   const [selectedBubbleIds, setSelectedBubbleIds] = useState({});
   const [bubbleColors, setBubbleColors] = useState({});
-  const [currentColor, setCurrentColor] = useState("#000000"); 
+  const [currentColor, setCurrentColor] = useState("#000000");
   const [bubbleNames, setBubbleNames] = useState({});
 
   const startEditing = () => {
@@ -57,7 +57,7 @@ function BubbleNew ({isHorizontal, stopBubble}){
   };
 
   const handleAddBubble = () => {
-    const newItem = { x: 0, y: 0,w: 1.0, h: 2.0, i: getId() };
+    const newItem = { x: 0, y: 0, w: 1.0, h: 2.0, i: getId() };
     setLayout((prevLayout) => [...prevLayout, newItem]);
     setBubbleColors((prevColors) => ({
       ...prevColors,
@@ -85,17 +85,17 @@ function BubbleNew ({isHorizontal, stopBubble}){
   };
 
   const handleBubbleNameChange = (event, bubbleId) => {
-  const newName = event.target.value;
-  setBubbleNames((prevNames) => ({
-    ...prevNames,
-    [bubbleId]: newName,
-  }));
-};
-const isDarkColor = (color) => {
-  const [r, g, b] = color.match(/\w\w/g).map(x => parseInt(x, 16));
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  return brightness < 128;
-};
+    const newName = event.target.value;
+    setBubbleNames((prevNames) => ({
+      ...prevNames,
+      [bubbleId]: newName,
+    }));
+  };
+  const isDarkColor = (color) => {
+    const [r, g, b] = color.match(/\w\w/g).map((x) => parseInt(x, 16));
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 128;
+  };
 
   return (
     <div>
@@ -107,15 +107,15 @@ const isDarkColor = (color) => {
         onClick={handleOpenMenuBubbleOptions}
       >
         <AddIcon />
-      </IconButton>     
+      </IconButton>
       <ReactGridLayout
-        style={{borderRadius: "100px", width: '94%', height: '80%' }}
+        style={{ borderRadius: "100px", width: "94%", height: "80%" }}
         onLayoutChange={(newLayout) => setLayout(newLayout)}
         layout={layout}
         compactType={null}
         isDraggable={!stopBubble}
         isResizable={true}
-        resizeHandles={isHorizontal ? ['e'] : ['']}
+        resizeHandles={isHorizontal ? ["e"] : [""]}
         items={5}
         margin={[7, 7]}
         rowHeight={30}
@@ -133,7 +133,7 @@ const isDarkColor = (color) => {
               alignItems: "center",
               padding: "1px",
               overflow: "auto",
-              cursor: 'grab', 
+              cursor: "grab",
               border: `1px solid`,
             }}
             onContextMenu={(event) => handleContextMenu(event, item.i)}
@@ -152,7 +152,7 @@ const isDarkColor = (color) => {
                 fontSize: "22px",
                 fontFamily: "Arial, sans-serif",
                 fontWeight: "bold",
-                cursor: 'text' 
+                cursor: "text",
               }}
               onChange={(event) => handleBubbleNameChange(event, item.i)}
               onContextMenu={(event) => handleContextMenu(event, item.i)}
@@ -171,31 +171,38 @@ const isDarkColor = (color) => {
             : undefined
         }
       >
-        <MenuItem 
-        anchorEl={contextMenu}
-        open={contextMenu !== null}
-        onClose={handleCloseContextMenu}
-        anchorReference="anchorPosition"
-        anchorPosition={
-          contextMenu !== null
-            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-            : undefined
-        }>
-          <Compact color={currentColor} onChange={handleColorSelection}/>
+        <MenuItem
+          anchorEl={contextMenu}
+          open={contextMenu !== null}
+          onClose={handleCloseContextMenu}
+          anchorReference="anchorPosition"
+          anchorPosition={
+            contextMenu !== null
+              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+              : undefined
+          }
+        >
+          <Compact color={currentColor} onChange={handleColorSelection} />
         </MenuItem>
         <MenuItem onClick={startEditing}>
-        <ListItemIcon>
+          <ListItemIcon>
             <DriveFileRenameOutlineIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>{bubbleNames[Object.keys(selectedBubbleIds)[0]]}</ListItemText>
+          <ListItemText>
+            {bubbleNames[Object.keys(selectedBubbleIds)[0]]}
+          </ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleDeleteBubble(Object.keys(selectedBubbleIds)[0])}>
+        <MenuItem
+          onClick={() => handleDeleteBubble(Object.keys(selectedBubbleIds)[0])}
+        >
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Deletar</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleDoubleClick(Object.keys(selectedBubbleIds)[0])}>
+        <MenuItem
+          onClick={() => handleDoubleClick(Object.keys(selectedBubbleIds)[0])}
+        >
           <ListItemIcon>
             <OpenBubble fontSize="small" />
           </ListItemIcon>
@@ -204,6 +211,6 @@ const isDarkColor = (color) => {
       </Menu>
     </div>
   );
-};
+}
 
 export default BubbleNew;

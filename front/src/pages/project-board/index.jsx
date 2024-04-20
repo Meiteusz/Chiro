@@ -317,10 +317,7 @@ function ProjectBoard() {
 
   return (
     <div style={styles.containerBoards}>
-     <Navbar
-      showMenu={true}
-      projectName= "Projeto"
-       />
+      <Navbar showMenu projectName="Projeto" />
       <div style={styles.topBoard}>
         <TransformWrapper
           onZoom={(e) => console.log(e)}
