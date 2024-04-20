@@ -11,15 +11,12 @@ const board = {
 const topBoard = {
   ...board,
   flex: 1,
-  border: "1px solid black",
   overflowX: "auto",
 };
 
 const timeLine = {
   ...board,
   flex: 1,
-  overflowX: "auto", 
-  border: "1px solid black"
 };
 
 const addBubble = {

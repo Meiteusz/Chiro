@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 
 import { useRef } from "react";
 import { useDraggable } from "react-use-draggable-scroll";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import _ from "lodash";
 import { Responsive, WidthProvider } from "react-grid-layout";
@@ -13,8 +12,11 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const Timeline = () => {
   const [view, setView] = useState("days");
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   const ref = useRef();
-  const { events } = useDraggable(ref);
+  const { events } = useDraggable(ref, {
+    isMounted: scrollEnabled,
+  });
   const mouthsPTBR = [
     "Janeiro",
     "Fevereiro",
@@ -91,10 +93,8 @@ const Timeline = () => {
               style={{
                 //border: "1px solid gray",
                 borderRadius: "5px",
-                marginTop: "5px",
-                marginLeft: "1px",
                 width: `${widthDays}px`,
-                height: "40px",
+                height: "35px",
                 textAlign: "center",
                 display: "inline-block",
                 backgroundColor: "rgba(168, 168, 168, 0.7)",
@@ -112,8 +112,7 @@ const Timeline = () => {
                   fontWeight: "600",
                   textAlign: "center",
                   backgroundColor: "#303030",
-                  padding: "5px",
-                  //marginRight: "3px",
+                  padding: "3px",
                   borderRight: "1px solid white",
                 }}
               >
@@ -131,7 +130,6 @@ const Timeline = () => {
                   display: "flex",
                   flexWrap: "wrap",
                   fontWeight: "600",
-                  //marginRight: "3px",
                 }}
               >
                 {monthDays}
@@ -145,7 +143,6 @@ const Timeline = () => {
     return (
       <div
         {...events}
-        onScroll={handleScroll}
         ref={ref}
         id="diasContainer"
         style={{
@@ -170,7 +167,7 @@ const Timeline = () => {
                 fontWeight: "600",
                 textAlign: "center",
                 backgroundColor: "#303030",
-                padding: "5px",
+                padding: "3px",
               }}
             >
               <label style={{ color: "#F0F0F0", marginBottom: "5px" }}>
@@ -211,7 +208,6 @@ const Timeline = () => {
       <div
         {...events}
         ref={ref}
-        onScroll={handleScroll}
         id="diasContainer"
         style={{
           overflowX: "hidden",
@@ -239,7 +235,7 @@ const Timeline = () => {
             display: "inline-block",
             fontWeight: "600",
             backgroundColor: "#303030",
-            padding: "5px",
+            padding: "3px",
           }}
         >
           <label style={{ color: "#F0F0F0", marginBottom: "5px" }}>
@@ -253,7 +249,6 @@ const Timeline = () => {
         id="diasContainer"
         {...events}
         ref={ref}
-        onScroll={handleScroll}
         style={{
           overflowX: "hidden",
           whiteSpace: "nowrap",
@@ -263,14 +258,6 @@ const Timeline = () => {
         {allYears}
       </div>
     );
-  };
-
-  const handleScroll = (e) => {
-    const diasContainer = document.getElementById("diasContainer");
-    diasContainer.scrollTo({
-      top: 0,
-      left: e.target.scrollLeft,
-    });
   };
 
   const handleZoom = (e) => {
@@ -375,8 +362,6 @@ const Timeline = () => {
         w: 5,
         h: y,
         i: i.toString(),
-        minW: 2,
-        maxW: 4,
       };
     }),
   });
@@ -413,6 +398,14 @@ const Timeline = () => {
     layoutItem.static = isNearExistingBlock;
   };
 
+  const onDragStart = () => {
+    setScrollEnabled(false);
+  };
+
+  const onResizeStart = () => {
+    setScrollEnabled(false);
+  };
+
   const onDragStop = (newItem, _placeholder, _evt, _element) => {
     const isNearExistingBlock = layouts.lg.some((existingLayout) => {
       return (
@@ -429,6 +422,11 @@ const Timeline = () => {
       updatedLayouts.lg[index] = newItem;
       return updatedLayouts;
     });
+    setScrollEnabled(true);
+  };
+
+  const onResizeStop = () => {
+    setScrollEnabled(true);
   };
 
   const generateDOM = () => {
@@ -438,27 +436,19 @@ const Timeline = () => {
           key={i}
           style={{
             background: "green",
-            marginTop: "1px",
-            marginLeft: "1px",
-            border: "1px solid green",
           }}
         ></div>
       );
     });
   };
 
-  // TIMELINE TA DANDO BOA, POREM QUANDO VAMOS REDIMENSIONAR A BUBBLE,
-  // O EVENTO DE SCROLL É CHAMADO, ASSIM ENVES DE REDIMENSIONAR, A TELA É SCROLLADA
-
   return (
     <div
       style={{
         paddingBottom: "600px",
-        border: "2px solid black",
         position: "relative",
         overflowX: "auto",
       }}
-      onScroll={handleScroll}
       onWheel={handleZoom}
       {...events}
       ref={ref}
@@ -474,7 +464,7 @@ const Timeline = () => {
         <ResponsiveReactGridLayout
           //className="layout"
           rowHeight={50}
-          cols={{ lg: 360, md: 10, sm: 6, xs: 4, xxs: 2 }}
+          cols={{ lg: 365, md: 10, sm: 6, xs: 4, xxs: 2 }}
           //</div>cols={{ lg: getCellWidth(), md: 10, sm: 6, xs: 4, xxs: 2 }}
           //breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           containerPadding={[0, 0]}
@@ -487,8 +477,11 @@ const Timeline = () => {
           onLayoutChange={onLayoutChange}
           //onBreakpointChange={onBreakpointChange}
           onDrop={onDrop}
-          margin={[2, 6]}
+          margin={[0, 7]}
           onDragStop={onDragStop}
+          onDragStart={onDragStart}
+          onResizeStop={onResizeStop}
+          onResizeStart={onResizeStart}
           isDroppable
         >
           {generateDOM()}
