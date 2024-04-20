@@ -6,12 +6,9 @@ import AddIcon from "@mui/icons-material/Add";
 import * as styles from "@/pages/project-board/styles";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import ColorLensIcon from "@mui/icons-material/ColorLens";
 import DeleteIcon from "@mui/icons-material/Delete";
 import OpenBubble from '@mui/icons-material/FolderOpen';
 import Compact from '@uiw/react-color-compact';
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -25,33 +22,20 @@ const getId = () => {
   return idCounter.toString();
 };
 
-function BubbleNew ({compactType, isHorizontal, stopBubble}){
+function BubbleNew ({isHorizontal, stopBubble}){
   const [layout, setLayout] = useState([]);
   const [contextMenu, setContextMenu] = useState(null);
   const [selectedBubbleIds, setSelectedBubbleIds] = useState({});
-  const [menuBubbleOptions, setMenuBubbleOptions] = useState(null);
-  const menuBubbleOptionsOpened = Boolean(menuBubbleOptions);
   const [bubbleColors, setBubbleColors] = useState({});
-  const [currentColor, setCurrentColor] = useState("#000000"); // Estado para armazenar a cor atual selecionada
-  const [isColorDialogOpen, setIsColorDialogOpen] = useState(false); 
+  const [currentColor, setCurrentColor] = useState("#000000"); 
   const [bubbleNames, setBubbleNames] = useState({});
 
-// Função para atualizar o nome da bolha
-const handleBubbleNameChange = (event, bubbleId) => {
-  const newName = event.target.value;
-  setBubbleNames((prevNames) => ({
-    ...prevNames,
-    [bubbleId]: newName,
-  }));
-};
-  const resizeHandles = isHorizontal ? ['e'] : [''];
-
-  const handleOpenMenuBubbleOptions = (event) => {
-    setMenuBubbleOptions(event.currentTarget);
+  const startEditing = () => {
+    handleCloseContextMenu();
   };
 
-  const handleCloseMenuBubbleOptions = () => {
-    setMenuBubbleOptions(null);
+  const handleOpenMenuBubbleOptions = () => {
+    handleAddBubble();
   };
 
   const handleContextMenu = (event, bubbleId) => {
@@ -79,21 +63,10 @@ const handleBubbleNameChange = (event, bubbleId) => {
       ...prevColors,
       [newItem.i]: "black",
     }));
-    handleCloseMenuBubbleOptions();
-  };
-
-  const handleCloseMenu = () => {
-    setContextMenu(null);
-  };
-
-  const handleColorPickerToggle = () => {
-    setIsColorDialogOpen(!isColorDialogOpen); // Altera o estado do diálogo de cores
-    handleCloseMenu();
   };
 
   const handleColorSelection = (color) => {
-    setCurrentColor(color.hex); // Atualiza a cor atual selecionada
-    // Atualiza automaticamente a cor da bolha selecionada com a cor atual
+    setCurrentColor(color.hex);
     Object.keys(selectedBubbleIds).forEach((bubbleId) => {
       setBubbleColors((prevColors) => ({
         ...prevColors,
@@ -111,6 +84,19 @@ const handleBubbleNameChange = (event, bubbleId) => {
     redirectToPage(bubbleId);
   };
 
+  const handleBubbleNameChange = (event, bubbleId) => {
+  const newName = event.target.value;
+  setBubbleNames((prevNames) => ({
+    ...prevNames,
+    [bubbleId]: newName,
+  }));
+};
+const isDarkColor = (color) => {
+  const [r, g, b] = color.match(/\w\w/g).map(x => parseInt(x, 16));
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness < 128;
+};
+
   return (
     <div>
       <IconButton style={styles.addBubble}>
@@ -121,25 +107,17 @@ const handleBubbleNameChange = (event, bubbleId) => {
         onClick={handleOpenMenuBubbleOptions}
       >
         <AddIcon />
-      </IconButton>
-      <Menu
-        anchorEl={menuBubbleOptions}
-        open={menuBubbleOptionsOpened}
-        onClose={handleCloseMenuBubbleOptions}
-      >
-        <MenuItem onClick={handleAddBubble}>Novo projeto</MenuItem>
-      </Menu>
-     
+      </IconButton>     
       <ReactGridLayout
-        style={{ width: '94%', height: '80%' }}
+        style={{borderRadius: "100px", width: '94%', height: '80%' }}
         onLayoutChange={(newLayout) => setLayout(newLayout)}
         layout={layout}
-        compactType={null} // controlar movimento do layout horizontal e vertical
+        compactType={null}
         isDraggable={!stopBubble}
         isResizable={true}
-        resizeHandles={resizeHandles}
+        resizeHandles={isHorizontal ? ['e'] : ['']}
         items={5}
-        margin={[4, 4]}
+        margin={[7, 7]}
         rowHeight={30}
         preventCollision={true}
       >
@@ -155,31 +133,33 @@ const handleBubbleNameChange = (event, bubbleId) => {
               alignItems: "center",
               padding: "1px",
               overflow: "auto",
+              cursor: 'grab', 
+              border: `1px solid`,
             }}
             onContextMenu={(event) => handleContextMenu(event, item.i)}
             onDoubleClick={() => handleDoubleClick(item.i)}
           >
             <input
+              autofocus
               type="text"
               style={{
                 backgroundColor: "transparent",
                 border: "none",
-                color: "white",
+                color: isDarkColor(currentColor) ? "white" : "black",
                 textAlign: "center",
                 width: "100%",
                 outline: "none",
                 fontSize: "22px",
                 fontFamily: "Arial, sans-serif",
                 fontWeight: "bold",
+                cursor: 'text' 
               }}
               onChange={(event) => handleBubbleNameChange(event, item.i)}
-              onDoubleClick={() => handleDoubleClick(item.i)}
               onContextMenu={(event) => handleContextMenu(event, item.i)}
             />
           </div>
         ))}
       </ReactGridLayout>
-
       <Menu
         anchorEl={contextMenu}
         open={contextMenu !== null}
@@ -202,7 +182,9 @@ const handleBubbleNameChange = (event, bubbleId) => {
             : undefined
         }>
           <Compact color={currentColor} onChange={handleColorSelection}/>
-          <ListItemIcon>
+        </MenuItem>
+        <MenuItem onClick={startEditing}>
+        <ListItemIcon>
             <DriveFileRenameOutlineIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>{bubbleNames[Object.keys(selectedBubbleIds)[0]]}</ListItemText>
