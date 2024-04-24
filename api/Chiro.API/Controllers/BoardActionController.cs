@@ -1,9 +1,11 @@
 using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chiro.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/board-action")]
     public class BoardActionController : ControllerBase

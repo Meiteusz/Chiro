@@ -1,10 +1,11 @@
 using Chiro.Application.Interfaces;
-using Chiro.Application.Services;
 using Chiro.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chiro.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/project")]
     public class ProjectController : ControllerBase
@@ -69,15 +70,15 @@ namespace Chiro.API.Controllers
         /// <param name="authenticateProjectSessionDTO"></param>
         /// <returns></returns>
         [HttpPost("authenticate")]
-        public async Task<IActionResult> AuthenticateProjectSessionAsync([FromBody] AuthenticateProjectSessionDTO authenticateProjectSessionDTO)
+        public IActionResult AuthenticateProjectSessionAsync([FromBody] AuthenticateProjectSessionDTO authenticateProjectSessionDTO)
         {
-            var authenticated = await _projectService.AuthenticateProjectSessionAsync(authenticateProjectSessionDTO);
-            if (!authenticated)
+            var token = _projectService.AuthenticateProjectSession(authenticateProjectSessionDTO);
+            if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Wrong password.");
             }
 
-            return Ok("Authenticated.");
+            return Ok(token);
         }
 
         /// <summary>

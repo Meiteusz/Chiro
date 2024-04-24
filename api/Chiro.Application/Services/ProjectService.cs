@@ -3,16 +3,22 @@ using Chiro.Domain.DTOs;
 using Chiro.Domain.Entities;
 using Chiro.Domain.Interfaces;
 using Chiro.Domain.Utils;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace Chiro.Application.Services
 {
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _repository;
+        private readonly IConfiguration _configuration;
 
-        public ProjectService(IProjectRepository repository)
+        public ProjectService(IProjectRepository repository, IConfiguration configuration)
         {
             _repository = repository;
+            _configuration = configuration;
         }
 
         public async Task<bool> CreateProject(CreateProjectDTO createProjectDTO)
@@ -36,10 +42,21 @@ namespace Chiro.Application.Services
             return await _repository.GetProjectsAsync();
         }
 
-        public Task<bool> AuthenticateProjectSessionAsync(AuthenticateProjectSessionDTO authenticateProjectSessionDTO)
+        public string AuthenticateProjectSession(AuthenticateProjectSessionDTO authenticateProjectSessionDTO)
         {
-            var password = Hasher.Encrypt(authenticateProjectSessionDTO.Password, "2b!BDp9fUM2OcGYJ");
-            return _repository.AuthenticateProjectSessionAsync(authenticateProjectSessionDTO.Id, password);
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var Sectoken = new JwtSecurityToken(_configuration["Jwt:Issuer"],
+              _configuration["Jwt:Issuer"],
+              null,
+              expires: DateTime.Now.AddMinutes(120),
+              signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(Sectoken);
+
+            //var password = Hasher.Encrypt(authenticateProjectSessionDTO.Password, "2b!BDp9fUM2OcGYJ");
+            //return _repository.AuthenticateProjectSessionAsync(authenticateProjectSessionDTO.Id, password);
         }
 
         public async Task<bool> ResizeAsync(ResizeProjectDTO resizeProjectDTO)

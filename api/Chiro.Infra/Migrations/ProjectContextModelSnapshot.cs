@@ -30,13 +30,22 @@ namespace Chiro.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<DateTime?>("AdjustedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("ConcludedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<double>("Height")
                         .HasColumnType("double precision");
@@ -49,6 +58,9 @@ namespace Chiro.Infra.Migrations
 
                     b.Property<long>("ProjectId")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<double>("Width")
                         .HasColumnType("double precision");
@@ -97,7 +109,7 @@ namespace Chiro.Infra.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("Chiro.Domain.Entities.TimelineAction", b =>
+            modelBuilder.Entity("Chiro.Domain.Entities.User", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -105,31 +117,25 @@ namespace Chiro.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTime?>("AdjustedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<long>("BoardActionId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime?>("ConcludedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BoardActionId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("TimelineActions");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Chiro.Domain.Entities.BoardAction", b =>
@@ -143,30 +149,9 @@ namespace Chiro.Infra.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("Chiro.Domain.Entities.TimelineAction", b =>
-                {
-                    b.HasOne("Chiro.Domain.Entities.BoardAction", "BoardAction")
-                        .WithMany()
-                        .HasForeignKey("BoardActionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Chiro.Domain.Entities.Project", "Project")
-                        .WithMany("TimelineActions")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BoardAction");
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("Chiro.Domain.Entities.Project", b =>
                 {
                     b.Navigation("BoardActions");
-
-                    b.Navigation("TimelineActions");
                 });
 #pragma warning restore 612, 618
         }

@@ -15,11 +15,12 @@ namespace Chiro.Infra
 
         public DbSet<BoardAction> BoardActions { get; set; }
         public DbSet<Domain.Entities.Project> Projects { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-                optionsBuilder.UseNpgsql("Host=localhost:5432; Database=chiro; Username=pguser; Password=pgadmin");
+                optionsBuilder.UseNpgsql("Host=localhost:5432; Database=chiro_nova; Username=pguser; Password=pgadmin");
         }
     }
 }
