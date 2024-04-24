@@ -2,7 +2,7 @@
 
 namespace Chiro.Application.Interfaces
 {
-    public interface IBoardActionServices
+    public interface IBoardActionService
     {
         Task<bool> CreateBoardAction(CreateBoardActionDTO createBoardActionDTO);
 
@@ -11,5 +11,9 @@ namespace Chiro.Application.Interfaces
         Task<bool> Resize(ResizeBoardActionDTO resizeBoardActionDTO);
 
         Task<bool> Move(MoveBoardActionDTO moveBoardActionDTO);
+
+        Task<bool> ChangePeriod(ChangePeriodDTO changePeriodDTO);
+
+        Task<bool> ConcludeBoardAction(ConcludeBoardActionDTO concludeBoardActionDTO);
     }
 }

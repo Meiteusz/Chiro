@@ -3,7 +3,7 @@ using Chiro.Domain.Entities;
 
 namespace Chiro.Application.Interfaces
 {
-    public interface IProjectServices
+    public interface IProjectService
     {
         Task<bool> CreateProject(CreateProjectDTO createProjectDTO);
 

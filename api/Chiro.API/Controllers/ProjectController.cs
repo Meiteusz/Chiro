@@ -10,9 +10,9 @@ namespace Chiro.API.Controllers
     public class ProjectController : ControllerBase
     {
         private readonly ILogger<BoardActionController> _logger;
-        private readonly IProjectServices _projectService;
+        private readonly IProjectService _projectService;
 
-        public ProjectController(ILogger<BoardActionController> logger, IProjectServices projectService)
+        public ProjectController(ILogger<BoardActionController> logger, IProjectService projectService)
         {
             _logger = logger;
             _projectService = projectService;

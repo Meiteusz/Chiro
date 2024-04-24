@@ -15,12 +15,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<ProjectContext>();
-builder.Services.AddTransient<IBoardActionServices, BoardActionService>();
+builder.Services.AddTransient<IBoardActionService, BoardActionService>();
 builder.Services.AddTransient<IBoardActionRepository, BoardActionRepository>();
-builder.Services.AddTransient<IProjectServices, ProjectServices>();
+builder.Services.AddTransient<IProjectService, ProjectService>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
-builder.Services.AddTransient<ITimelineActionService, TimelineActionService>();
-builder.Services.AddTransient<ITimelineActionRepository, TimelineActionRepository>();
 
 var app = builder.Build();
 

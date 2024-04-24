@@ -1,4 +1,6 @@
-﻿namespace Chiro.Domain.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Chiro.Domain.DTOs
 {
     public class CreateBoardActionDTO
     {
@@ -9,5 +11,11 @@
         public double PositionX { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
+
+        [Required(ErrorMessage = "O campo StartDate deve ser preenchido.")]
+        public DateTime StartDate { get; set; }
+
+        [Required(ErrorMessage = "O campo EndDate deve ser preenchido.")]
+        public DateTime EndDate { get; set; }
     }
 }

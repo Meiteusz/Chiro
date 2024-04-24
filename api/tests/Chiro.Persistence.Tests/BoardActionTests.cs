@@ -6,16 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chiro.Persistence.Tests
 {
-    public class TimelineActionTests : IRepositoryTestBase
+    public class BoardActionTests : IRepositoryTestBase
     {
         private ProjectContext _context;
-        private TimelineActionRepository _repository;
+        private BoardActionRepository _repository;
 
         [SetUp]
         public void Setup()
         {
             _context = CreateInMemoryDatabase();
-            _repository = new TimelineActionRepository(_context);
+            _repository = new BoardActionRepository(_context);
         }
 
         [TearDown]
@@ -25,14 +25,14 @@ namespace Chiro.Persistence.Tests
         }
 
         [Test]
-        public async Task ChangePeriodAsync_ExistingTimelineAction_ShouldChangeTimelineActionPeriod()
+        public async Task ChangePeriodAsync_ExistingBoardAction_ShouldChangeBoardActionPeriod()
         {
             // Arrange
             var newStartDate = DateTime.Now.AddDays(5);
             var newEndDate = DateTime.Now.AddDays(6);
 
             // Act
-            var result = await _repository.ChangePeriodAsync(1, new TimelineAction
+            var result = await _repository.ChangePeriodAsync(1, new BoardAction
             {
                 StartDate = newStartDate,
                 EndDate = newEndDate,
@@ -41,19 +41,19 @@ namespace Chiro.Persistence.Tests
             // Assert
             result.Should().BeTrue();
 
-            var timelineAction = await _context.TimelineActions.FirstAsync(w => w.Id == 1);
-            await _context.Entry(timelineAction).ReloadAsync();
+            var BoardAction = await _context.BoardActions.FirstAsync(w => w.Id == 1);
+            await _context.Entry(BoardAction).ReloadAsync();
 
-            timelineAction.Should().NotBeNull();
-            timelineAction.StartDate.Should().Be(newStartDate);
-            timelineAction.EndDate.Should().Be(newEndDate);
+            BoardAction.Should().NotBeNull();
+            BoardAction.StartDate.Should().Be(newStartDate);
+            BoardAction.EndDate.Should().Be(newEndDate);
         }
 
         [Test]
-        public async Task ChangePeriodAsync_NotExistingTimelineAction_ShouldNotChangeTimelineActionPeriod()
+        public async Task ChangePeriodAsync_NotExistingBoardAction_ShouldNotChangeBoardActionPeriod()
         {
             // Act
-            var result = await _repository.ChangePeriodAsync(2, new TimelineAction
+            var result = await _repository.ChangePeriodAsync(2, new BoardAction
             {
                 StartDate = DateTime.Now.AddDays(5),
                 EndDate = DateTime.Now.AddDays(6),
@@ -62,18 +62,18 @@ namespace Chiro.Persistence.Tests
             // Assert
             result.Should().BeFalse();
 
-            var timelineAction = await _context.TimelineActions.FirstOrDefaultAsync(w => w.Id == 2);
-            timelineAction.Should().BeNull();
+            var BoardAction = await _context.BoardActions.FirstOrDefaultAsync(w => w.Id == 2);
+            BoardAction.Should().BeNull();
         }
 
         [Test]
-        public async Task ConcludeTimelineActionAsync_ExistingTimelineAction_ShouldConcludeTimelineAction()
+        public async Task ConcludeBoardActionAsync_ExistingBoardAction_ShouldConcludeBoardAction()
         {
             // Arrange
             var concludedAt = DateTime.Now.AddDays(1);
 
             // Act
-            var result = await _repository.ConcludeTimelineActionAsync(1, new TimelineAction
+            var result = await _repository.ConcludeBoardActionAsync(1, new BoardAction
             {
                 ConcludedAt = concludedAt
             });
@@ -81,18 +81,18 @@ namespace Chiro.Persistence.Tests
             // Assert
             result.Should().BeTrue();
 
-            var timelineAction = await _context.TimelineActions.FirstAsync(w => w.Id == 1);
-            await _context.Entry(timelineAction).ReloadAsync();
-            timelineAction.Should().NotBeNull();
+            var BoardAction = await _context.BoardActions.FirstAsync(w => w.Id == 1);
+            await _context.Entry(BoardAction).ReloadAsync();
+            BoardAction.Should().NotBeNull();
 
-            timelineAction.ConcludedAt.Should().Be(concludedAt);
+            BoardAction.ConcludedAt.Should().Be(concludedAt);
         }
 
         [Test]
-        public async Task ConcludeTimelineActionAsync_NotExistingTimelineAction_ShouldNotConcludeTimelineAction()
+        public async Task ConcludeBoardActionAsync_NotExistingBoardAction_ShouldNotConcludeBoardAction()
         {
             // Act
-            var result = await _repository.ConcludeTimelineActionAsync(2, new TimelineAction
+            var result = await _repository.ConcludeBoardActionAsync(2, new BoardAction
             {
                 ConcludedAt = DateTime.Now.AddDays(1),
             });
@@ -100,12 +100,12 @@ namespace Chiro.Persistence.Tests
             // Assert
             result.Should().BeFalse();
 
-            var timelineAction = await _context.TimelineActions.FirstOrDefaultAsync(w => w.Id == 2);
-            timelineAction.Should().BeNull();
+            var BoardAction = await _context.BoardActions.FirstOrDefaultAsync(w => w.Id == 2);
+            BoardAction.Should().BeNull();
         }
 
         [Test]
-        public async Task CreateTimelineActionAsync_ValidTimelineAction_ShouldCreateTimelineAction()
+        public async Task CreateBoardActionAsync_ValidBoardAction_ShouldCreateBoardAction()
         {
             // Arrange
             var startDate = DateTime.Now;
@@ -116,20 +116,20 @@ namespace Chiro.Persistence.Tests
 
             using (var context = new ProjectContext(dbOptions.Options))
             {
-                var repository = new TimelineActionRepository(context);
-                var result = await repository.CreateTimelineActionAsync(new TimelineAction
+                var repository = new BoardActionRepository(context);
+                var result = await repository.CreateBoardActionAsync(new BoardAction
                 {
                     StartDate = startDate,
                     EndDate = endDate,
                 });
 
                 result.Should().BeTrue();
-                var timelineAction = await context.TimelineActions.FirstAsync();
+                var BoardAction = await context.BoardActions.FirstAsync();
 
-                timelineAction.Should().NotBeNull();
-                timelineAction.Id.Should().Be(1);
-                timelineAction.StartDate.Should().Be(startDate);
-                timelineAction.EndDate.Should().Be(endDate);
+                BoardAction.Should().NotBeNull();
+                BoardAction.Id.Should().Be(1);
+                BoardAction.StartDate.Should().Be(startDate);
+                BoardAction.EndDate.Should().Be(endDate);
             }
         }
 
@@ -139,7 +139,7 @@ namespace Chiro.Persistence.Tests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             _context = new ProjectContext(dbOptions.Options);
-            _context.TimelineActions.Add(new TimelineAction
+            _context.BoardActions.Add(new BoardAction
             {
                 StartDate = DateTime.Now.AddDays(-1),
                 EndDate = DateTime.Now.AddDays(1)

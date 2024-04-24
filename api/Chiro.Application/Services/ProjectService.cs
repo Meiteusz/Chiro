@@ -6,11 +6,11 @@ using Chiro.Domain.Utils;
 
 namespace Chiro.Application.Services
 {
-    public class ProjectServices : IProjectServices
+    public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _repository;
 
-        public ProjectServices(IProjectRepository repository)
+        public ProjectService(IProjectRepository repository)
         {
             _repository = repository;
         }
