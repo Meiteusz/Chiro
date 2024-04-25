@@ -1,4 +1,6 @@
-﻿namespace Chiro.Domain.Entities
+﻿using Chiro.Domain.Enums;
+
+namespace Chiro.Domain.Entities
 {
     public class BoardAction : BaseEntity
     {
@@ -12,6 +14,7 @@
         public DateTime EndDate { get; set; }
         public DateTime? AdjustedDate { get; set; }
         public DateTime? ConcludedAt { get; set; }
+        public BoardActionType BoardActionType { get; set; }
 
         public long ProjectId { get; set; }
         public Project Project { get; set; }

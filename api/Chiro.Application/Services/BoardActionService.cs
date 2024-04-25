@@ -1,6 +1,7 @@
 ﻿using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
 using Chiro.Domain.Entities;
+using Chiro.Domain.Enums;
 using Chiro.Domain.Interfaces;
 
 namespace Chiro.Application.Services
@@ -36,6 +37,7 @@ namespace Chiro.Application.Services
                 PositionY = createBoardActionDTO.PositionY,
                 StartDate = createBoardActionDTO.StartDate,
                 EndDate = createBoardActionDTO.EndDate,
+                BoardActionType = createBoardActionDTO.BoardActionType
             };
 
             return await _repository.CreateBoardActionAsync(boardAction);

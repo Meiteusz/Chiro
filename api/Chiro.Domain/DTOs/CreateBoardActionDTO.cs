@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Chiro.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Chiro.Domain.DTOs
 {
@@ -11,6 +12,7 @@ namespace Chiro.Domain.DTOs
         public double PositionX { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
+        public BoardActionType BoardActionType { get; set; }
 
         [Required(ErrorMessage = "O campo StartDate deve ser preenchido.")]
         public DateTime StartDate { get; set; }
