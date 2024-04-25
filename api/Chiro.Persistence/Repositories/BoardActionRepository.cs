@@ -1,4 +1,5 @@
-﻿using Chiro.Domain.Entities;
+﻿using Chiro.Domain.DTOs;
+using Chiro.Domain.Entities;
 using Chiro.Domain.Interfaces;
 using Chiro.Infra;
 
@@ -75,6 +76,12 @@ namespace Chiro.Persistence.Repositories
         public List<BoardAction> GetBoardActionByProjectId(long projectId)
         {
             return _context.BoardActions.Where(time => time.ProjectId == projectId).ToList();
+        }
+
+        public async Task<bool> LinkAsync(BoardActionLink boardActionLink)
+        {
+            _context.BoardActionLinks.Add(boardActionLink);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Chiro.API.Controllers
         [HttpPost()]
         public async Task<IActionResult> CreateAsync([FromBody] CreateBoardActionDTO createBoardActionDTO)
         {
-            var createdBoardAction = await _boardActionService.CreateBoardAction(createBoardActionDTO);
+            var createdBoardAction = await _boardActionService.CreateBoardActionAsync(createBoardActionDTO);
             if (!createdBoardAction)
             {
                 return BadRequest("Board Action couldn't be created.");
@@ -44,7 +44,7 @@ namespace Chiro.API.Controllers
         [HttpPost("change-color")]
         public async Task<IActionResult> ChangeColorAsync([FromBody] ChangeBoardActionColorDTO changeBoardActionColorDTO)
         {
-            var changedColor = await _boardActionService.ChangeColor(changeBoardActionColorDTO);
+            var changedColor = await _boardActionService.ChangeColorAsync(changeBoardActionColorDTO);
             if (!changedColor)
             {
                 return BadRequest("Color couldn't be changed.");
@@ -61,7 +61,7 @@ namespace Chiro.API.Controllers
         [HttpPost("resize")]
         public async Task<IActionResult> ResizeAsync([FromBody] ResizeBoardActionDTO resizeBoardActionDTO)
         {
-            var resized = await _boardActionService.Resize(resizeBoardActionDTO);
+            var resized = await _boardActionService.ResizeAsync(resizeBoardActionDTO);
             if (!resized)
             {
                 return BadRequest("Board Action couldn't be resized.");
@@ -78,7 +78,7 @@ namespace Chiro.API.Controllers
         [HttpPost("move")]
         public async Task<IActionResult> MoveAsync([FromBody] MoveBoardActionDTO moveBoardActionDTO)
         {
-            var moved = await _boardActionService.Move(moveBoardActionDTO);
+            var moved = await _boardActionService.MoveAsync(moveBoardActionDTO);
             if (!moved)
             {
                 return BadRequest("Board Action couldn't be moved.");
@@ -88,14 +88,14 @@ namespace Chiro.API.Controllers
         }
 
         /// <summary>
-        /// Altera o tempo de uma timeline action dentro da timeline.
+        /// Altera o tempo de uma board action dentro da board.
         /// </summary>
         /// <param name="changePeriodDTO"></param>
         /// <returns></returns>
         [HttpPost("change-period")]
         public async Task<IActionResult> ChangePeriodAsync([FromBody] ChangePeriodDTO changePeriodDTO)
         {
-            var chengedPeriod = await _boardActionService.ChangePeriod(changePeriodDTO);
+            var chengedPeriod = await _boardActionService.ChangePeriodAsync(changePeriodDTO);
             if (!chengedPeriod)
             {
                 return BadRequest("Period couldn't be changed.");
@@ -105,20 +105,37 @@ namespace Chiro.API.Controllers
         }
 
         /// <summary>
-        /// Altera o tempo de uma timeline action dentro da timeline.
+        /// Altera o tempo de uma board action dentro da board.
         /// </summary>
         /// <param name="changePeriodDTO"></param>
         /// <returns></returns>
         [HttpPost("conclude")]
         public async Task<IActionResult> ConcludeAsync([FromBody] ConcludeBoardActionDTO concludeBoardActionDTO)
         {
-            var chengedPeriod = await _boardActionService.ConcludeBoardAction(concludeBoardActionDTO);
+            var chengedPeriod = await _boardActionService.ConcludeBoardActionAsync(concludeBoardActionDTO);
             if (!chengedPeriod)
             {
-                return BadRequest("Timeline Action couldn't be concluded.");
+                return BadRequest("Board Action couldn't be concluded.");
             }
 
-            return Ok("Timeline Action Concluded.");
+            return Ok("Board Action Concluded.");
+        }
+
+        /// <summary>
+        /// Altera o tempo de uma board action dentro da board.
+        /// </summary>
+        /// <param name="changePeriodDTO"></param>
+        /// <returns></returns>
+        [HttpPost("link")]
+        public async Task<IActionResult> LinkAsync([FromBody] LinkBoardActionDTO linkBoardActionDTO)
+        {
+            var linked = await _boardActionService.LinkAsync(linkBoardActionDTO);
+            if (!linked)
+            {
+                return BadRequest("Board Action couldn't be linked.");
+            }
+
+            return Ok("Board Action Linked.");
         }
     }
 }

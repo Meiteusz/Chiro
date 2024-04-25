@@ -21,6 +21,7 @@ namespace Chiro.Persistence.Repositories
         public async Task<Domain.Entities.Project?> GetProjectAsync(long projectId)
         {
             return await _context.Projects.Include(i => i.BoardActions)
+                                          .ThenInclude(i => i.BoardActionLinks)
                                           .FirstOrDefaultAsync();
         }
 
@@ -62,6 +63,12 @@ namespace Chiro.Persistence.Repositories
                                               {
                                                   Color = project.Color
                                               }) > 0;
+        }
+
+        public async Task<List<Domain.Entities.Project>> GetProjectsWithActionsAsync()
+        {
+            return await _context.Projects.Include(i => i.BoardActions).ThenInclude(i => i.BoardActionLinks)
+                                          .ToListAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Chiro.Domain.Entities;
+﻿using Chiro.Domain.DTOs;
+using Chiro.Domain.Entities;
 
 namespace Chiro.Domain.Interfaces
 {
@@ -19,5 +20,7 @@ namespace Chiro.Domain.Interfaces
         Task<bool> ConcludeBoardActionAsync(long BoardActionId, BoardAction BoardAction);
 
         List<BoardAction> GetBoardActionByProjectId(long projectId);
+
+        Task<bool> LinkAsync(BoardActionLink boardActionLink);
     }
 }

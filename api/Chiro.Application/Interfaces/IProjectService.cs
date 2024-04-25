@@ -18,5 +18,9 @@ namespace Chiro.Application.Interfaces
         Task<bool> MoveAsync(MoveProjectDTO moveProjectDTO);
 
         Task<bool> ChangeColorAsync(ChangeProjectColorDTO changeProjectColorDTO);
+
+        Task<List<Project>> GetProjectsWithActionsAsync();
+
+        Task<Project?> GetDelayedProjectAsync(long projectId);
     }
 }

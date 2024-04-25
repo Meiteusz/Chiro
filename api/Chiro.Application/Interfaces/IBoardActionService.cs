@@ -4,16 +4,18 @@ namespace Chiro.Application.Interfaces
 {
     public interface IBoardActionService
     {
-        Task<bool> CreateBoardAction(CreateBoardActionDTO createBoardActionDTO);
+        Task<bool> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO);
 
-        Task<bool> ChangeColor(ChangeBoardActionColorDTO changeBoardActionColorDTO);
+        Task<bool> ChangeColorAsync(ChangeBoardActionColorDTO changeBoardActionColorDTO);
 
-        Task<bool> Resize(ResizeBoardActionDTO resizeBoardActionDTO);
+        Task<bool> ResizeAsync(ResizeBoardActionDTO resizeBoardActionDTO);
 
-        Task<bool> Move(MoveBoardActionDTO moveBoardActionDTO);
+        Task<bool> MoveAsync(MoveBoardActionDTO moveBoardActionDTO);
 
-        Task<bool> ChangePeriod(ChangePeriodDTO changePeriodDTO);
+        Task<bool> ChangePeriodAsync(ChangePeriodDTO changePeriodDTO);
 
-        Task<bool> ConcludeBoardAction(ConcludeBoardActionDTO concludeBoardActionDTO);
+        Task<bool> ConcludeBoardActionAsync(ConcludeBoardActionDTO concludeBoardActionDTO);
+
+        Task<bool> LinkAsync(LinkBoardActionDTO linkBoardActionDTO);
     }
 }

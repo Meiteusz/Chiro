@@ -15,5 +15,36 @@
 
         public long ProjectId { get; set; }
         public Project Project { get; set; }
+
+        public List<BoardActionLink> BoardActionLinks { get; set; }
+
+        public void DelaySelfAndChilds()
+        {
+            var alreadyAdjustedActions = new List<long>();
+            DelaySelf();
+            alreadyAdjustedActions.Add(Id);
+
+            if (BoardActionLinks is null || !BoardActionLinks.Any())
+            {
+                return;
+            }
+
+            foreach (var boardActionLink in BoardActionLinks)
+            {
+                if (alreadyAdjustedActions.Exists(w => w == boardActionLink.LinkedBoardActionId))
+                {
+                    continue;
+                }
+
+                boardActionLink.LinkedBoardAction.DelaySelf();
+                alreadyAdjustedActions.Add(boardActionLink.LinkedBoardActionId);
+            }
+        }
+
+        private void DelaySelf()
+        {
+            StartDate.AddDays(1);
+            EndDate.AddDays(1);
+        }
     }
 }

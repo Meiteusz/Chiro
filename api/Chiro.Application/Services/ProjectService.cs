@@ -14,11 +14,13 @@ namespace Chiro.Application.Services
     {
         private readonly IProjectRepository _repository;
         private readonly IConfiguration _configuration;
+        private readonly IActionDelayService _actionDelayService;
 
-        public ProjectService(IProjectRepository repository, IConfiguration configuration)
+        public ProjectService(IProjectRepository repository, IConfiguration configuration, IActionDelayService actionDelayService)
         {
             _repository = repository;
             _configuration = configuration;
+            _actionDelayService = actionDelayService;
         }
 
         public async Task<bool> CreateProject(CreateProjectDTO createProjectDTO)
@@ -35,6 +37,12 @@ namespace Chiro.Application.Services
         public async Task<Project?> GetProjectAsync(long projectId)
         {
             return await _repository.GetProjectAsync(projectId);
+        }
+
+        public async Task<Project?> GetDelayedProjectAsync(long projectId)
+        {
+            await _actionDelayService.DelayActionsByProjectId(projectId);
+            return await GetProjectAsync(projectId);
         }
 
         public async Task<List<Project>> GetProjectsAsync()
@@ -54,9 +62,6 @@ namespace Chiro.Application.Services
               signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(Sectoken);
-
-            //var password = Hasher.Encrypt(authenticateProjectSessionDTO.Password, "2b!BDp9fUM2OcGYJ");
-            //return _repository.AuthenticateProjectSessionAsync(authenticateProjectSessionDTO.Id, password);
         }
 
         public async Task<bool> ResizeAsync(ResizeProjectDTO resizeProjectDTO)
@@ -91,6 +96,11 @@ namespace Chiro.Application.Services
             };
 
             return await _repository.ChangeColorAsync(project);
+        }
+
+        public async Task<List<Project>> GetProjectsWithActionsAsync()
+        {
+            return await _repository.GetProjectsWithActionsAsync();
         }
     }
 }

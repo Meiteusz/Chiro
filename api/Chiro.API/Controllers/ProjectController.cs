@@ -1,4 +1,6 @@
+using Chiro.Application.Exceptions;
 using Chiro.Application.Interfaces;
+using Chiro.Application.Services;
 using Chiro.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +14,13 @@ namespace Chiro.API.Controllers
     {
         private readonly ILogger<BoardActionController> _logger;
         private readonly IProjectService _projectService;
+        private readonly IActionDelayService _actionDelayService;
 
-        public ProjectController(ILogger<BoardActionController> logger, IProjectService projectService)
+        public ProjectController(ILogger<BoardActionController> logger, IProjectService projectService, IActionDelayService actionDelayService)
         {
             _logger = logger;
             _projectService = projectService;
+            _actionDelayService = actionDelayService;
         }
 
         /// <summary>
@@ -48,20 +52,27 @@ namespace Chiro.API.Controllers
         }
 
         /// <summary>
-        /// Buscar um único projeto juntamente com o Board e a Timeline.
+        /// Buscar um único projeto juntamente com o Board e a Board.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProjectAsync(long id)
         {
-            var result = await _projectService.GetProjectAsync(id);
-            if (result is null)
+            try
+            {
+                var result = await _projectService.GetDelayedProjectAsync(id);
+                if (result is null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (BusinessException)
             {
                 return NotFound();
             }
-
-            return Ok(result);
         }
 
         /// <summary>

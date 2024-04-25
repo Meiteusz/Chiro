@@ -13,7 +13,7 @@ namespace Chiro.Application.Services
             _repository = boardActionRepository;
         }
 
-        public async Task<bool> ChangeColor(ChangeBoardActionColorDTO changeBoardActionColorDTO)
+        public async Task<bool> ChangeColorAsync(ChangeBoardActionColorDTO changeBoardActionColorDTO)
         {
             var boardAction = new BoardAction
             {
@@ -23,7 +23,7 @@ namespace Chiro.Application.Services
             return await _repository.ChangeColorAsync(changeBoardActionColorDTO.Id, boardAction);
         }
 
-        public async Task<bool> CreateBoardAction(CreateBoardActionDTO createBoardActionDTO)
+        public async Task<bool> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO)
         {
             var boardAction = new BoardAction
             {
@@ -41,7 +41,7 @@ namespace Chiro.Application.Services
             return await _repository.CreateBoardActionAsync(boardAction);
         }
 
-        public async Task<bool> Move(MoveBoardActionDTO moveBoardActionDTO)
+        public async Task<bool> MoveAsync(MoveBoardActionDTO moveBoardActionDTO)
         {
             var boardAction = new BoardAction
             {
@@ -52,7 +52,7 @@ namespace Chiro.Application.Services
             return await _repository.MoveAsync(moveBoardActionDTO.Id, boardAction);
         }
 
-        public async Task<bool> Resize(ResizeBoardActionDTO resizeBoardActionDTO)
+        public async Task<bool> ResizeAsync(ResizeBoardActionDTO resizeBoardActionDTO)
         {
             var boardAction = new BoardAction
             {
@@ -63,25 +63,36 @@ namespace Chiro.Application.Services
             return await _repository.ResizeAsync(resizeBoardActionDTO.Id, boardAction);
         }
 
-        public async Task<bool> ChangePeriod(ChangePeriodDTO changePeriodDTO)
+        public async Task<bool> ChangePeriodAsync(ChangePeriodDTO changePeriodDTO)
         {
-            var timeline = new BoardAction
+            var board = new BoardAction
             {
                 StartDate = changePeriodDTO.StartDate,
                 EndDate = changePeriodDTO.EndDate,
             };
 
-            return await _repository.ChangePeriodAsync(changePeriodDTO.Id, timeline);
+            return await _repository.ChangePeriodAsync(changePeriodDTO.Id, board);
         }
 
-        public async Task<bool> ConcludeBoardAction(ConcludeBoardActionDTO concludeBoardActionDTO)
+        public async Task<bool> ConcludeBoardActionAsync(ConcludeBoardActionDTO concludeBoardActionDTO)
         {
-            var timeline = new BoardAction
+            var board = new BoardAction
             {
                 ConcludedAt = DateTime.Now
             };
 
-            return await _repository.ConcludeBoardActionAsync(concludeBoardActionDTO.Id, timeline);
+            return await _repository.ConcludeBoardActionAsync(concludeBoardActionDTO.Id, board);
+        }
+
+        public async Task<bool> LinkAsync(LinkBoardActionDTO linkBoardActionDTO)
+        {
+            var boardActionLink = new BoardActionLink
+            {
+                BaseBoardActionId = linkBoardActionDTO.BaseBoardActionId,
+                LinkedBoardActionId = linkBoardActionDTO.LinkedBoardActionId
+            };
+
+            return await _repository.LinkAsync(boardActionLink);
         }
     }
 }

@@ -17,5 +17,7 @@ namespace Chiro.Domain.Interfaces
         Task<bool> MoveAsync(Project project);
 
         Task<bool> ChangeColorAsync(Project project);
+
+        Task<List<Project>> GetProjectsWithActionsAsync();
     }
 }
