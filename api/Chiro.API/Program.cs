@@ -54,6 +54,9 @@ builder.Services.AddTransient<IBoardActionService, BoardActionService>();
 builder.Services.AddTransient<IBoardActionRepository, BoardActionRepository>();
 builder.Services.AddTransient<IProjectService, ProjectService>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
+builder.Services.AddTransient<IActionDelayService, ActionDelayService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
 
 var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();

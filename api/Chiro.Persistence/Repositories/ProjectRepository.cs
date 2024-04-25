@@ -20,7 +20,7 @@ namespace Chiro.Persistence.Repositories
 
         public async Task<Domain.Entities.Project?> GetProjectAsync(long projectId)
         {
-            return await _context.Projects.Include(i => i.BoardActions)
+            return await _context.Projects.Where(w => w.Id == projectId).Include(i => i.BoardActions)
                                           .ThenInclude(i => i.BoardActionLinks)
                                           .FirstOrDefaultAsync();
         }

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Chiro.Application.Services
 {
-    internal class UserService : IUserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _repository;
         private readonly IConfiguration _configuration;

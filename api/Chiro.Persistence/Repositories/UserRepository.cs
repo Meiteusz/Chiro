@@ -4,7 +4,7 @@ using Chiro.Infra;
 
 namespace Chiro.Persistence.Repositories
 {
-    internal class UserRepository : IUserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly ProjectContext _context;
 

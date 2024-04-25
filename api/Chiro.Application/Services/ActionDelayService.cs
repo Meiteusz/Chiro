@@ -1,19 +1,23 @@
 ﻿using Chiro.Application.Exceptions;
-using Chiro.Application.Interfaces;
+using Chiro.Infra;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chiro.Application.Services
 {
     public class ActionDelayService : IActionDelayService
     {
-        private readonly IProjectService _projectService;
-        public ActionDelayService(IProjectService projectService)
+        private readonly ProjectContext _context;
+        public ActionDelayService(ProjectContext context)
         {
-            _projectService = projectService;
+            _context = context;
         }
 
         public async Task DelayActionsByProjectId(long projectId)
         {
-            var project = await _projectService.GetProjectAsync(projectId);
+            var project = await _context.Projects.Where(w => w.Id == projectId).Include(i => i.BoardActions)
+                                          .ThenInclude(i => i.BoardActionLinks)
+                                          .FirstOrDefaultAsync();
+
             if (project is null)
             {
                 throw new BusinessException("Project not found.");
@@ -33,6 +37,8 @@ namespace Chiro.Application.Services
             {
                 boardAction.DelaySelfAndChilds();
             }
+
+            await _context.SaveChangesAsync();
         }
     }
 }
