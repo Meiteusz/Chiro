@@ -15,7 +15,7 @@ namespace Chiro.Infra
 
         public DbSet<BoardAction> BoardActions { get; set; }
         public DbSet<Domain.Entities.Project> Projects { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<AuthenticationToken> AuthenticationTokens { get; set; }
         public DbSet<BoardActionLink> BoardActionLinks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -8,31 +8,20 @@ using System.Text;
 
 namespace Chiro.Application.Services
 {
-    public class UserService : IUserService
+    public class AuthenticationTokenService : IAuthenticationTokenService
     {
-        private readonly IUserRepository _repository;
+        private readonly IAuthenticationTokenRepository _repository;
         private readonly IConfiguration _configuration;
 
-        public UserService(IUserRepository repository, IConfiguration configuration)
+        public AuthenticationTokenService(IAuthenticationTokenRepository repository, IConfiguration configuration)
         {
             _repository = repository;
             _configuration = configuration;
         }
 
-        public Task<bool> CreateUserAsync(CreateUserDTO createUserDTO)
+        public async Task<string> Authenticate(AuthenticateDTO authenticateDTO)
         {
-            return _repository.CreateUserAsync(new Domain.Entities.User
-            {
-                FirstName = createUserDTO.FirstName,
-                LastName = createUserDTO.LastName,
-                Login = createUserDTO.Login,
-                Password = createUserDTO.Password,
-            });
-        }
-
-        public string Authenticate(AuthenticateDTO authenticateDTO)
-        {
-            var authenticated = _repository.ExistsUserByLoginAndPassword(authenticateDTO.Login, authenticateDTO.Password);
+            var authenticated = await _repository.ExistsByToken(authenticateDTO.Token);
             if (!authenticated)
             {
                 return string.Empty;
