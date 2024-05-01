@@ -14,7 +14,7 @@ namespace Chiro.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<bool> ExistsByToken(string token)
+        public async Task<bool> ExistsByTokenAsync(string token)
         {
             return await _context.AuthenticationTokens.AnyAsync(w => w.Token == token);
         }

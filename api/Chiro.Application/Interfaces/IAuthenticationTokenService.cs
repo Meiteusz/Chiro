@@ -4,6 +4,6 @@ namespace Chiro.Application.Interfaces
 {
     public interface IAuthenticationTokenService
     {
-        Task<string> Authenticate(AuthenticateDTO authenticateDTO);
+        Task<string> AuthenticateAsync(AuthenticateDTO authenticateDTO);
     }
 }

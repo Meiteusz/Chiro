@@ -19,9 +19,9 @@ namespace Chiro.Application.Services
             _configuration = configuration;
         }
 
-        public async Task<string> Authenticate(AuthenticateDTO authenticateDTO)
+        public async Task<string> AuthenticateAsync(AuthenticateDTO authenticateDTO)
         {
-            var authenticated = await _repository.ExistsByToken(authenticateDTO.Token);
+            var authenticated = await _repository.ExistsByTokenAsync(authenticateDTO.Token);
             if (!authenticated)
             {
                 return string.Empty;

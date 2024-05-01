@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chiro.API.Controllers
 {
     [ApiController]
-    [Route("api/v1/user")]
+    [Route("api/v1/auth")]
     public class AuthenticationTokenController : ControllerBase
     {
         private readonly IAuthenticationTokenService _authenticationTokenService;
@@ -20,7 +20,7 @@ namespace Chiro.API.Controllers
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody] AuthenticateDTO authenticateDTO)
         {
-            var token = await _authenticationTokenService.Authenticate(authenticateDTO);
+            var token = await _authenticationTokenService.AuthenticateAsync(authenticateDTO);
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("Token incorreto.");
