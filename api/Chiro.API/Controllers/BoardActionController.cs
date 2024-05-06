@@ -24,7 +24,8 @@ namespace Chiro.API.Controllers
         /// </summary>
         /// <param name="createBoardActionDTO"></param>
         /// <returns></returns>
-        [HttpPost()]
+        [AllowAnonymous]
+        [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] CreateBoardActionDTO createBoardActionDTO)
         {
             var createdBoardAction = await _boardActionService.CreateBoardActionAsync(createBoardActionDTO);
