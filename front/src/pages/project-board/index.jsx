@@ -1,29 +1,35 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import IconButton from "@mui/material/IconButton";
-import AddIcon from "@mui/icons-material/Add";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
-import Bubble from "@/components/bubble/bubble";
-import ClassicButton from "@/components/ui/buttons";
-import Navbar from "@/components/navbar";
-import Timeline from "@/components/timeline";
-import * as styles from "@/pages/project-board/styles";
+import { useState, useRef, useEffect } from "react";
 import { Grid } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
+import IconButton from "@mui/material/IconButton";
+import AddIcon from "@mui/icons-material/Add";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import BubbleTask from "@/components/bubble-v2/bubble-task";
+import ClassicButton from "@/components/ui/buttons";
+import Navbar from "@/components/navbar";
+import Timeline from "@/pages/project-board/timeline";
+import * as styles from "@/pages/project-board/styles";
 
 import "@/app/globals.css";
+import "../../components/bubble-v2/styles.css";
+
+let idCounter = 0;
+
+const getId = () => {
+  idCounter++;
+  return idCounter.toString();
+};
 
 function ProjectBoard() {
-  const [bubbles, setBubbles] = useState([]);
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
   const [dateModalOpened, setDateModalOpened] = useState(false);
   const [currentStartsDate, setCurrentStartsDate] = useState(null);
@@ -31,6 +37,44 @@ function ProjectBoard() {
   const [menuBubbleOptions, setMenuBubbleOptions] = useState(null);
   const bubbleRefs = useRef([]);
   const menuBubbleOptionsOpened = Boolean(menuBubbleOptions);
+
+  const [layout, setLayout] = useState([]);
+  const [layoutCustomProps, setLayoutCustomProps] = useState([]);
+
+  const [layoutTimeline, setLayoutTimeline] = useState();
+  const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
+
+  const [selectedBubble, setSelectedBubble] = useState(null);
+
+  const handleAddBubble = () => {
+    const newItem = {
+      w: 4,
+      h: 2,
+      x: 10,
+      y: 5,
+      i: getId(),
+      minW: 4,
+      maxW: 10,
+      minH: 2,
+      maxH: 5,
+    };
+
+    const newCustomProps = {
+      bubbleId: newItem.i,
+      title: "",
+      color: "black",
+      startsDate: null,
+      endsDate: null,
+      trace: false,
+    };
+
+    setLayout((prevLayout) => [...prevLayout, newItem]);
+    setLayoutCustomProps((prevCustomProps) => [
+      ...prevCustomProps,
+      newCustomProps,
+    ]);
+    handleCloseMenuBubbleOptions();
+  };
 
   const handleOpenMenuBubbleOptions = (event) => {
     setMenuBubbleOptions(event.currentTarget);
@@ -40,164 +84,154 @@ function ProjectBoard() {
     setMenuBubbleOptions(null);
   };
 
-  const handleAddBubble = () => {
-    const newBubbleRef = React.createRef();
-    setBubbles((prevbubbles) => [
-      ...prevbubbles,
-      {
-        id: new Date().getTime(),
-        content: "",
-        color: "#1F1F1F",
-        x: 300,
-        y: 20,
-        width: 190,
-        height: 70,
-        // propriedades abaixo nao vao para a requisição
-        startsDate: null,
-        endsDate: null,
-        lastPositionX: 300,
-        lastPositionY: 20,
-        grid: null,
-        borderTeste: false,
-      },
-    ]);
-    bubbleRefs.current.push(newBubbleRef);
-    handleCloseMenuBubbleOptions();
-  };
+  const onBubbleDragStopTeste = (e) => {
+    const layoutCopyTimeline = e.find((item) => item.y >= 26); //FOI PRA TIMELINE? (VALIDAR MELHOR) - // PEGA A UNICA BUBBLE QUE FOI PARA TIMELINE POIS SO PODE UMA POR VEZ
 
-  const onBubbleDragStop = (id, x, y) => {
-    const rowDiv = document.getElementById("bottomRowStyle");
-    if (rowDiv) {
-      const rowRect = rowDiv.getBoundingClientRect();
-      const buffer = 65;
-      if (
-        x >= rowRect.left - buffer &&
-        x <= rowRect.right + buffer &&
-        y >= rowRect.top - buffer &&
-        y <= rowRect.bottom + buffer
-      ) {
-        var teste = bubbles.find((x) => x.id === id);
-        if (!teste.startsDate || !teste.endsDate) {
-          setDateModalOpened(true);
-        }
-        setSelectedIdBubble(id);
-        setBubbles((prevBubbles) =>
-          prevBubbles.map((prevBubble) =>
-            prevBubble.id === selectedIdBubble
-              ? {
-                  ...prevBubble,
-                  grid: [67, 60],
-                }
-              : prevBubble
-          )
-        );
-      } else {
-        setBubbles((prevBubbles) =>
-          prevBubbles.map((prevBubble) =>
-            prevBubble.id === selectedIdBubble
-              ? {
-                  ...prevBubble,
-                  grid: null,
-                }
-              : prevBubble
-          )
-        );
-      }
-    }
+    if (!layoutCopyTimeline) return; // APENAS FOI ARRASTADA NO BOARD
+
+    // Explicação da linha de cima (melhorar):
+    // Ao fazer essa busca de bubbles que estão com o y >= 26, achamos a bubble que foi para a timeline caso houve
+    // por que pegar o index 0? simples, porque não vamos ter mais bubbles nessa lista,
+    // o máximo que ela vai trazer, vai ser uma, a mesma que foi movimentada para timeline
+    // dessa forma, uma copia da bubble é criada na timeline e essa é apagada pois são dois layouts diferentes
+    // (a timeline tem um layout próprio)
+
+    setDateModalOpened(true);
+    setSelectedIdBubble(layoutCopyTimeline.i);
   };
 
   const handleConfirmStartEndDate = () => {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
 
-    if (
-      !currentStartsDate ||
-      isNaN(new Date(currentStartsDate)) ||
-      !currentEndsDate ||
-      isNaN(new Date(currentEndsDate))
-    ) {
-      const bubbleIndex = bubbles.findIndex(
-        (bubble) => bubble.id === selectedIdBubble
+    if (currentStartsDate && currentEndsDate) {
+      var diferencaEmMilissegundos = Math.abs(
+        currentEndsDate - currentStartsDate
       );
 
-      if (bubbleIndex !== -1) {
-        const bubbleRef = bubbleRefs.current[bubbleIndex];
-        if (bubbleRef && bubbleRef.current) {
-          bubbleRef.current.updatePosition({
-            x:
-              bubbles.find((x) => x.id === selectedIdBubble).lastPositionX ??
-              300,
-            y:
-              bubbles.find((x) => x.id === selectedIdBubble).lastPositionY ??
-              20,
-          });
-        }
-      }
-
-      setBubbles((prevBoxes) =>
-        prevBoxes.map((box) =>
-          box.id === selectedIdBubble
-            ? {
-                ...box,
-                x:
-                  bubbles.find((x) => x.id === selectedIdBubble)
-                    .lastPositionX ?? 300,
-                y:
-                  bubbles.find((x) => x.id === selectedIdBubble)
-                    .lastPositionY ?? 20,
-              }
-            : box
-        )
+      var diferencaEmDias = Math.ceil(
+        diferencaEmMilissegundos / (1000 * 60 * 60 * 24) + 1
       );
+
+      /////
+
+      var dataInicial = new Date("2024-01-01");
+
+      var diasComeco = Math.abs(currentStartsDate - dataInicial);
+
+      var diasDif = Math.floor(diasComeco / (1000 * 60 * 60 * 24));
+
+      /////
+
+      var selectedBubbleCustomProps = layoutCustomProps.find(
+        (x) => x.bubbleId === selectedIdBubble
+      );
+
+      const newItem = {
+        x: diasDif,
+        y: 0,
+        w: diferencaEmDias,
+        h: 1,
+        i: getId(),
+      };
+
+      const newCustomProps = {
+        bubbleId: newItem.i,
+        title: selectedBubbleCustomProps.title,
+        color: selectedBubbleCustomProps.color,
+        startsDate: currentStartsDate,
+        endsDate: currentEndsDate,
+        trace: false,
+      };
+
+      setLayoutTimeline(newItem);
+      setLayoutCustomPropsTimeline(newCustomProps);
+
+      var selectedBubbleParaRastro = layout.find(
+        (x) => x.i === selectedIdBubble
+      );
+      var selectedBubbleCustomPropsParaRastro = layoutCustomProps.find(
+        (x) => x.bubbleId === selectedIdBubble
+      );
+
+      setLayout((prevLayout) =>
+        prevLayout.filter((item) => item.i !== selectedIdBubble)
+      );
+      setLayoutCustomProps((prevLayout) =>
+        prevLayout.filter((item) => item.bubbleId !== selectedIdBubble)
+      );
+
+      // --- Criação da bolha de rastro ---
+
+      const newItemRastro = {
+        w: selectedBubbleParaRastro.w,
+        h: selectedBubbleParaRastro.h,
+        x: 10,
+        y: 5,
+        i: selectedBubbleParaRastro.i,
+        minW: selectedBubbleParaRastro.minW,
+        maxW: selectedBubbleParaRastro.maxW,
+        minH: selectedBubbleParaRastro.minH,
+        maxH: selectedBubbleParaRastro.maxH,
+      };
+
+      const newCustomPropsRastro = {
+        bubbleId: selectedBubbleParaRastro.i,
+        title: selectedBubbleCustomPropsParaRastro.title,
+        color: selectedBubbleCustomPropsParaRastro.color,
+        startsDate: selectedBubbleCustomPropsParaRastro.startsDate,
+        endsDate: selectedBubbleCustomPropsParaRastro.endsDate,
+        trace: true,
+      };
+
+      setLayout((prevLayout) => [...prevLayout, newItemRastro]);
+      setLayoutCustomProps((prevCustomProps) => [
+        ...prevCustomProps,
+        newCustomPropsRastro,
+      ]);
+
+      // --- Criação da bolha de rastro ---
+
+      console.log(
+        `Informações da bolha: ${JSON.stringify(
+          newItem
+        )}\nAtividade definida para começar ${new Date(
+          currentStartsDate
+        ).toLocaleDateString("pt-BR", options)} e terminar ${new Date(
+          currentEndsDate
+        ).toLocaleDateString("pt-BR", options)}`
+      );
+
+      setCurrentStartsDate(null);
+      setCurrentEndsDate(null);
+      //handleCloseStartEndDateModal();
+      setDateModalOpened(false);
     }
+  };
 
-    setBubbles((prevBubbles) =>
-      prevBubbles.map((prevBubble) =>
-        prevBubble.id === selectedIdBubble
+  const handleChangeColor = (id, color) => {
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === id
           ? {
-              ...prevBubble,
-              startsDate: new Date(currentStartsDate),
-              endsDate: new Date(currentEndsDate),
+              ...prevBox,
+              color: color.hex,
             }
-          : prevBubble
+          : prevBox
       )
     );
+  };
 
-    const selectedBubbleInfo = bubbles.find((x) => x.id === selectedIdBubble);
-
-    // Ao passar a bubble para a timeline, a bubble será duplica
-    setBubbles((prevbubbles) => [
-      ...prevbubbles,
-      {
-        id: new Date().getTime(),
-        content: selectedBubbleInfo.content,
-        color: selectedBubbleInfo.color,
-        x: selectedBubbleInfo.lastPositionX,
-        y: selectedBubbleInfo.lastPositionY,
-        width: selectedBubbleInfo.width,
-        height: selectedBubbleInfo.height,
-        // propriedades abaixo nao vao para a requisição
-        startsDate: null,
-        endsDate: null,
-        lastPositionX: selectedBubbleInfo.lastPositionX,
-        lastPositionY: selectedBubbleInfo.lastPositionY,
-        grid: null,
-        borderTeste: true,
-      },
-    ]);
-
-    console.log(
-      `Informações da bolha: ${JSON.stringify(
-        selectedBubbleInfo
-      )}\nAtividade definida para começar ${new Date(
-        currentStartsDate
-      ).toLocaleDateString("pt-BR", options)} e terminar ${new Date(
-        currentEndsDate
-      ).toLocaleDateString("pt-BR", options)}`
+  const handleChangeTitle = (id, content) => {
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === id
+          ? {
+              ...prevBox,
+              title: content,
+            }
+          : prevBox
+      )
     );
-
-    setCurrentStartsDate(null);
-    setCurrentEndsDate(null);
-    handleCloseStartEndDateModal();
   };
 
   const handleCloseStartEndDateModal = (event, reason) => {
@@ -261,7 +295,7 @@ function ProjectBoard() {
       <Modal
         keepMounted
         open={dateModalOpened}
-        onClose={handleCloseStartEndDateModal}
+        //onClose={handleCloseStartEndDateModal}
       >
         <Box sx={styles.dateModal}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -319,49 +353,40 @@ function ProjectBoard() {
     <div style={styles.containerBoards}>
       <Navbar showMenu projectName="Projeto" />
       <div style={styles.topBoard}>
-        <TransformWrapper
-          onZoom={(e) => console.log(e)}
-          disablePadding
-          doubleClick={{ disabled: true }}
+        <StartsEndDateModal />
+        <IconButton
+          style={styles.addBubble}
+          onClick={handleOpenMenuBubbleOptions}
         >
-          <TransformComponent
-            wrapperStyle={{
-              width: "100%",
-              height: "100%",
-              border: "1px solid black",
-            }}
-            contentStyle={{ width: "100%", height: "100%" }}
-          >
-            <StartsEndDateModal />
-            {bubbles.map((box, index) => (
-              <Bubble
-                bubbleRef={bubbleRefs.current[index]}
-                box={box}
-                boxes={bubbles}
-                setBoxes={setBubbles}
-                onDragStop={onBubbleDragStop}
-              />
-            ))}
-          </TransformComponent>
-          <IconButton
-            style={styles.addBubble}
-            onClick={handleOpenMenuBubbleOptions}
-          >
-            <AddIcon />
-          </IconButton>
-          <Menu
-            anchorEl={menuBubbleOptions}
-            open={menuBubbleOptionsOpened}
-            onClose={handleCloseMenuBubbleOptions}
-          >
-            <MenuItem onClick={handleAddBubble}>Tarefa</MenuItem>
-            <MenuItem onClick={handleAddBubble}>Player</MenuItem>
-            <MenuItem onClick={handleAddBubble}>Link</MenuItem>
-          </Menu>
-        </TransformWrapper>
+          <AddIcon />
+        </IconButton>
+        <Menu
+          anchorEl={menuBubbleOptions}
+          open={menuBubbleOptionsOpened}
+          onClose={handleCloseMenuBubbleOptions}
+        >
+          <MenuItem onClick={handleAddBubble}>Tarefa</MenuItem>
+          <MenuItem onClick={handleAddBubble}>Player</MenuItem>
+          <MenuItem onClick={handleAddBubble}>Link</MenuItem>
+        </Menu>
+        <BubbleTask
+          layoutProps={layoutCustomProps}
+          isHorizontal={false}
+          stopBubble={false}
+          layout={layout}
+          setLayout={setLayout}
+          onDragStop={onBubbleDragStopTeste}
+          cols={50}
+          onChangeColor={handleChangeColor}
+          onChangeTitle={handleChangeTitle}
+          onLayoutChange={(newLayout) => setLayout(newLayout)}
+        />
       </div>
-      <div style={styles.timeLine}>
-        <Timeline />
+      <div id="timeline" style={styles.timeLine}>
+        <Timeline
+          layoutBubble={layoutTimeline}
+          layoutBubbleProps={layoutCustomPropsTimeline}
+        />
       </div>
     </div>
   );

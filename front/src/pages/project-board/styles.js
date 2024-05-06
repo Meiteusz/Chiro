@@ -2,6 +2,7 @@ const containerBoards = {
   display: "flex",
   flexDirection: "column",
   height: "100vh",
+  overflowY: "hidden",
 };
 
 const board = {
@@ -11,7 +12,6 @@ const board = {
 const topBoard = {
   ...board,
   flex: 1,
-  overflowX: "auto",
 };
 
 const timeLine = {
@@ -27,6 +27,7 @@ const addBubble = {
   borderRadius: "50%",
   backgroundColor: "#1C1C1C",
   color: "#fff",
+  zIndex: "999"
 };
 
 const dateModal = {

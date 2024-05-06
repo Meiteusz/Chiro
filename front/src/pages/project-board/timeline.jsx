@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-
-import { useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDraggable } from "react-use-draggable-scroll";
 
-import _ from "lodash";
-import { Responsive, WidthProvider } from "react-grid-layout";
+import BubbleTask from "@/components/bubble-v2/bubble-task";
+
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-const ResponsiveReactGridLayout = WidthProvider(Responsive);
+import "../../components/bubble-v2/styles.css";
+import "@/app/globals.css";
 
-const Timeline = () => {
+const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
   const [view, setView] = useState("days");
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const ref = useRef();
+  const daysRef = useRef();
   const { events } = useDraggable(ref, {
     isMounted: scrollEnabled,
   });
@@ -42,6 +42,41 @@ const Timeline = () => {
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
   let widthYears = widthMonths * multiplierWidth;
+
+  const [layout, setLayout] = useState([]);
+  const [layoutCustomProps, setLayoutCustomProps] = useState([]);
+
+  const [currentDayPosition, setCurrentDayPosition] = useState([]);
+
+  useEffect(() => {
+    if (layoutBubble && layoutBubbleProps) {
+      setLayout((prevLayout) => [...prevLayout, layoutBubble]);
+      setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
+    }
+  }, [layoutBubble]);
+
+  useEffect(() => {
+    scrollToCurrentDay();
+  }, [view]);
+
+  const scrollToCurrentDay = () => {
+    const today = new Date();
+    const startOfYear = new Date(today.getFullYear(), 0, 0);
+    const diff = today - startOfYear;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const dayOfYear = Math.floor(diff / oneDay);
+
+    const columnWidth = getCellWidth();
+    const currentPosition = columnWidth * (dayOfYear - 1);
+    setCurrentDayPosition(currentPosition + columnWidth / 2);
+
+    if (ref.current) {
+      ref.current.scrollTo({
+        left: currentPosition - dayOfYear * 4,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const calculateDaysQuantity = () => {
     const currentYear = new Date().getFullYear();
@@ -98,6 +133,7 @@ const Timeline = () => {
                 textAlign: "center",
                 display: "inline-block",
                 backgroundColor: "rgba(168, 168, 168, 0.7)",
+                padding: "5px",
               }}
             >
               {day}
@@ -185,11 +221,9 @@ const Timeline = () => {
                 <div
                   key={`${year}-${month}`}
                   style={{
-                    border: "1px solid gray",
                     backgroundColor: "rgba(168, 168, 168, 0.7)",
                     fontWeight: "600",
                     borderRadius: "5px",
-                    marginTop: "5px",
                     width: `${widthMonths}px`,
                     height: "40px",
                     textAlign: "center",
@@ -212,7 +246,6 @@ const Timeline = () => {
         style={{
           overflowX: "hidden",
           whiteSpace: "nowrap",
-          border: "1px solid black",
         }}
       >
         {allMonths}
@@ -228,7 +261,6 @@ const Timeline = () => {
         <div
           key={year}
           style={{
-            border: "1px solid black",
             marginTop: "5px",
             width: `${widthYears}px`,
             textAlign: "center",
@@ -252,7 +284,6 @@ const Timeline = () => {
         style={{
           overflowX: "hidden",
           whiteSpace: "nowrap",
-          border: "1px solid black",
         }}
       >
         {allYears}
@@ -263,17 +294,21 @@ const Timeline = () => {
   const handleZoom = (e) => {
     if (e.deltaY > 0) {
       if (view === "days") {
+        // VISAO DE MESES
         setView("months");
         setQuantityColumns(quantityMonths);
       } else if (view === "months") {
+        // VISAO DE ANOS
         setView("years");
         setQuantityColumns(quantityYears);
       }
     } else {
       if (view === "years") {
+        // VISAO DE MESES
         setView("months");
         setQuantityColumns(quantityMonths);
       } else if (view === "months") {
+        // VISAO DE DIAS
         setView("days");
         setQuantityColumns(quantityDays);
       }
@@ -352,43 +387,10 @@ const Timeline = () => {
 
   //------------------------------------------------------
 
-  const [layouts, setLayouts] = useState({
-    lg: _.map(_.range(0, 2), function (item, i) {
-      // 2 - quantidade de bubble
-      var y = Math.ceil(Math.random() * 4) + 1;
-      return {
-        x: (_.random(0, 5) * 2) % 12,
-        y: Math.floor(i / 6) * y,
-        w: 5,
-        h: y,
-        i: i.toString(),
-      };
-    }),
-  });
-  const [currentBreakpoint, setCurrentBreakpoint] = useState("lg");
-  const [mounted, setMounted] = useState(false);
-  const [toolbox, setToolbox] = useState({
-    lg: [],
-  });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const onBreakpointChange = (breakpoint) => {
-    setCurrentBreakpoint(breakpoint);
-    setToolbox({
-      ...toolbox,
-      [breakpoint]: toolbox[breakpoint] || toolbox[currentBreakpoint] || [],
-    });
-  };
-
-  const onLayoutChange = (layout, layouts) => {
-    setLayouts({ ...layouts });
-  };
-
   const onDrop = (layoutItem, _ev) => {
-    const isNearExistingBlock = layouts.lg.some((existingLayout) => {
+    if (!layout.lg) return;
+
+    const isNearExistingBlock = layout.lg.some((existingLayout) => {
       return (
         Math.abs(existingLayout.x - layoutItem.x) <= 2 &&
         Math.abs(existingLayout.y - layoutItem.y) <= 2
@@ -407,7 +409,9 @@ const Timeline = () => {
   };
 
   const onDragStop = (newItem, _placeholder, _evt, _element) => {
-    const isNearExistingBlock = layouts.lg.some((existingLayout) => {
+    if (!layout.lg) return;
+
+    const isNearExistingBlock = layout.lg.some((existingLayout) => {
       return (
         Math.abs(existingLayout.x - newItem.x) <= 2 &&
         Math.abs(existingLayout.y - newItem.y) <= 2
@@ -416,10 +420,10 @@ const Timeline = () => {
 
     newItem.static = isNearExistingBlock;
 
-    setLayouts((prevLayouts) => {
+    setLayout((prevLayouts) => {
       const updatedLayouts = { ...prevLayouts };
-      const index = prevLayouts.lg.findIndex((item) => item.i === newItem.i);
-      updatedLayouts.lg[index] = newItem;
+      const index = prevLayout.lg.findIndex((item) => item.i === newItem.i);
+      updatedLayout.lg[index] = newItem;
       return updatedLayouts;
     });
     setScrollEnabled(true);
@@ -427,19 +431,6 @@ const Timeline = () => {
 
   const onResizeStop = () => {
     setScrollEnabled(true);
-  };
-
-  const generateDOM = () => {
-    return _.map(layouts.lg, function (l, i) {
-      return (
-        <div
-          key={i}
-          style={{
-            background: "green",
-          }}
-        ></div>
-      );
-    });
   };
 
   return (
@@ -461,34 +452,41 @@ const Timeline = () => {
             ? renderMonths()
             : renderYears()}
         </div>
-        <ResponsiveReactGridLayout
-          //className="layout"
-          rowHeight={50}
-          cols={{ lg: 365, md: 10, sm: 6, xs: 4, xxs: 2 }}
-          //</div>cols={{ lg: getCellWidth(), md: 10, sm: 6, xs: 4, xxs: 2 }}
-          //breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-          containerPadding={[0, 0]}
-          style={{
-            height: "100%",
-          }}
-          //measureBeforeMount={false}
-          useCSSTransforms={mounted}
-          compactType={null}
-          onLayoutChange={onLayoutChange}
-          //onBreakpointChange={onBreakpointChange}
-          onDrop={onDrop}
-          margin={[0, 7]}
-          onDragStop={onDragStop}
-          onDragStart={onDragStart}
-          onResizeStop={onResizeStop}
-          onResizeStart={onResizeStart}
-          isDroppable
-        >
-          {generateDOM()}
-        </ResponsiveReactGridLayout>
+        {
+          <BubbleTask
+            layoutProps={layoutCustomProps}
+            onLayoutChange={(newLayout) => setLayout(newLayout)}
+            isHorizontal={true}
+            stopBubble={false}
+            layout={layout}
+            setLayout={setLayout}
+            cols={quantityDays}
+            margin={[0, 7]}
+            onDragStop={onDragStop}
+            onResizeStart={onResizeStart}
+            onResizeStop={onResizeStop}
+            onDragStart={onDragStart}
+            onDrop={onDrop}
+            maxRows={9}
+            rowHeight={50}
+          />
+        }
         <div style={matrixStyle}>
           {Array.from({ length: 9 }).map((_, rowIndex) => (
             <div key={rowIndex}>
+              {view === "days" && (
+                <div
+                  style={{
+                    position: "absolute",
+                    zIndex: "999",
+                    left: `${currentDayPosition}px`,
+                    width: "3px",
+                    height: "60px",
+                    borderRadius: "10px",
+                    backgroundColor: "red",
+                  }}
+                ></div>
+              )}
               {Array.from({ length: quantityColumns }).map((_, colIndex) => (
                 <div
                   key={colIndex}

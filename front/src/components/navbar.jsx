@@ -6,6 +6,8 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 
+import "@/app/globals.css";
+
 function Navbar({ projectName, showMenu }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
@@ -19,7 +21,7 @@ function Navbar({ projectName, showMenu }) {
   };
 
   return (
-    <AppBar position="fixed" style={{ background: "#1C1C1C" }}>
+    <AppBar style={{ background: "#1C1C1C", position: "relative" }}>
       <Toolbar variant="dense">
         {showMenu && (
           <div>
@@ -46,7 +48,11 @@ function Navbar({ projectName, showMenu }) {
           </div>
         )}
         <label
-          style={{ fontFamily: "Segoe UI", fontWeight: 600, fontSize: "20px" }}
+          style={{
+            fontFamily: "Roboto Mono, monospace",
+            fontWeight: 600,
+            fontSize: "20px",
+          }}
         >
           {projectName}
         </label>
