@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -9,24 +9,25 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-function BubbleSeparated({
+import "./styles.css";
+import "@/app/globals.css";
+
+function Bubble({
   bubble,
   bubbleCustomProps,
-  setBubble,
   onChangeColor,
   onChangeTitle,
+  onDoubleClick,
+  onDelete,
 }) {
   const [contextMenu, setContextMenu] = useState(null);
-  const [selectecBubbleId, setSelectedBubbleId] = useState(null);
 
-  const handleContextMenu = (event, bubbleId) => {
+  const handleContextMenu = (event) => {
     event.preventDefault();
     setContextMenu({
       mouseX: event.clientX - 2,
       mouseY: event.clientY - 4,
     });
-
-    setSelectedBubbleId(bubbleId);
   };
 
   const startEditing = () => {
@@ -34,22 +35,21 @@ function BubbleSeparated({
   };
 
   const handleDoubleClick = () => {
-    const url = `http://localhost:3000/project-board?bubbleProjectId=${bubble.i}`;
-    window.location.href = url;
+    onDoubleClick(bubble.i);
   };
 
   const handleDeleteBubble = () => {
-    setBubble((prevLayout) => prevLayout.filter((item) => item.i !== bubble.i));
+    onDelete(bubble.i);
   };
 
-  const handleColorSelection = (color, bubbleId) => {
-    onChangeColor(selectecBubbleId, color);
+  const handleColorSelection = (color) => {
+    onChangeColor(bubble.i, color);
     handleCloseContextMenu();
   };
 
-  const handleBubbleNameChange = (event, bubbleId) => {
+  const handleBubbleNameChange = (event) => {
     const newName = event.target.value;
-    onChangeTitle(selectecBubbleId, newName);
+    onChangeTitle(bubble.i, newName);
   };
 
   const handleCloseContextMenu = () => {
@@ -68,7 +68,7 @@ function BubbleSeparated({
     <div
       id={bubble.i}
       data-grid={bubble}
-      onContextMenu={(event) => handleContextMenu(event, bubble.i)}
+      onContextMenu={handleContextMenu}
       onDoubleClick={handleDoubleClick}
     >
       <input
@@ -76,7 +76,7 @@ function BubbleSeparated({
         type="text"
         value={bubbleCustomProps.title ?? ""}
         onChange={handleBubbleNameChange}
-        onContextMenu={(event) => handleContextMenu(event, bubble.i)}
+        onContextMenu={handleContextMenu}
         style={{
           backgroundColor: "transparent",
           border: "none",
@@ -114,7 +114,7 @@ function BubbleSeparated({
         >
           <Compact
             color={bubbleCustomProps.color ?? "black"}
-            onChange={(color) => handleColorSelection(color, bubble.i)}
+            onChange={handleColorSelection}
           />
         </MenuItem>
         <MenuItem onClick={startEditing}>
@@ -140,4 +140,4 @@ function BubbleSeparated({
   );
 }
 
-export default BubbleSeparated;
+export default Bubble;

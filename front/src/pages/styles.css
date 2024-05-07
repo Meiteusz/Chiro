@@ -1,0 +1,11 @@
+.container-bubble {
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1px;
+  overflow: auto;
+  cursor: grab;
+  border: 1px solid;
+  z-index: 999;
+}

@@ -22,6 +22,9 @@ import * as styles from "@/pages/project-board/styles";
 import "@/app/globals.css";
 import "../../components/bubble-v2/styles.css";
 
+import RGL, { WidthProvider } from "react-grid-layout";
+const ReactGridLayout = WidthProvider(RGL);
+
 let idCounter = 0;
 
 const getId = () => {
@@ -43,8 +46,6 @@ function ProjectBoard() {
 
   const [layoutTimeline, setLayoutTimeline] = useState();
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
-
-  const [selectedBubble, setSelectedBubble] = useState(null);
 
   const handleAddBubble = () => {
     const newItem = {
@@ -381,6 +382,7 @@ function ProjectBoard() {
           onChangeTitle={handleChangeTitle}
           onLayoutChange={(newLayout) => setLayout(newLayout)}
         />
+        {/* Fazer o mesmo padrão que foi feito na tela de projetos */}
       </div>
       <div id="timeline" style={styles.timeLine}>
         <Timeline

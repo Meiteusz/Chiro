@@ -101,16 +101,7 @@ function BubbleTask({
 
   return (
     <div>
-      <div
-      //style={{
-      //  backgroundColor: "transparent",
-      //  width: "100%",
-      //  height: "500px",
-      //  backgroundImage:
-      //    "repeating-linear-gradient(#ccc 0 1px, transparent 1px 100%), repeating-linear-gradient(90deg, #ccc 0 1px, transparent 1px 100%)",
-      //  backgroundSize: "80px 50px", // matriz
-      //}}
-      >
+      <div>
         <ReactGridLayout
           style={{
             height: "100%",

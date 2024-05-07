@@ -1,17 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import RGL, { WidthProvider } from "react-grid-layout";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 
 import Navbar from "@/components/navbar";
-import BubbleProject from "@/components/bubble-v2/bubble-project";
+import Bubble from "@/components/bubble-v2/bubble";
 import * as styles from "@/pages/project-board/styles";
 
+import "./styles.css";
 import "@/app/globals.css";
-import BubbleSeparated from "@/components/bubble-v2/bubble-separated";
-
-import RGL, { WidthProvider } from "react-grid-layout";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -43,9 +42,9 @@ const ProjectBoard = () => {
       bubbleId: newItem.i,
       title: "",
       color: "black",
-      startsDate: null,
-      endsDate: null,
-      trace: false,
+      //startsDate: null,
+      //endsDate: null,
+      //trace: false,
     };
 
     setLayout((prevLayout) => [...prevLayout, newItem]);
@@ -81,6 +80,15 @@ const ProjectBoard = () => {
     );
   };
 
+  const handleDoubleClick = (id) => {
+    const url = `http://localhost:3000/project-board?bubbleProjectId=${id}`;
+    window.location.href = url;
+  };
+
+  const handleDeleteBubble = (id) => {
+    setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
+  };
+
   return (
     <div>
       <Navbar projectName="Gerenciador de projetos" />
@@ -100,35 +108,28 @@ const ProjectBoard = () => {
           rowHeight={25}
           preventCollision={true}
         >
-          {layout.map((bubble, index) => (
+          {layout.map((bubble) => (
             <div
               key={bubble.i}
+              className="container-bubble"
               style={{
                 backgroundColor:
                   (layoutCustomProps &&
                     layoutCustomProps.find((x) => x.bubbleId === bubble.i)
                       .color) ??
                   "black",
-                borderRadius: "5px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: "1px",
-                overflow: "auto",
-                cursor: "grab",
-                border: `1px solid`,
-                zIndex: "999",
               }}
             >
-              <BubbleSeparated
+              <Bubble
                 bubble={bubble}
                 bubbleCustomProps={
                   layoutCustomProps &&
                   layoutCustomProps.find((x) => x.bubbleId === bubble.i)
                 }
-                setBubble={setLayout}
                 onChangeColor={handleChangeColor}
                 onChangeTitle={handleChangeTitle}
+                onDoubleClick={handleDoubleClick}
+                onDelete={handleDeleteBubble}
               />
             </div>
           ))}
@@ -139,66 +140,3 @@ const ProjectBoard = () => {
 };
 
 export default ProjectBoard;
-
-//"use client";
-//
-//import React, { useState } from "react";
-//import IconButton from "@mui/material/IconButton";
-//import AddIcon from "@mui/icons-material/Add";
-//
-//import Navbar from "@/components/navbar";
-//import BubbleProject from "@/components/bubble-v2/bubble-project";
-//import * as styles from "@/pages/project-board/styles";
-//
-//import "@/app/globals.css";
-//import BubbleSeparated from "@/components/bubble-v2/bubble-separated";
-//
-//import RGL, { WidthProvider } from "react-grid-layout";
-//
-//const ReactGridLayout = WidthProvider(RGL);
-//
-//let idCounter = 0;
-//
-//const getId = () => {
-//  idCounter++;
-//  return idCounter.toString();
-//};
-//
-//const ProjectBoard = () => {
-//  const [layout, setLayout] = useState([]);
-//
-//  const handleAddBubble = () => {
-//    const newItem = {
-//      x: 3,
-//      y: 5,
-//      w: 2,
-//      h: 3,
-//      i: getId(),
-//      minH: 2,
-//      maxH: 7,
-//      minW: 2,
-//      maxW: 10,
-//    };
-//    setLayout((prevLayout) => [...prevLayout, newItem]);
-//  };
-//
-//  const handleDragStop = () => {};
-//
-//  return (
-//    <div>
-//      <Navbar projectName="Gerenciador de projetos" />
-//      <IconButton style={styles.addBubble} onClick={handleAddBubble}>
-//        <AddIcon />
-//      </IconButton>
-//      <BubbleProject
-//        isHorizontal={false}
-//        stopBubble={false}
-//        layout={layout}
-//        setLayout={setLayout}
-//        onDragStop={handleDragStop}
-//      ></BubbleProject>
-//    </div>
-//  );
-//};
-//
-//export default ProjectBoard;
