@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+import { ChromePicker } from "react-color";
 
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import DeleteIcon from "@mui/icons-material/Delete";
 import OpenBubble from "@mui/icons-material/FolderOpen";
 import Compact from "@uiw/react-color-compact";
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
 
 import "./styles.css";
 import "@/app/globals.css";
@@ -19,8 +20,10 @@ function Bubble({
   onChangeTitle,
   onDoubleClick,
   onDelete,
+  canDrag,
 }) {
   const [contextMenu, setContextMenu] = useState(null);
+  const [OpenChromePicker, setChromePicker] = useState(false);
 
   const handleContextMenu = (event) => {
     event.preventDefault();
@@ -28,32 +31,43 @@ function Bubble({
       mouseX: event.clientX - 2,
       mouseY: event.clientY - 4,
     });
-  };
-
-  const startEditing = () => {
-    handleCloseContextMenu();
+    setChromePicker(false);
+    canDrag(false);
   };
 
   const handleDoubleClick = () => {
+    if (!onDoubleClick) return;
+
     onDoubleClick(bubble.i);
   };
 
   const handleDeleteBubble = () => {
-    onDelete(bubble.i);
-  };
+    setChromePicker(false);
 
-  const handleColorSelection = (color) => {
-    onChangeColor(bubble.i, color);
+    if (!onDelete) return;
+
+    onDelete(bubble.i);
     handleCloseContextMenu();
   };
 
+  const handleColorSelection = (color) => {
+    if (!onChangeColor) return;
+
+    onChangeColor(bubble.i, color);
+
+    if (!OpenChromePicker) handleCloseContextMenu();
+  };
+
   const handleBubbleNameChange = (event) => {
+    if (!onChangeTitle) return;
+
     const newName = event.target.value;
     onChangeTitle(bubble.i, newName);
   };
 
   const handleCloseContextMenu = () => {
     setContextMenu(null);
+    canDrag(true);
   };
 
   const isDarkColor = (color) => {
@@ -62,6 +76,10 @@ function Bubble({
     const [r, g, b] = color.match(/\w\w/g).map((x) => parseInt(x, 16));
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
     return brightness < 128;
+  };
+
+  const handleOpenSettingColor = () => {
+    setChromePicker(true);
   };
 
   return (
@@ -112,28 +130,41 @@ function Bubble({
               : undefined
           }
         >
-          <Compact
-            color={bubbleCustomProps.color ?? "black"}
-            onChange={handleColorSelection}
-          />
+          {OpenChromePicker ? (
+            <ChromePicker
+              disableAlpha={true}
+              color={bubbleCustomProps.color ?? "black"}
+              onChange={handleColorSelection}
+            />
+          ) : (
+            <Compact
+              color={bubbleCustomProps.color ?? "black"}
+              onChange={handleColorSelection}
+            />
+          )}
         </MenuItem>
-        <MenuItem onClick={startEditing}>
+        <MenuItem
+          disabled={!bubbleCustomProps.title}
+          onClick={handleDoubleClick}
+        >
           <ListItemIcon>
-            <DriveFileRenameOutlineIcon fontSize="small" />
+            <OpenBubble fontSize="small" />
           </ListItemIcon>
-          <ListItemText>{bubbleCustomProps.title}</ListItemText>
+          <ListItemText>Abrir</ListItemText>
         </MenuItem>
+        {!OpenChromePicker && (
+          <MenuItem onClick={handleOpenSettingColor}>
+            <ListItemIcon>
+              <SettingsSuggestIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Configuração de cores</ListItemText>
+          </MenuItem>
+        )}
         <MenuItem onClick={handleDeleteBubble}>
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Deletar</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleDoubleClick}>
-          <ListItemIcon>
-            <OpenBubble fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Abrir</ListItemText>
         </MenuItem>
       </Menu>
     </div>

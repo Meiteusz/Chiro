@@ -18,9 +18,12 @@ import ClassicButton from "@/components/ui/buttons";
 import Navbar from "@/components/navbar";
 import Timeline from "@/pages/project-board/timeline";
 import * as styles from "@/pages/project-board/styles";
+import Bubble from "@/components/bubble-v2/bubble";
 
 import "@/app/globals.css";
 import "../../components/bubble-v2/styles.css";
+
+import "./styles.css";
 
 import RGL, { WidthProvider } from "react-grid-layout";
 const ReactGridLayout = WidthProvider(RGL);
@@ -46,6 +49,9 @@ function ProjectBoard() {
 
   const [layoutTimeline, setLayoutTimeline] = useState();
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
+
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [canDragBubbles, setCanDragBubbles] = useState(true);
 
   const handleAddBubble = () => {
     const newItem = {
@@ -350,13 +356,30 @@ function ProjectBoard() {
     );
   };
 
+  const handleDeleteBubble = (id) => {
+    setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
+  };
+
   return (
     <div style={styles.containerBoards}>
       <Navbar showMenu projectName="Projeto" />
       <div style={styles.topBoard}>
         <StartsEndDateModal />
         <IconButton
-          style={styles.addBubble}
+          style={{
+            position: "absolute",
+            top: "75px",
+            right: "30px",
+            padding: "20px",
+            borderRadius: "50%",
+            backgroundColor: "#1C1C1C",
+            color: "#fff",
+            zIndex: 999,
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
+            opacity: isButtonHovered ? 1 : 0.3,
+          }}
+          onMouseEnter={() => setIsButtonHovered(true)}
+          onMouseLeave={() => setIsButtonHovered(false)}
           onClick={handleOpenMenuBubbleOptions}
         >
           <AddIcon />
@@ -370,19 +393,59 @@ function ProjectBoard() {
           <MenuItem onClick={handleAddBubble}>Player</MenuItem>
           <MenuItem onClick={handleAddBubble}>Link</MenuItem>
         </Menu>
-        <BubbleTask
-          layoutProps={layoutCustomProps}
-          isHorizontal={false}
-          stopBubble={false}
-          layout={layout}
-          setLayout={setLayout}
-          onDragStop={onBubbleDragStopTeste}
-          cols={50}
-          onChangeColor={handleChangeColor}
-          onChangeTitle={handleChangeTitle}
+        <ReactGridLayout
+          style={{
+            height: "100%",
+          }}
           onLayoutChange={(newLayout) => setLayout(newLayout)}
-        />
-        {/* Fazer o mesmo padrão que foi feito na tela de projetos */}
+          layout={layout}
+          compactType={null}
+          isResizable={true}
+          isDraggable={canDragBubbles}
+          margin={[1, 1]}
+          rowHeight={25}
+          preventCollision={true}
+          cols={50}
+          onDragStop={onBubbleDragStopTeste}
+          containerPadding={[0, 0]}
+          maxRows={46}
+        >
+          {layout.map((bubble) => (
+            <div
+              key={bubble.i}
+              className="container-bubble"
+              style={{
+                backgroundColor:
+                  (layoutCustomProps &&
+                    layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                      .color) ??
+                  "black",
+                opacity:
+                  (layoutCustomProps &&
+                  layoutCustomProps.find((x) => x.bubbleId === bubble.i).trace
+                    ? "0.7"
+                    : "1") ?? "1",
+                border:
+                  layoutCustomProps &&
+                  layoutCustomProps.find((x) => x.bubbleId === bubble.i).trace
+                    ? "5px dotted #ddd"
+                    : "1px solid",
+              }}
+            >
+              <Bubble
+                bubble={bubble}
+                bubbleCustomProps={
+                  layoutCustomProps &&
+                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                }
+                onChangeColor={handleChangeColor}
+                onChangeTitle={handleChangeTitle}
+                onDelete={handleDeleteBubble}
+                canDrag={setCanDragBubbles}
+              />
+            </div>
+          ))}
+        </ReactGridLayout>
       </div>
       <div id="timeline" style={styles.timeLine}>
         <Timeline

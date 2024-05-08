@@ -8,6 +8,11 @@ import "react-resizable/css/styles.css";
 
 import "../../components/bubble-v2/styles.css";
 import "@/app/globals.css";
+import "./styles.css";
+
+import RGL, { WidthProvider } from "react-grid-layout";
+const ReactGridLayout = WidthProvider(RGL);
+import Bubble from "@/components/bubble-v2/bubble";
 
 const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
   const [view, setView] = useState("days");
@@ -409,6 +414,8 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
   };
 
   const onDragStop = (newItem, _placeholder, _evt, _element) => {
+    setScrollEnabled(true);
+
     if (!layout.lg) return;
 
     const isNearExistingBlock = layout.lg.some((existingLayout) => {
@@ -426,7 +433,6 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
       updatedLayout.lg[index] = newItem;
       return updatedLayouts;
     });
-    setScrollEnabled(true);
   };
 
   const onResizeStop = () => {
@@ -452,25 +458,50 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
             ? renderMonths()
             : renderYears()}
         </div>
-        {
-          <BubbleTask
-            layoutProps={layoutCustomProps}
-            onLayoutChange={(newLayout) => setLayout(newLayout)}
-            isHorizontal={true}
-            stopBubble={false}
-            layout={layout}
-            setLayout={setLayout}
-            cols={quantityDays}
-            margin={[0, 7]}
-            onDragStop={onDragStop}
-            onResizeStart={onResizeStart}
-            onResizeStop={onResizeStop}
-            onDragStart={onDragStart}
-            onDrop={onDrop}
-            maxRows={9}
-            rowHeight={50}
-          />
-        }
+        <ReactGridLayout
+          style={{
+            height: "100%",
+          }}
+          onLayoutChange={(newLayout) => setLayout(newLayout)}
+          layout={layout}
+          compactType={null}
+          isResizable={true}
+          margin={[0, 7]}
+          rowHeight={50}
+          preventCollision={true}
+          cols={quantityDays}
+          onDragStop={onDragStop}
+          onResizeStart={onResizeStart}
+          onResizeStop={onResizeStop}
+          onDragStart={onDragStart}
+          onDrop={onDrop}
+          containerPadding={[0, 0]}
+          maxRows={9}
+          resizeHandles={["e"]}
+        >
+          {layout.map((bubble) => (
+            <div
+              key={bubble.i}
+              className="container-bubble"
+              style={{
+                backgroundColor:
+                  (layoutCustomProps &&
+                    layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                      .color) ??
+                  "black",
+              }}
+            >
+              <Bubble
+                bubble={bubble}
+                bubbleCustomProps={
+                  layoutCustomProps &&
+                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                }
+              />
+            </div>
+          ))}
+        </ReactGridLayout>
+
         <div style={matrixStyle}>
           {Array.from({ length: 9 }).map((_, rowIndex) => (
             <div key={rowIndex}>

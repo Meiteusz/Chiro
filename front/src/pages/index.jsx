@@ -24,6 +24,8 @@ const getId = () => {
 const ProjectBoard = () => {
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [canDragBubbles, setCanDragBubbles] = useState(true);
 
   const handleAddBubble = () => {
     const newItem = {
@@ -92,7 +94,23 @@ const ProjectBoard = () => {
   return (
     <div>
       <Navbar projectName="Gerenciador de projetos" />
-      <IconButton style={styles.addBubble} onClick={handleAddBubble}>
+      <IconButton
+        style={{
+          position: "absolute",
+          top: "75px",
+          right: "30px",
+          padding: "20px",
+          borderRadius: "50%",
+          backgroundColor: "#1C1C1C",
+          color: "#fff",
+          zIndex: 999,
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
+          opacity: isButtonHovered ? 1 : 0.3,
+        }}
+        onMouseEnter={() => setIsButtonHovered(true)}
+        onMouseLeave={() => setIsButtonHovered(false)}
+        onClick={handleAddBubble}
+      >
         <AddIcon />
       </IconButton>
       <div>
@@ -104,6 +122,7 @@ const ProjectBoard = () => {
           layout={layout}
           compactType={null}
           isResizable={true}
+          isDraggable={canDragBubbles}
           margin={[1, 1]}
           rowHeight={25}
           preventCollision={true}
@@ -130,6 +149,7 @@ const ProjectBoard = () => {
                 onChangeTitle={handleChangeTitle}
                 onDoubleClick={handleDoubleClick}
                 onDelete={handleDeleteBubble}
+                canDrag={setCanDragBubbles}
               />
             </div>
           ))}

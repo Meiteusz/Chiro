@@ -20,14 +20,15 @@ const timeLine = {
 };
 
 const addBubble = {
-  position: "fixed",
-  top: "60px",
+  position: "absolute",
+  top: "75px",
   right: "30px",
-  padding: "15px",
+  padding: "20px",
   borderRadius: "50%",
   backgroundColor: "#1C1C1C",
   color: "#fff",
-  zIndex: "999"
+  zIndex: 999,
+  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)"
 };
 
 const dateModal = {
