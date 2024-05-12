@@ -1,20 +1,38 @@
 version: '3.9'
 
 services:
+  api:
+      container_name: chiro-api
+      image: chiro-api:latest
+      environment:
+          - ASPNETCORE_ENVIRONMENT=docker
+          - ASPNETCORE_URLS=http://+:80
+      ports:
+        - 80:80
+      depends_on:
+          postgres:
+              condition: service_healthy
 
   postgres:
     image: postgres:14-alpine
     ports:
       - 5432:5432
     volumes:
-      - ~/apps/postgres:/var/lib/postgresql/data
+      - postgres-data:/data/db
     environment:
       - POSTGRES_PASSWORD=pgadmin
       - POSTGRES_USER=pguser
       - POSTGRES_DB=chiro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
+volumes:
+  postgres-data:
