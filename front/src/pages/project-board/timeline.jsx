@@ -1,57 +1,42 @@
 import { useState, useEffect, useRef } from "react";
 import { useDraggable } from "react-use-draggable-scroll";
+import RGL, { WidthProvider } from "react-grid-layout";
 
-import BubbleTask from "@/components/bubble-v2/bubble-task";
+import {
+  calculateDaysQuantity,
+  calculateQuantityMonths,
+} from "./calendarFunctions";
+import { renderDays, renderMonths, renderYears } from "./calendarRender";
+import {
+  initialWidth,
+  multiplierWidth,
+  initialHeight,
+  quantityYears,
+} from "./params";
+import Bubble from "@/components/bubble/bubble";
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-
-import "../../components/bubble-v2/styles.css";
 import "@/app/globals.css";
 import "./styles.css";
 
-import RGL, { WidthProvider } from "react-grid-layout";
 const ReactGridLayout = WidthProvider(RGL);
-import Bubble from "@/components/bubble-v2/bubble";
 
 const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
-  const [view, setView] = useState("days");
-  const [scrollEnabled, setScrollEnabled] = useState(true);
-  const ref = useRef();
-  const daysRef = useRef();
-  const { events } = useDraggable(ref, {
-    isMounted: scrollEnabled,
-  });
-  const mouthsPTBR = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
-  ];
-
-  // Parâmetros
-  const initialWidth = 80;
-  const multiplierWidth = 2;
-  const initialHeight = 50;
-  const quantityYears = 1;
-  // ------------------------
-
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
   let widthYears = widthMonths * multiplierWidth;
+  let quantityDays = calculateDaysQuantity();
+  let quantityMonths = calculateQuantityMonths();
 
+  const ref = useRef();
+  const [view, setView] = useState("days");
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
-
   const [currentDayPosition, setCurrentDayPosition] = useState([]);
+  const [quantityColumns, setQuantityColumns] = useState(quantityDays);
+  const { events } = useDraggable(ref, { isMounted: scrollEnabled });
 
   useEffect(() => {
     if (layoutBubble && layoutBubbleProps) {
@@ -64,16 +49,41 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     scrollToCurrentDay();
   }, [view]);
 
+  const getCellWidth = () => {
+    if (view === "days") {
+      return widthDays;
+    } else if (view === "months") {
+      return widthMonths;
+    } else if (view === "years") {
+      return widthYears;
+    }
+  };
+
   const scrollToCurrentDay = () => {
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 0);
     const diff = today - startOfYear;
     const oneDay = 1000 * 60 * 60 * 24;
     const dayOfYear = Math.floor(diff / oneDay);
+    const monthOfYear = today.getMonth();
+    const year = today.getFullYear();
 
     const columnWidth = getCellWidth();
-    const currentPosition = columnWidth * (dayOfYear - 1);
-    setCurrentDayPosition(currentPosition + columnWidth / 2);
+    let currentPosition = 0;
+
+    if (view === "days") {
+      currentPosition = columnWidth * (dayOfYear - 1);
+    } else if (view === "months") {
+      currentPosition = columnWidth * monthOfYear;
+    } else if (view === "years") {
+      currentPosition = (columnWidth * quantityYears) / 2; // AJUSTAR, CASO Q QUANTIDADE DE ANOS SEJA MAIOR QUE 1, A LINHA DO TEMPO NAO FICA CERTA
+    }
+
+    if (view === "years") {
+      setCurrentDayPosition(currentPosition);
+    } else {
+      setCurrentDayPosition(currentPosition + columnWidth / 2);
+    }
 
     if (ref.current) {
       ref.current.scrollTo({
@@ -83,218 +93,8 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     }
   };
 
-  const calculateDaysQuantity = () => {
-    const currentYear = new Date().getFullYear();
-    let totalDays = 0;
-    for (let year = currentYear; year < currentYear + quantityYears; year++) {
-      for (let month = 0; month < 12; month++) {
-        totalDays += new Date(year, month + 1, 0).getDate();
-      }
-    }
-    return totalDays;
-  };
-
-  const calculateQuantityMonths = () => {
-    const currentYear = new Date().getFullYear();
-    let totalMonths = 0;
-
-    for (let year = currentYear; year < currentYear + quantityYears; year++) {
-      for (let month = 0; month < 12; month++) {
-        totalMonths++;
-      }
-    }
-
-    return totalMonths;
-  };
-
-  const [quantityDays, setQuantityDays] = useState(calculateDaysQuantity());
-
-  const [quantityMonths, setQuantityMonths] = useState(
-    calculateQuantityMonths()
-  );
-
-  const [quantityColumns, setQuantityColumns] = useState(quantityDays);
-
-  useEffect(() => {
-    setQuantityDays(calculateDaysQuantity());
-  }, [quantityYears]);
-
-  const renderDays = () => {
-    const allDays = [];
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year < currentYear + quantityYears; year++) {
-      for (let month = 0; month < 12; month++) {
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const monthDays = [];
-        for (let day = 1; day <= daysInMonth; day++) {
-          monthDays.push(
-            <div
-              key={`${year}-${month}-${day}`}
-              style={{
-                //border: "1px solid gray",
-                borderRadius: "5px",
-                width: `${widthDays}px`,
-                height: "35px",
-                textAlign: "center",
-                display: "inline-block",
-                backgroundColor: "rgba(168, 168, 168, 0.7)",
-                padding: "5px",
-              }}
-            >
-              {day}
-            </div>
-          );
-        }
-        allDays.push(
-          <div key={`${year}-${month}`} style={{ flex: "0 0 auto" }}>
-            <div>
-              <div
-                style={{
-                  fontWeight: "600",
-                  textAlign: "center",
-                  backgroundColor: "#303030",
-                  padding: "3px",
-                  borderRight: "1px solid white",
-                }}
-              >
-                <label
-                  style={{
-                    color: "#F0F0F0",
-                    marginBottom: "5px",
-                  }}
-                >
-                  {`${mouthsPTBR[month]} | ${year}`}
-                </label>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  fontWeight: "600",
-                }}
-              >
-                {monthDays}
-              </div>
-            </div>
-          </div>
-        );
-      }
-    }
-
-    return (
-      <div
-        {...events}
-        ref={ref}
-        id="diasContainer"
-        style={{
-          display: "flex",
-          overflowX: "hidden",
-        }}
-      >
-        {allDays}
-      </div>
-    );
-  };
-
-  const renderMonths = () => {
-    const allMonths = [];
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year < currentYear + quantityYears; year++) {
-      allMonths.push(
-        <div key={year} style={{ display: "inline-block" }}>
-          <div>
-            <div
-              style={{
-                fontWeight: "600",
-                textAlign: "center",
-                backgroundColor: "#303030",
-                padding: "3px",
-              }}
-            >
-              <label style={{ color: "#F0F0F0", marginBottom: "5px" }}>
-                {year}
-              </label>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "nowrap",
-                overflowX: "auto",
-              }}
-            >
-              {Array.from({ length: 12 }, (_, month) => (
-                <div
-                  key={`${year}-${month}`}
-                  style={{
-                    backgroundColor: "rgba(168, 168, 168, 0.7)",
-                    fontWeight: "600",
-                    borderRadius: "5px",
-                    width: `${widthMonths}px`,
-                    height: "40px",
-                    textAlign: "center",
-                    display: "inline-block",
-                  }}
-                >
-                  {`${mouthsPTBR[month]}`}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
-    return (
-      <div
-        {...events}
-        ref={ref}
-        id="diasContainer"
-        style={{
-          overflowX: "hidden",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {allMonths}
-      </div>
-    );
-  };
-
-  const renderYears = () => {
-    const allYears = [];
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year < currentYear + quantityYears; year++) {
-      allYears.push(
-        <div
-          key={year}
-          style={{
-            marginTop: "5px",
-            width: `${widthYears}px`,
-            textAlign: "center",
-            display: "inline-block",
-            fontWeight: "600",
-            backgroundColor: "#303030",
-            padding: "3px",
-          }}
-        >
-          <label style={{ color: "#F0F0F0", marginBottom: "5px" }}>
-            {year}
-          </label>
-        </div>
-      );
-    }
-    return (
-      <div
-        id="diasContainer"
-        {...events}
-        ref={ref}
-        style={{
-          overflowX: "hidden",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {allYears}
-      </div>
-    );
-  };
+  // FAZER AS OPCOES DA BUBBLE MUDAREM CONFORME ELA ESTA NA TELA DE PROJETOS, BOARD E TIMELINE
+  // IMPLEMENTAR TIPO DE BUBBLE (PLAYER, TASK OU LINK)
 
   const handleZoom = (e) => {
     if (e.deltaY > 0) {
@@ -320,79 +120,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     }
   };
 
-  const getCellWidth = () => {
-    if (view === "days") {
-      return widthDays;
-    } else if (view === "months") {
-      return widthMonths;
-    } else if (view === "years") {
-      return widthYears;
-    }
-  };
-
-  function isBissexto(ano) {
-    return (ano % 4 === 0 && ano % 100 !== 0) || ano % 400 === 0;
-  }
-
-  const diasPorMes = [
-    31, // Janeiro
-    28, // Fevereiro
-    31, // Março
-    30, // Abril
-    31, // Maio
-    30, // Junho
-    31, // Julho
-    31, // Agosto
-    30, // Setembro
-    31, // Outubro
-    30, // Novembro
-    31, // Dezembro
-  ];
-
-  const onCellClick = (indexColumn, indexRow) => {
-    indexColumn++;
-    indexRow++;
-    let diaDoAno = 0;
-    let mes = 0;
-    let indexDias = indexColumn;
-
-    if (isBissexto(2024)) {
-      diasPorMes[1] = 29;
-    }
-
-    for (let i = 0; i < diasPorMes.length; i++) {
-      if (indexColumn <= diasPorMes[i]) {
-        mes = i + 1;
-        diaDoAno = indexColumn;
-        break;
-      } else {
-        indexColumn -= diasPorMes[i];
-      }
-    }
-
-    alert(
-      `Dia ${diaDoAno} de ${
-        mouthsPTBR[mes - 1]
-      } de 2024\n\nColuna: ${indexDias}\nLinha: ${indexRow}`
-    );
-  };
-
-  const cellStyle = {
-    width: `${getCellWidth()}px`,
-    height: `${initialHeight}px`,
-    border: "1px solid rgba(168, 168, 168, 0.4)",
-    borderRight: "0px",
-    display: "inline-block",
-  };
-
-  const matrixStyle = {
-    marginTop: "5px",
-    whiteSpace: "nowrap",
-  };
-
-  //------------------------------------------------------
-
-  const onDrop = (layoutItem, _ev) => {
+  const onBubbleDrop = (layoutItem, _ev) => {
     if (!layout.lg) return;
 
     const isNearExistingBlock = layout.lg.some((existingLayout) => {
@@ -405,15 +133,15 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     layoutItem.static = isNearExistingBlock;
   };
 
-  const onDragStart = () => {
+  const onBubbleDragStart = () => {
     setScrollEnabled(false);
   };
 
-  const onResizeStart = () => {
+  const onBubbleResizeStart = () => {
     setScrollEnabled(false);
   };
 
-  const onDragStop = (newItem, _placeholder, _evt, _element) => {
+  const onBubbleDragStop = (newItem, _placeholder, _evt, _element) => {
     setScrollEnabled(true);
 
     if (!layout.lg) return;
@@ -435,17 +163,13 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     });
   };
 
-  const onResizeStop = () => {
+  const onBubbleResizeStop = () => {
     setScrollEnabled(true);
   };
 
   return (
     <div
-      style={{
-        paddingBottom: "600px",
-        position: "relative",
-        overflowX: "auto",
-      }}
+      className="container-timeline"
       onWheel={handleZoom}
       {...events}
       ref={ref}
@@ -453,10 +177,10 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
       <div style={{ position: "absolute" }}>
         <div onWheel={handleZoom} style={{ marginBottom: "5px" }}>
           {view === "days"
-            ? renderDays()
+            ? renderDays(widthDays, events, ref)
             : view === "months"
-            ? renderMonths()
-            : renderYears()}
+            ? renderMonths(widthMonths, events, ref)
+            : renderYears(widthYears, events, ref)}
         </div>
         <ReactGridLayout
           style={{
@@ -470,11 +194,11 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
           rowHeight={50}
           preventCollision={true}
           cols={quantityDays}
-          onDragStop={onDragStop}
-          onResizeStart={onResizeStart}
-          onResizeStop={onResizeStop}
-          onDragStart={onDragStart}
-          onDrop={onDrop}
+          onDragStop={onBubbleDragStop}
+          onResizeStart={onBubbleResizeStart}
+          onResizeStop={onBubbleResizeStop}
+          onDragStart={onBubbleDragStart}
+          onDrop={onBubbleDrop}
           containerPadding={[0, 0]}
           maxRows={9}
           resizeHandles={["e"]}
@@ -501,28 +225,23 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
             </div>
           ))}
         </ReactGridLayout>
-
-        <div style={matrixStyle}>
+        <div style={{ marginTop: "5px", whiteSpace: "nowrap" }}>
           {Array.from({ length: 9 }).map((_, rowIndex) => (
             <div key={rowIndex}>
-              {view === "days" && (
-                <div
-                  style={{
-                    position: "absolute",
-                    zIndex: "999",
-                    left: `${currentDayPosition}px`,
-                    width: "3px",
-                    height: "60px",
-                    borderRadius: "10px",
-                    backgroundColor: "red",
-                  }}
-                ></div>
-              )}
+              <div
+                className="current-day-timeline"
+                style={{
+                  left: `${currentDayPosition}px`,
+                }}
+              ></div>
               {Array.from({ length: quantityColumns }).map((_, colIndex) => (
                 <div
                   key={colIndex}
-                  style={cellStyle}
-                  onClick={() => onCellClick(colIndex, rowIndex)}
+                  className="cell-matriz"
+                  style={{
+                    width: `${getCellWidth()}px`,
+                    height: `${initialHeight}px`,
+                  }}
                 ></div>
               ))}
             </div>

@@ -1,31 +1,20 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Grid } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
-import IconButton from "@mui/material/IconButton";
+import { useState, useRef } from "react";
+import RGL, { WidthProvider } from "react-grid-layout";
 import AddIcon from "@mui/icons-material/Add";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-import BubbleTask from "@/components/bubble-v2/bubble-task";
-import ClassicButton from "@/components/ui/buttons";
 import Navbar from "@/components/navbar";
 import Timeline from "@/pages/project-board/timeline";
-import * as styles from "@/pages/project-board/styles";
-import Bubble from "@/components/bubble-v2/bubble";
+import Bubble from "@/components/bubble/bubble";
+import StartEndDateModal from "@/components/modal/starts-end-date-modal";
 
 import "@/app/globals.css";
-import "../../components/bubble-v2/styles.css";
-
 import "./styles.css";
+import "../styles.css";
 
-import RGL, { WidthProvider } from "react-grid-layout";
 const ReactGridLayout = WidthProvider(RGL);
 
 let idCounter = 0;
@@ -50,7 +39,6 @@ function ProjectBoard() {
   const [layoutTimeline, setLayoutTimeline] = useState();
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
 
-  const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [canDragBubbles, setCanDragBubbles] = useState(true);
 
   const handleAddBubble = () => {
@@ -91,7 +79,7 @@ function ProjectBoard() {
     setMenuBubbleOptions(null);
   };
 
-  const onBubbleDragStopTeste = (e) => {
+  const onBubbleDragStop = (e) => {
     const layoutCopyTimeline = e.find((item) => item.y >= 26); //FOI PRA TIMELINE? (VALIDAR MELHOR) - // PEGA A UNICA BUBBLE QUE FOI PARA TIMELINE POIS SO PODE UMA POR VEZ
 
     if (!layoutCopyTimeline) return; // APENAS FOI ARRASTADA NO BOARD
@@ -215,6 +203,10 @@ function ProjectBoard() {
     }
   };
 
+  const handleDeleteBubble = (id) => {
+    setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
+  };
+
   const handleChangeColor = (id, color) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
@@ -297,93 +289,21 @@ function ProjectBoard() {
     setDateModalOpened(false);
   };
 
-  const StartsEndDateModal = () => {
-    return (
-      <Modal
-        keepMounted
-        open={dateModalOpened}
-        //onClose={handleCloseStartEndDateModal}
-      >
-        <Box sx={styles.dateModal}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Grid container spacing={6} columns={16}>
-              <Grid item xs={8}>
-                <label
-                  style={{
-                    fontSize: "15px",
-                    fontWeight: "500",
-                  }}
-                >
-                  Data Início
-                </label>
-                <DatePicker
-                  sx={{ marginTop: "5px" }}
-                  slotProps={{ textField: { variant: "standard" } }}
-                  format="DD/MM/YYYY"
-                  value={currentStartsDate}
-                  onChange={(value) => setCurrentStartsDate(value)}
-                />
-              </Grid>
-              <Grid item xs={8}>
-                <label style={{ fontSize: "15px", fontWeight: "500" }}>
-                  Data Término
-                </label>
-                <DatePicker
-                  sx={{ marginTop: "5px" }}
-                  slotProps={{ textField: { variant: "standard" } }}
-                  format="DD/MM/YYYY"
-                  value={currentEndsDate}
-                  onChange={(value) => setCurrentEndsDate(value)}
-                />
-              </Grid>
-            </Grid>
-          </LocalizationProvider>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: "30px",
-            }}
-          >
-            <ClassicButton
-              onClick={handleConfirmStartEndDate}
-              title="Confirmar"
-            />
-          </div>
-        </Box>
-      </Modal>
-    );
-  };
-
-  const handleDeleteBubble = (id) => {
-    setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
-  };
-
   return (
-    <div style={styles.containerBoards}>
+    <div className="container-boards">
       <Navbar showMenu projectName="Projeto" />
-      <div style={styles.topBoard}>
-        <StartsEndDateModal />
-        <IconButton
-          style={{
-            position: "absolute",
-            top: "75px",
-            right: "30px",
-            padding: "20px",
-            borderRadius: "50%",
-            backgroundColor: "#1C1C1C",
-            color: "#fff",
-            zIndex: 999,
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
-            opacity: isButtonHovered ? 1 : 0.3,
-          }}
-          onMouseEnter={() => setIsButtonHovered(true)}
-          onMouseLeave={() => setIsButtonHovered(false)}
-          onClick={handleOpenMenuBubbleOptions}
-        >
+      <div className="top-board">
+        <StartEndDateModal
+          open={dateModalOpened}
+          onConfirm={handleConfirmStartEndDate}
+          startdate={currentStartsDate}
+          setStartDate={setCurrentStartsDate}
+          endDate={currentEndsDate}
+          setEndDate={setCurrentEndsDate}
+        />
+        <button className="add-bubble" onClick={handleOpenMenuBubbleOptions}>
           <AddIcon />
-        </IconButton>
+        </button>
         <Menu
           anchorEl={menuBubbleOptions}
           open={menuBubbleOptionsOpened}
@@ -406,7 +326,7 @@ function ProjectBoard() {
           rowHeight={25}
           preventCollision={true}
           cols={50}
-          onDragStop={onBubbleDragStopTeste}
+          onDragStop={onBubbleDragStop}
           containerPadding={[0, 0]}
           maxRows={46}
         >
@@ -447,7 +367,7 @@ function ProjectBoard() {
           ))}
         </ReactGridLayout>
       </div>
-      <div id="timeline" style={styles.timeLine}>
+      <div id="timeline" className="time-line">
         <Timeline
           layoutBubble={layoutTimeline}
           layoutBubbleProps={layoutCustomPropsTimeline}
