@@ -2,15 +2,13 @@
 
 import React, { useState } from "react";
 import RGL, { WidthProvider } from "react-grid-layout";
-import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 
 import Navbar from "@/components/navbar";
-import Bubble from "@/components/bubble-v2/bubble";
-import * as styles from "@/pages/project-board/styles";
+import Bubble from "@/components/bubble/bubble";
 
-import "./styles.css";
 import "@/app/globals.css";
+import "./styles.css";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -24,7 +22,6 @@ const getId = () => {
 const ProjectBoard = () => {
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
-  const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [canDragBubbles, setCanDragBubbles] = useState(true);
 
   const handleAddBubble = () => {
@@ -44,9 +41,6 @@ const ProjectBoard = () => {
       bubbleId: newItem.i,
       title: "",
       color: "black",
-      //startsDate: null,
-      //endsDate: null,
-      //trace: false,
     };
 
     setLayout((prevLayout) => [...prevLayout, newItem]);
@@ -54,6 +48,10 @@ const ProjectBoard = () => {
       ...prevCustomProps,
       newCustomProps,
     ]);
+  };
+
+  const handleDeleteBubble = (id) => {
+    setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
   };
 
   const handleChangeColor = (id, color) => {
@@ -87,37 +85,19 @@ const ProjectBoard = () => {
     window.location.href = url;
   };
 
-  const handleDeleteBubble = (id) => {
-    setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
+  const onBubbleDragStop = (e) => {
+    // Chamada do endpoint
   };
 
   return (
     <div>
-      <Navbar projectName="Gerenciador de projetos" />
-      <IconButton
-        style={{
-          position: "absolute",
-          top: "75px",
-          right: "30px",
-          padding: "20px",
-          borderRadius: "50%",
-          backgroundColor: "#1C1C1C",
-          color: "#fff",
-          zIndex: 999,
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
-          opacity: isButtonHovered ? 1 : 0.3,
-        }}
-        onMouseEnter={() => setIsButtonHovered(true)}
-        onMouseLeave={() => setIsButtonHovered(false)}
-        onClick={handleAddBubble}
-      >
+      <Navbar projectName="Projetos" />
+      <button className="add-bubble" onClick={handleAddBubble}>
         <AddIcon />
-      </IconButton>
+      </button>
       <div>
         <ReactGridLayout
-          style={{
-            height: "100%",
-          }}
+          className="container-layout"
           onLayoutChange={(newLayout) => setLayout(newLayout)}
           layout={layout}
           compactType={null}
@@ -126,11 +106,12 @@ const ProjectBoard = () => {
           margin={[1, 1]}
           rowHeight={25}
           preventCollision={true}
+          onDragStop={onBubbleDragStop}
         >
           {layout.map((bubble) => (
             <div
-              key={bubble.i}
               className="container-bubble"
+              key={bubble.i}
               style={{
                 backgroundColor:
                   (layoutCustomProps &&
