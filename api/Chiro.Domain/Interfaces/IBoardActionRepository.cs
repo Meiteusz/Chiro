@@ -22,5 +22,7 @@ namespace Chiro.Domain.Interfaces
         List<BoardAction> GetBoardActionByProjectId(long projectId);
 
         Task<bool> LinkAsync(BoardActionLink boardActionLink);
+
+        Task<bool> SaveChangesAsync();
     }
 }

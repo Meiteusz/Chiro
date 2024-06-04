@@ -11,8 +11,6 @@ namespace Chiro.Application.Interfaces
 
         Task<Project?> GetProjectAsync(long projectId);
 
-        string AuthenticateProjectSession(AuthenticateProjectSessionDTO authenticateProjectSessionDTO);
-
         Task<bool> ResizeAsync(ResizeProjectDTO resizeProjectDTO);
 
         Task<bool> MoveAsync(MoveProjectDTO moveProjectDTO);

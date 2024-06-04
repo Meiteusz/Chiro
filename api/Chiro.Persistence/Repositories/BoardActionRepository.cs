@@ -57,20 +57,20 @@ namespace Chiro.Persistence.Repositories
         public async Task<bool> ChangePeriodAsync(long BoardActionId, BoardAction BoardAction)
         {
             return await _context.BoardActions.Where(w => w.Id == BoardActionId)
-                                                 .UpdateFromQueryAsync(x => new BoardAction
-                                                 {
-                                                     StartDate = BoardAction.StartDate,
-                                                     EndDate = BoardAction.EndDate,
-                                                 }) > 0;
+                                              .UpdateFromQueryAsync(x => new BoardAction
+                                              {
+                                                  StartDate = BoardAction.StartDate,
+                                                  EndDate = BoardAction.EndDate,
+                                              }) > 0;
         }
 
         public async Task<bool> ConcludeBoardActionAsync(long BoardActionId, BoardAction BoardAction)
         {
             return await _context.BoardActions.Where(w => w.Id == BoardActionId)
-                                                 .UpdateFromQueryAsync(x => new BoardAction
-                                                 {
-                                                     ConcludedAt = BoardAction.ConcludedAt,
-                                                 }) > 0;
+                                              .UpdateFromQueryAsync(x => new BoardAction
+                                              {
+                                                  ConcludedAt = BoardAction.ConcludedAt,
+                                              }) > 0;
         }
 
         public List<BoardAction> GetBoardActionByProjectId(long projectId)
@@ -81,6 +81,11 @@ namespace Chiro.Persistence.Repositories
         public async Task<bool> LinkAsync(BoardActionLink boardActionLink)
         {
             _context.BoardActionLinks.Add(boardActionLink);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
             return await _context.SaveChangesAsync() > 0;
         }
     }

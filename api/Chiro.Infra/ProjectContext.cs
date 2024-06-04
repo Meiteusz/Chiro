@@ -21,7 +21,25 @@ namespace Chiro.Infra
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-                optionsBuilder.UseNpgsql("Host=localhost:5432; Database=chiro_nova; Username=pguser; Password=pgadmin");
+                optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING"));
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BoardActionLink>()
+                .HasKey(bal => new { bal.BaseBoardActionId, bal.LinkedBoardActionId });
+
+            modelBuilder.Entity<BoardActionLink>()
+                .HasOne(bal => bal.BaseBoardAction)
+                .WithMany(ba => ba.BoardActionLinks)
+                .HasForeignKey(bal => bal.BaseBoardActionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BoardActionLink>()
+                .HasOne(bal => bal.LinkedBoardAction)
+                .WithMany()
+                .HasForeignKey(bal => bal.LinkedBoardActionId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

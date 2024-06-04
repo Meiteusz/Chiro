@@ -1,6 +1,5 @@
 using Chiro.Application.Exceptions;
 using Chiro.Application.Interfaces;
-using Chiro.Application.Services;
 using Chiro.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -73,23 +72,6 @@ namespace Chiro.API.Controllers
             {
                 return NotFound();
             }
-        }
-
-        /// <summary>
-        /// Autentica a senha com o projeto (v1).
-        /// </summary>
-        /// <param name="authenticateProjectSessionDTO"></param>
-        /// <returns></returns>
-        [HttpPost("authenticate")]
-        public IActionResult AuthenticateProjectSessionAsync([FromBody] AuthenticateProjectSessionDTO authenticateProjectSessionDTO)
-        {
-            var token = _projectService.AuthenticateProjectSession(authenticateProjectSessionDTO);
-            if (string.IsNullOrEmpty(token))
-            {
-                return Unauthorized("Wrong password.");
-            }
-
-            return Ok(token);
         }
 
         /// <summary>

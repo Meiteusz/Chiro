@@ -17,5 +17,7 @@ namespace Chiro.Application.Interfaces
         Task<bool> ConcludeBoardActionAsync(ConcludeBoardActionDTO concludeBoardActionDTO);
 
         Task<bool> LinkAsync(LinkBoardActionDTO linkBoardActionDTO);
+
+        Task DelayBoardActionsFromProjectAsync(long projectId);
     }
 }

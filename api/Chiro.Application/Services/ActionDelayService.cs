@@ -1,34 +1,24 @@
-﻿using Chiro.Application.Exceptions;
+﻿using Chiro.Application.Interfaces;
+using Chiro.Domain.Entities;
 using Chiro.Infra;
-using Microsoft.EntityFrameworkCore;
 
 namespace Chiro.Application.Services
 {
     public class ActionDelayService : IActionDelayService
     {
         private readonly ProjectContext _context;
-        public ActionDelayService(ProjectContext context)
+        private readonly IProjectService _projectService;
+
+        public ActionDelayService(ProjectContext context, IProjectService projectService)
         {
             _context = context;
+            _projectService = projectService;
         }
 
         public async Task DelayActionsByProjectId(long projectId)
         {
-            var project = await _context.Projects.Where(w => w.Id == projectId).Include(i => i.BoardActions)
-                                          .ThenInclude(i => i.BoardActionLinks)
-                                          .FirstOrDefaultAsync();
-
-            if (project is null)
-            {
-                throw new BusinessException("Project not found.");
-            }
-
-            if (project.BoardActions is null || (project.BoardActions != null && !project.BoardActions.Any()))
-            {
-                return;
-            }
-
-            if (project.BoardActions is null || (project.BoardActions != null && !project.BoardActions.Exists(w => w.EndDate > DateTime.Now)))
+            var project = await _projectService.GetProjectAsync(projectId);
+            if (!ShouldDelayBoardActions(project))
             {
                 return;
             }
@@ -39,6 +29,26 @@ namespace Chiro.Application.Services
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        private bool ShouldDelayBoardActions(Project project)
+        {
+            if (project is null)
+            {
+                return false;
+            }
+
+            if (project.BoardActions is null || (project.BoardActions != null && !project.BoardActions.Any()))
+            {
+                return false;
+            }
+
+            if (project.BoardActions is null || (project.BoardActions != null && !project.BoardActions.Exists(w => w.EndDate > DateTime.Now)))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

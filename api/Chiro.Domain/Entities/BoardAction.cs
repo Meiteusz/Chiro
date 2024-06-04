@@ -21,33 +21,36 @@ namespace Chiro.Domain.Entities
 
         public List<BoardActionLink> BoardActionLinks { get; set; }
 
-        public void DelaySelfAndChilds()
+        public IEnumerable<long> DelaySelfAndChilds()
         {
-            var alreadyAdjustedActions = new List<long>();
-            DelaySelf();
-            alreadyAdjustedActions.Add(Id);
-
-            if (BoardActionLinks is null || !BoardActionLinks.Any())
+            var alreadyAdjustedActions = new List<long>
             {
-                return;
+                Delay()
+            };
+
+            if (BoardActionLinks is null || BoardActionLinks.Count == 0)
+            {
+                return Enumerable.Empty<long>();
             }
 
             foreach (var boardActionLink in BoardActionLinks)
             {
-                if (alreadyAdjustedActions.Exists(w => w == boardActionLink.LinkedBoardActionId))
+                if (alreadyAdjustedActions.Contains(boardActionLink.LinkedBoardActionId))
                 {
                     continue;
                 }
 
-                boardActionLink.LinkedBoardAction.DelaySelf();
-                alreadyAdjustedActions.Add(boardActionLink.LinkedBoardActionId);
+                alreadyAdjustedActions.Add(boardActionLink.LinkedBoardAction.Delay());
             }
+
+            return alreadyAdjustedActions;
         }
 
-        private void DelaySelf()
+        public long Delay()
         {
-            StartDate.AddDays(1);
-            EndDate.AddDays(1);
+            StartDate = StartDate.AddDays(1);
+            EndDate = EndDate.AddDays(1);
+            return Id;
         }
     }
 }
