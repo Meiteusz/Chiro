@@ -7,7 +7,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
 import Navbar from "@/components/navbar";
-import Timeline from "@/pages/project-board/timeline";
+import Timeline from "@/components/timeline/timeline";
 import Bubble from "@/components/bubble/bubble";
 import StartEndDateModal from "@/components/modal/starts-end-date-modal";
 
@@ -24,11 +24,18 @@ const getId = () => {
   return idCounter.toString();
 };
 
+const boardActionType = {
+  Text: 0,
+  Link: 1,
+  Player: 2,
+};
+
 function ProjectBoard() {
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
   const [dateModalOpened, setDateModalOpened] = useState(false);
   const [currentStartsDate, setCurrentStartsDate] = useState(null);
   const [currentEndsDate, setCurrentEndsDate] = useState(null);
+  const [canDragBubbles, setCanDragBubbles] = useState(true);
   const [menuBubbleOptions, setMenuBubbleOptions] = useState(null);
   const bubbleRefs = useRef([]);
   const menuBubbleOptionsOpened = Boolean(menuBubbleOptions);
@@ -39,9 +46,17 @@ function ProjectBoard() {
   const [layoutTimeline, setLayoutTimeline] = useState();
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
 
-  const [canDragBubbles, setCanDragBubbles] = useState(true);
+  const handleOpenMenuBubbleOptions = (event) => {
+    setMenuBubbleOptions(event.currentTarget);
+  };
 
-  const handleAddBubble = () => {
+  const handleCloseMenuBubbleOptions = () => {
+    setMenuBubbleOptions(null);
+  };
+
+  const handleAddBubble = (bubbleType) => {
+    // Chamada do endpoint
+
     const newItem = {
       w: 4,
       h: 2,
@@ -56,6 +71,7 @@ function ProjectBoard() {
 
     const newCustomProps = {
       bubbleId: newItem.i,
+      type: bubbleType,
       title: "",
       color: "black",
       startsDate: null,
@@ -71,12 +87,40 @@ function ProjectBoard() {
     handleCloseMenuBubbleOptions();
   };
 
-  const handleOpenMenuBubbleOptions = (event) => {
-    setMenuBubbleOptions(event.currentTarget);
+  const handleDeleteBubble = (id) => {
+    // Chamada do endpoint
+
+    setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
   };
 
-  const handleCloseMenuBubbleOptions = () => {
-    setMenuBubbleOptions(null);
+  const handleChangeColor = (id, color) => {
+    // Chamada do endpoint
+
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === id
+          ? {
+              ...prevBox,
+              color: color.hex,
+            }
+          : prevBox
+      )
+    );
+  };
+
+  const handleChangeTitle = (id, content) => {
+    // Chamada do endpoint
+
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === id
+          ? {
+              ...prevBox,
+              title: content,
+            }
+          : prevBox
+      )
+    );
   };
 
   const onBubbleDragStop = (e) => {
@@ -95,6 +139,11 @@ function ProjectBoard() {
     setSelectedIdBubble(layoutCopyTimeline.i);
   };
 
+  const onBubbleResizeStop = (e) => {
+    // Chamada do endpoint
+  };
+
+  //#region ConfirmStartEndDate
   const handleConfirmStartEndDate = () => {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
 
@@ -107,16 +156,9 @@ function ProjectBoard() {
         diferencaEmMilissegundos / (1000 * 60 * 60 * 24) + 1
       );
 
-      /////
-
       var dataInicial = new Date("2024-01-01");
-
       var diasComeco = Math.abs(currentStartsDate - dataInicial);
-
       var diasDif = Math.floor(diasComeco / (1000 * 60 * 60 * 24));
-
-      /////
-
       var selectedBubbleCustomProps = layoutCustomProps.find(
         (x) => x.bubbleId === selectedIdBubble
       );
@@ -131,6 +173,7 @@ function ProjectBoard() {
 
       const newCustomProps = {
         bubbleId: newItem.i,
+        type: selectedBubbleCustomProps.type,
         title: selectedBubbleCustomProps.title,
         color: selectedBubbleCustomProps.color,
         startsDate: currentStartsDate,
@@ -155,7 +198,9 @@ function ProjectBoard() {
         prevLayout.filter((item) => item.bubbleId !== selectedIdBubble)
       );
 
-      // --- Criação da bolha de rastro ---
+      // Chamada do endpoint
+
+      //#region Criação da bolha de rastro
 
       const newItemRastro = {
         w: selectedBubbleParaRastro.w,
@@ -184,11 +229,16 @@ function ProjectBoard() {
         newCustomPropsRastro,
       ]);
 
-      // --- Criação da bolha de rastro ---
+      //#endregion
+
+      const completeBubble = {
+        bubble: newItem,
+        customProps: newCustomProps,
+      };
 
       console.log(
         `Informações da bolha: ${JSON.stringify(
-          newItem
+          completeBubble
         )}\nAtividade definida para começar ${new Date(
           currentStartsDate
         ).toLocaleDateString("pt-BR", options)} e terminar ${new Date(
@@ -198,41 +248,12 @@ function ProjectBoard() {
 
       setCurrentStartsDate(null);
       setCurrentEndsDate(null);
-      //handleCloseStartEndDateModal();
       setDateModalOpened(false);
     }
   };
+  //#endregion
 
-  const handleDeleteBubble = (id) => {
-    setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
-  };
-
-  const handleChangeColor = (id, color) => {
-    setLayoutCustomProps((prevBubble) =>
-      prevBubble.map((prevBox) =>
-        prevBox.bubbleId === id
-          ? {
-              ...prevBox,
-              color: color.hex,
-            }
-          : prevBox
-      )
-    );
-  };
-
-  const handleChangeTitle = (id, content) => {
-    setLayoutCustomProps((prevBubble) =>
-      prevBubble.map((prevBox) =>
-        prevBox.bubbleId === id
-          ? {
-              ...prevBox,
-              title: content,
-            }
-          : prevBox
-      )
-    );
-  };
-
+  //#region CloseStartEndDateModal
   const handleCloseStartEndDateModal = (event, reason) => {
     if (!reason) {
       setDateModalOpened(false);
@@ -288,6 +309,7 @@ function ProjectBoard() {
 
     setDateModalOpened(false);
   };
+  //#endregion
 
   return (
     <div className="container-boards">
@@ -309,9 +331,24 @@ function ProjectBoard() {
           open={menuBubbleOptionsOpened}
           onClose={handleCloseMenuBubbleOptions}
         >
-          <MenuItem onClick={handleAddBubble}>Tarefa</MenuItem>
-          <MenuItem onClick={handleAddBubble}>Player</MenuItem>
-          <MenuItem onClick={handleAddBubble}>Link</MenuItem>
+          <MenuItem
+            className="menu-item"
+            onClick={() => handleAddBubble(boardActionType.Text)}
+          >
+            Tarefa
+          </MenuItem>
+          <MenuItem
+            className="menu-item"
+            onClick={() => handleAddBubble(boardActionType.Player)}
+          >
+            Player
+          </MenuItem>
+          <MenuItem
+            className="menu-item"
+            onClick={() => handleAddBubble(boardActionType.Link)}
+          >
+            Link
+          </MenuItem>
         </Menu>
         <ReactGridLayout
           style={{
@@ -326,9 +363,10 @@ function ProjectBoard() {
           rowHeight={25}
           preventCollision={true}
           cols={50}
-          onDragStop={onBubbleDragStop}
           containerPadding={[0, 0]}
           maxRows={46}
+          onDragStop={onBubbleDragStop}
+          onResizeStop={onBubbleResizeStop}
         >
           {layout.map((bubble) => (
             <div
@@ -353,6 +391,8 @@ function ProjectBoard() {
               }}
             >
               <Bubble
+                canChangeColor
+                canDelete
                 bubble={bubble}
                 bubbleCustomProps={
                   layoutCustomProps &&

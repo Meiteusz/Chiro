@@ -1,0 +1,31 @@
+.container-bubble {
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* padding: 1px; */
+  cursor: grab;
+  border: 1px solid;
+  z-index: 1;
+}
+
+.container-timeline {
+  padding-bottom: 600px;
+  position: relative;
+  overflow-x: auto;
+}
+
+.current-day-timeline {
+  position: absolute;
+  z-index: 999;
+  width: 3px;
+  height: 60px;
+  border-radius: 10px;
+  background-color: red;
+}
+
+.cell-matriz {
+  border: 1px solid rgba(168, 168, 168, 0.4);
+  border-right: 0px;
+  display: inline-block;
+}

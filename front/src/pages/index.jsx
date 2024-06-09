@@ -25,6 +25,8 @@ const ProjectBoard = () => {
   const [canDragBubbles, setCanDragBubbles] = useState(true);
 
   const handleAddBubble = () => {
+    // Chamada do endpoint
+
     const newItem = {
       x: 3,
       y: 5,
@@ -51,10 +53,14 @@ const ProjectBoard = () => {
   };
 
   const handleDeleteBubble = (id) => {
+    // Chamada do endpoint
+
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
   };
 
   const handleChangeColor = (id, color) => {
+    // Chamada do endpoint
+
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
@@ -68,6 +74,8 @@ const ProjectBoard = () => {
   };
 
   const handleChangeTitle = (id, content) => {
+    // Chamada do endpoint
+
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
@@ -81,11 +89,17 @@ const ProjectBoard = () => {
   };
 
   const handleDoubleClick = (id) => {
+    // Chamada do endpoint
+
     const url = `http://localhost:3000/project-board?bubbleProjectId=${id}`;
     window.location.href = url;
   };
 
   const onBubbleDragStop = (e) => {
+    // Chamada do endpoint
+  };
+
+  const onBubbleResizeStop = (e) => {
     // Chamada do endpoint
   };
 
@@ -107,6 +121,7 @@ const ProjectBoard = () => {
           rowHeight={25}
           preventCollision={true}
           onDragStop={onBubbleDragStop}
+          onResizeStop={onBubbleResizeStop}
         >
           {layout.map((bubble) => (
             <div
@@ -121,6 +136,9 @@ const ProjectBoard = () => {
               }}
             >
               <Bubble
+                canOpen
+                canChangeColor
+                canDelete
                 bubble={bubble}
                 bubbleCustomProps={
                   layoutCustomProps &&

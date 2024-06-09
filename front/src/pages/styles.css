@@ -7,7 +7,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1px;
+  /* padding: 1px; */
   cursor: grab;
   border: 1px solid;
   z-index: 1;

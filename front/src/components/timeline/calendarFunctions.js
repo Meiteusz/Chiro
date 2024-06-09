@@ -1,4 +1,4 @@
-import { quantityYears } from "./params";
+import { quantityYears } from "../../components/timeline/params";
 
 const calculateDaysQuantity = () => {
   const currentYear = new Date().getFullYear();
