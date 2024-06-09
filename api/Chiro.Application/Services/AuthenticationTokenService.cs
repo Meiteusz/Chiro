@@ -1,22 +1,19 @@
-﻿using Chiro.Application.Interfaces;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
 using Chiro.Domain.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 
 namespace Chiro.Application.Services
 {
     public class AuthenticationTokenService : IAuthenticationTokenService
     {
         private readonly IAuthenticationTokenRepository _repository;
-        private readonly IConfiguration _configuration;
 
-        public AuthenticationTokenService(IAuthenticationTokenRepository repository, IConfiguration configuration)
+        public AuthenticationTokenService(IAuthenticationTokenRepository repository)
         {
             _repository = repository;
-            _configuration = configuration;
         }
 
         public async Task<string> AuthenticateAsync(AuthenticateDTO authenticateDTO)
@@ -32,10 +29,10 @@ namespace Chiro.Application.Services
 
         private string GenerateJwtToken()
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var Sectoken = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Issuer"], null,
+            var Sectoken = new JwtSecurityToken(Environment.GetEnvironmentVariable("JWT_ISSUER"), Environment.GetEnvironmentVariable("JWT_ISSUER"), null,
               expires: DateTime.Now.AddMinutes(120),
               signingCredentials: credentials);
 

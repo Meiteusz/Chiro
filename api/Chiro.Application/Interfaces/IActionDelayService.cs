@@ -1,4 +1,4 @@
-﻿namespace Chiro.Application.Services
+﻿namespace Chiro.Application.Interfaces
 {
     public interface IActionDelayService
     {

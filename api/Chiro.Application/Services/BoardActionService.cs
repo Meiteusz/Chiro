@@ -1,7 +1,6 @@
 ﻿using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
 using Chiro.Domain.Entities;
-using Chiro.Domain.Enums;
 using Chiro.Domain.Interfaces;
 
 namespace Chiro.Application.Services
@@ -9,24 +8,31 @@ namespace Chiro.Application.Services
     public class BoardActionService : IBoardActionService
     {
         private readonly IBoardActionRepository _repository;
-        public BoardActionService(IBoardActionRepository boardActionRepository)
+        private readonly IProjectService _projectService;
+
+        public BoardActionService(IBoardActionRepository boardActionRepository, IProjectService projectService)
         {
             _repository = boardActionRepository;
+            _projectService = projectService;
         }
+
+        #region Public Methods
 
         public async Task<bool> ChangeColorAsync(ChangeBoardActionColorDTO changeBoardActionColorDTO)
         {
-            var boardAction = new BoardAction
+            ArgumentNullException.ThrowIfNull(changeBoardActionColorDTO);
+
+            return await _repository.ChangeColorAsync(changeBoardActionColorDTO.Id, new BoardAction
             {
                 Color = changeBoardActionColorDTO.Color,
-            };
-
-            return await _repository.ChangeColorAsync(changeBoardActionColorDTO.Id, boardAction);
+            });
         }
 
         public async Task<bool> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO)
         {
-            var boardAction = new BoardAction
+            ArgumentNullException.ThrowIfNull(createBoardActionDTO);
+
+            return await _repository.CreateBoardActionAsync(new BoardAction
             {
                 ProjectId = createBoardActionDTO.ProjectId,
                 Content = createBoardActionDTO.Content,
@@ -38,63 +44,109 @@ namespace Chiro.Application.Services
                 StartDate = createBoardActionDTO.StartDate,
                 EndDate = createBoardActionDTO.EndDate,
                 BoardActionType = createBoardActionDTO.BoardActionType
-            };
-
-            return await _repository.CreateBoardActionAsync(boardAction);
+            });
         }
 
         public async Task<bool> MoveAsync(MoveBoardActionDTO moveBoardActionDTO)
         {
-            var boardAction = new BoardAction
+            ArgumentNullException.ThrowIfNull(moveBoardActionDTO);
+
+            return await _repository.MoveAsync(moveBoardActionDTO.Id, new BoardAction
             {
                 PositionX = moveBoardActionDTO.PositionX,
                 PositionY = moveBoardActionDTO.PositionY
-            };
-
-            return await _repository.MoveAsync(moveBoardActionDTO.Id, boardAction);
+            });
         }
 
         public async Task<bool> ResizeAsync(ResizeBoardActionDTO resizeBoardActionDTO)
         {
-            var boardAction = new BoardAction
+            ArgumentNullException.ThrowIfNull(resizeBoardActionDTO);
+
+            return await _repository.ResizeAsync(resizeBoardActionDTO.Id, new BoardAction
             {
                 Width = resizeBoardActionDTO.Width,
                 Height = resizeBoardActionDTO.Height,
-            };
-
-            return await _repository.ResizeAsync(resizeBoardActionDTO.Id, boardAction);
+            });
         }
 
         public async Task<bool> ChangePeriodAsync(ChangePeriodDTO changePeriodDTO)
         {
-            var board = new BoardAction
+            ArgumentNullException.ThrowIfNull(changePeriodDTO);
+
+            return await _repository.ChangePeriodAsync(changePeriodDTO.Id, new BoardAction
             {
                 StartDate = changePeriodDTO.StartDate,
                 EndDate = changePeriodDTO.EndDate,
-            };
-
-            return await _repository.ChangePeriodAsync(changePeriodDTO.Id, board);
+            });
         }
 
         public async Task<bool> ConcludeBoardActionAsync(ConcludeBoardActionDTO concludeBoardActionDTO)
         {
-            var board = new BoardAction
+            ArgumentNullException.ThrowIfNull(concludeBoardActionDTO);
+
+            return await _repository.ConcludeBoardActionAsync(concludeBoardActionDTO.Id, new BoardAction
             {
                 ConcludedAt = DateTime.Now
-            };
-
-            return await _repository.ConcludeBoardActionAsync(concludeBoardActionDTO.Id, board);
+            });
         }
 
         public async Task<bool> LinkAsync(LinkBoardActionDTO linkBoardActionDTO)
         {
-            var boardActionLink = new BoardActionLink
+            ArgumentNullException.ThrowIfNull(linkBoardActionDTO);
+
+            return await _repository.LinkAsync(new BoardActionLink
             {
                 BaseBoardActionId = linkBoardActionDTO.BaseBoardActionId,
                 LinkedBoardActionId = linkBoardActionDTO.LinkedBoardActionId
-            };
-
-            return await _repository.LinkAsync(boardActionLink);
+            });
         }
+
+        public async Task DelayBoardActionsFromProjectAsync(long projectId)
+        {
+            var project = await _projectService.GetProjectAsync(projectId);
+            if (!ShouldDelayBoardActions(project))
+            {
+                return;
+            }
+
+            var alreadyDelayedActions = new List<long>();
+            foreach (var boardAction in project.BoardActions.Where(w => w.EndDate < DateTime.Now && w.ConcludedAt == null))
+            {
+                if (alreadyDelayedActions.Exists(w => w == boardAction.Id))
+                {
+                    continue;
+                }
+
+                alreadyDelayedActions.AddRange(boardAction.DelaySelfAndChilds());
+            }
+
+            await _repository.SaveChangesAsync();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static bool ShouldDelayBoardActions(Project project)
+        {
+            if (project is null)
+            {
+                return false;
+            }
+
+            if (project.BoardActions == null || project.BoardActions.Count == 0)
+            {
+                return false;
+            }
+
+            if (!project.BoardActions.Any(w => w.EndDate < DateTime.Now && w.ConcludedAt == null))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        #endregion
     }
 }
