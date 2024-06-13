@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 
-import "./styles.css";
 import "@/app/globals.css";
+import "./styles.css";
 
 const AuthScreen = () => {
   const [tokenValue, setTokenValue] = useState("");
@@ -14,6 +14,8 @@ const AuthScreen = () => {
   };
 
   const handleButtonClick = () => {
+    // Chamada do endpoint
+
     if (tokenValue != "123") {
       setError("Token inválido.");
     } else {

@@ -13,12 +13,12 @@
 }
 
 .grid-item {
-  border-radius: 8px; /* Ajuste esse valor conforme necessário */
+  border-radius: 8px;
 }
 
 .drop-drag-container {
-  width: 800px; /* Defina a largura desejada */
-  height: 600px; /* Defina a altura desejada */
+  width: 800px;
+  height: 600px;
 }
 
 .react-grid-layout {

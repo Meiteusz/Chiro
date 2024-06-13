@@ -9,6 +9,7 @@ import Compact from "@uiw/react-color-compact";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 import "./styles.css";
 import "@/app/globals.css";
@@ -20,19 +21,32 @@ function Bubble({
   onChangeTitle,
   onDoubleClick,
   onDelete,
+  onComplete,
   canDrag,
+  canOpen,
+  canDelete,
+  canComplete,
+  delayedTime,
 }) {
   const [contextMenu, setContextMenu] = useState(null);
   const [OpenChromePicker, setChromePicker] = useState(false);
 
   const handleContextMenu = (event) => {
     event.preventDefault();
-    setContextMenu({
-      mouseX: event.clientX - 2,
-      mouseY: event.clientY - 4,
-    });
-    setChromePicker(false);
-    canDrag(false);
+
+    if (
+      event.target.id === bubble.i ||
+      event.target.parentElement.id === bubble.i
+    ) {
+      setContextMenu({
+        mouseX: event.clientX - 2,
+        mouseY: event.clientY - 4,
+      });
+      setChromePicker(false);
+      canDrag(false);
+    } else {
+      handleCloseContextMenu();
+    }
   };
 
   const handleDoubleClick = () => {
@@ -65,6 +79,13 @@ function Bubble({
     onChangeTitle(bubble.i, newName);
   };
 
+  const handleBubbleComplete = () => {
+    if (!onComplete) return;
+
+    onComplete();
+    handleCloseContextMenu();
+  };
+
   const handleCloseContextMenu = () => {
     setContextMenu(null);
     canDrag(true);
@@ -90,26 +111,39 @@ function Bubble({
       data-grid={bubble}
       onContextMenu={handleContextMenu}
       onDoubleClick={handleDoubleClick}
+      style={{
+        backgroundColor: "red",
+        height: "100%",
+        width: "100%",
+        borderTopRightRadius: "5px",
+        borderBottomRightRadius: "5px",
+        //backgroundColor: "green",
+        marginLeft: `${delayedTime}px`,
+        backgroundColor: delayedTime ? "red" : "transparent",
+      }}
     >
-      <input
-        autofocus
-        type="text"
-        value={bubbleCustomProps.title ?? ""}
-        onChange={handleBubbleNameChange}
-        onContextMenu={handleContextMenu}
-        style={{
-          backgroundColor: "transparent",
-          border: "none",
-          color: isDarkColor(bubbleCustomProps.color) ? "white" : "black",
-          textAlign: "center",
-          width: "100%",
-          outline: "none",
-          fontSize: "22px",
-          fontFamily: "Roboto Mono, monospace",
-          fontWeight: "bold",
-          cursor: "text",
-        }}
-      />
+      {
+        <input
+          autofocus
+          type="text"
+          value={bubbleCustomProps.title ?? ""}
+          onChange={handleBubbleNameChange}
+          onContextMenu={handleContextMenu}
+          disabled={canComplete}
+          style={{
+            backgroundColor: "transparent",
+            border: "none",
+            color: isDarkColor(bubbleCustomProps.color) ? "white" : "black",
+            textAlign: "center",
+            width: "100%",
+            outline: "none",
+            fontSize: "22px",
+            fontFamily: "Roboto Mono, monospace",
+            fontWeight: "bold",
+            cursor: "text",
+          }}
+        />
+      }
       <Menu
         anchorEl={contextMenu}
         open={contextMenu !== null}
@@ -121,53 +155,70 @@ function Bubble({
             : undefined
         }
       >
-        <MenuItem
-          anchorEl={contextMenu}
-          open={contextMenu !== null}
-          onClose={handleCloseContextMenu}
-          anchorReference="anchorPosition"
-          anchorPosition={
-            contextMenu !== null
-              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-              : undefined
-          }
-        >
-          {OpenChromePicker ? (
-            <ChromePicker
-              disableAlpha={true}
-              color={bubbleCustomProps.color ?? "black"}
-              onChange={handleColorSelection}
-            />
-          ) : (
-            <Compact
-              color={bubbleCustomProps.color ?? "black"}
-              onChange={handleColorSelection}
-            />
-          )}
-        </MenuItem>
-        <MenuItem
-          disabled={!bubbleCustomProps.title}
-          onClick={handleDoubleClick}
-        >
-          <ListItemIcon>
-            <OpenBubble fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Abrir</ListItemText>
-        </MenuItem>
-        {!OpenChromePicker && (
+        {!canComplete && (
+          <MenuItem
+            anchorEl={contextMenu}
+            open={contextMenu !== null}
+            onClose={handleCloseContextMenu}
+            anchorReference="anchorPosition"
+            anchorPosition={
+              contextMenu !== null
+                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                : undefined
+            }
+          >
+            {OpenChromePicker ? (
+              <ChromePicker
+                disableAlpha={true}
+                color={bubbleCustomProps.color ?? "black"}
+                onChange={handleColorSelection}
+              />
+            ) : (
+              <Compact
+                color={bubbleCustomProps.color ?? "black"}
+                onChange={handleColorSelection}
+              />
+            )}
+          </MenuItem>
+        )}
+        {canOpen && (
+          <MenuItem
+            disabled={!bubbleCustomProps.title}
+            onClick={handleDoubleClick}
+          >
+            <ListItemIcon>
+              <OpenBubble fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Abrir</ListItemText>
+          </MenuItem>
+        )}
+        {!OpenChromePicker && !canComplete && (
           <MenuItem onClick={handleOpenSettingColor}>
             <ListItemIcon>
-              <SettingsSuggestIcon fontSize="small" />
+              <SettingsSuggestIcon
+                fontSize="small"
+                style={{ color: "#00A2E8" }}
+              />
             </ListItemIcon>
             <ListItemText>Configuração de cores</ListItemText>
           </MenuItem>
         )}
-        <MenuItem onClick={handleDeleteBubble}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Deletar</ListItemText>
-        </MenuItem>
+        {canDelete && (
+          <MenuItem onClick={handleDeleteBubble}>
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" style={{ color: "#DB1A21" }} />
+            </ListItemIcon>
+            <ListItemText>Deletar</ListItemText>
+          </MenuItem>
+        )}
+        {canComplete && (
+          <MenuItem onClick={handleBubbleComplete}>
+            <ListItemIcon>
+              <CheckBoxIcon fontSize="small" style={{ color: "#27A304" }} />
+            </ListItemIcon>
+            <ListItemText>Concluir</ListItemText>
+          </MenuItem>
+        )}
       </Menu>
     </div>
   );

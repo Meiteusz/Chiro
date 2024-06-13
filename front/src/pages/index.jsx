@@ -86,11 +86,15 @@ const ProjectBoard = () => {
   };
 
   const handleDeleteBubble = (id) => {
+    // Chamada do endpoint
+
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
     ProjectService.deleteAsync(id)
   };
 
   const handleChangeColor = (id, color) => {
+    // Chamada do endpoint
+
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) => {
         if (prevBox.bubbleId === id) {
@@ -124,6 +128,8 @@ const ProjectBoard = () => {
   };
 
   const handleDoubleClick = (id) => {
+    // Chamada do endpoint
+
     const url = `http://localhost:3000/project-board?bubbleProjectId=${id}`;
     window.location.href = url;
   };
@@ -172,6 +178,9 @@ const ProjectBoard = () => {
               }}
             >
               <Bubble
+                canOpen
+                canChangeColor
+                canDelete
                 bubble={bubble}
                 bubbleCustomProps={
                   layoutCustomProps &&
