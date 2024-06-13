@@ -20,6 +20,8 @@ const ENDPOINTS = {
     changeColor: `project/change-color`,
     resize: `project/resize`,
     move: `project/move`,
+    delete: (id) => `project/${id}`,
+    changeName: `project/change-name`,
   },
 };
 

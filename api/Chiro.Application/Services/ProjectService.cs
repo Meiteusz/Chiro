@@ -9,15 +9,13 @@ namespace Chiro.Application.Services
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _repository;
-        private readonly IActionDelayService _actionDelayService;
 
-        public ProjectService(IProjectRepository repository, IActionDelayService actionDelayService)
+        public ProjectService(IProjectRepository repository)
         {
             _repository = repository;
-            _actionDelayService = actionDelayService;
         }
 
-        public async Task<bool> CreateProject(CreateProjectDTO createProjectDTO)
+        public async Task<long> CreateProject(CreateProjectDTO createProjectDTO)
         {
             ArgumentNullException.ThrowIfNull(createProjectDTO);
 
@@ -44,7 +42,7 @@ namespace Chiro.Application.Services
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(projectId);
 
-            await _actionDelayService.DelayActionsByProjectId(projectId);
+            //await _actionDelayService.DelayActionsByProjectId(projectId);
             return await GetProjectAsync(projectId);
         }
 
@@ -60,7 +58,9 @@ namespace Chiro.Application.Services
             return await _repository.ResizeAsync(resizeProjectDTO.Id, new Project
             {
                 Width = resizeProjectDTO.Width,
-                Height = resizeProjectDTO.Height
+                Height = resizeProjectDTO.Height,
+                PositionX = resizeProjectDTO.PositionX,
+                PositionY = resizeProjectDTO.PositionY
             });
         }
 
@@ -87,9 +87,26 @@ namespace Chiro.Application.Services
             });
         }
 
+        public async Task<bool> DeleteAsync(long projectId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(projectId);
+
+            return await _repository.DeleteAsync(projectId);
+        }
+
         public async Task<List<Project>> GetProjectsWithActionsAsync()
         {
             return await _repository.GetProjectsWithActionsAsync();
+        }
+
+        public async Task<bool> ChangeNameAsync(ChangeProjectNameDTO changeProjectNameDTO)
+        {
+            ArgumentNullException.ThrowIfNull(changeProjectNameDTO);
+
+            return await _repository.ChangeNameAsync(changeProjectNameDTO.Id, new Project
+            {
+                Name = changeProjectNameDTO.Name,
+            });
         }
     }
 }

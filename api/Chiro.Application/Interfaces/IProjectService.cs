@@ -5,7 +5,7 @@ namespace Chiro.Application.Interfaces
 {
     public interface IProjectService
     {
-        Task<bool> CreateProject(CreateProjectDTO createProjectDTO);
+        Task<long> CreateProject(CreateProjectDTO createProjectDTO);
 
         Task<List<Project>> GetProjectsAsync();
 
@@ -20,5 +20,9 @@ namespace Chiro.Application.Interfaces
         Task<List<Project>> GetProjectsWithActionsAsync();
 
         Task<Project?> GetDelayedProjectAsync(long projectId);
+
+        Task<bool> DeleteAsync(long projectId);
+
+        Task<bool> ChangeNameAsync(ChangeProjectNameDTO changeProjectNameDTO);
     }
 }

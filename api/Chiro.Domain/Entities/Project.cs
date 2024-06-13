@@ -9,6 +9,7 @@
         public double Width { get; set; }
         public double Height { get; set; }
         public string Color { get; set; }
+        public bool Deleted { get; set; }
 
         public List<BoardAction> BoardActions { get; set; }
     }
