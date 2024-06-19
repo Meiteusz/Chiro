@@ -1,5 +1,4 @@
 const browserStorageKeys = {
-
     Token: "accessToken",
     LastAccessedUrl: "lastAccessedUrl"
 };

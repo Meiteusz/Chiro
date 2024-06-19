@@ -5,20 +5,25 @@ import RGL, { WidthProvider } from "react-grid-layout";
 import {
   calculateDaysQuantity,
   calculateQuantityMonths,
-} from "./calendarFunctions";
+} from "@/components/timeline/calendarFunctions";
 import {
   initialWidth,
   multiplierWidth,
   initialHeight,
   quantityYears,
-} from "./params";
-import { renderDays, renderMonths, renderYears } from "./calendarRender";
+} from "@/components/timeline/params";
+import {
+  renderDays,
+  renderMonths,
+  renderYears,
+} from "@/components/timeline/calendarRender";
 import Bubble from "@/components/bubble/bubble";
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import "@/app/globals.css";
-import "./styles.css";
+import "@/components/timeline/styles.css";
+import { timelineViewMode } from "@/components/timeline/timelineViewMode.js";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -30,22 +35,23 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
   let quantityMonths = calculateQuantityMonths();
 
   const ref = useRef();
-  const [view, setView] = useState("days");
-  const [scrollEnabled, setScrollEnabled] = useState(true);
+
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
+
+  const [viewMode, setViewMode] = useState(timelineViewMode.day);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   const [canDragBubbles, setCanDragBubbles] = useState(true);
   const [currentDayPosition, setCurrentDayPosition] = useState([]);
   const [quantityColumns, setQuantityColumns] = useState(quantityDays);
+  const [delayedBubbles, setDelayedBubbles] = useState([]);
   const { events } = useDraggable(ref, { isMounted: scrollEnabled });
 
-  const [tasksDelayed, setTasksDelayed] = useState([]);
-
   useEffect(() => {
-    //if (layoutBubble && layoutBubbleProps) {
-    //  setLayout((prevLayout) => [...prevLayout, layoutBubble]);
-    //  setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
-    //}
+    if (layoutBubble && layoutBubbleProps) {
+      setLayout((prevLayout) => [...prevLayout, layoutBubble]);
+      setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
+    }
 
     const newItem = {
       x: 0,
@@ -64,7 +70,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     const newItem2 = {
       x: 2,
       y: 0,
-      w: 2,
+      w: 5,
       h: 1,
       i: "2",
     };
@@ -73,31 +79,34 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
       bubbleId: newItem2.i,
       title: "bubble 2",
       color: "blue",
+      startsDate: new Date(2024, 0, 3),
+      endsDate: new Date(2024, 0, 7),
     };
 
-    setLayout((prevLayout) => [...prevLayout, newItem, newItem2]);
-    setLayoutCustomProps((prevLayout) => [
-      ...prevLayout,
-      newCustomProps,
-      newCustomProps2,
-    ]);
-  }, [layoutBubble]);
+    //setLayout((prevLayout) => [...prevLayout, newItem, newItem2]);
+    //setLayoutCustomProps((prevLayout) => [
+    //  ...prevLayout,
+    //  newCustomProps,
+    //  newCustomProps2,
+    //]);
 
-  useEffect(() => {
-    //scrollToCurrentDay();
-  }, [view]);
+    scrollToCurrentDate();
+  }, [layoutBubble, viewMode]);
 
+  //#region getCellWidth
   const getCellWidth = () => {
-    if (view === "days") {
+    if (viewMode === timelineViewMode.day) {
       return widthDays;
-    } else if (view === "months") {
+    } else if (viewMode === timelineViewMode.month) {
       return widthMonths;
-    } else if (view === "years") {
+    } else if (viewMode === timelineViewMode.year) {
       return widthYears;
     }
   };
+  //#endregion
 
-  const scrollToCurrentDay = () => {
+  //#region scrollToCurrentDate
+  const scrollToCurrentDate = () => {
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 0);
     const diff = today - startOfYear;
@@ -109,9 +118,9 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     const columnWidth = getCellWidth();
     let currentPosition = 0;
 
-    if (view === "days") {
+    if (viewMode === timelineViewMode.day) {
       currentPosition = columnWidth * (dayOfYear - 1);
-    } else if (view === "months") {
+    } else if (viewMode === timelineViewMode.month) {
       currentPosition = columnWidth * monthOfYear;
     }
 
@@ -120,163 +129,219 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     if (ref.current) {
       ref.current.scrollTo({
         left: currentPosition - dayOfYear * 4,
-        //behavior: "smooth",
       });
     }
   };
+  //#endregion
+
+  //#region isColliding
+  const isColliding = (item1, item2) => {
+    return (
+      item1.x < item2.x + item2.w &&
+      item1.x + item1.w > item2.x &&
+      item1.y < item2.y + item2.h &&
+      item1.y + item1.h > item2.y
+    );
+  };
+  //#endregion
+
+  //#region adjustLayout
+  const adjustLayout = (updatedLayout) => {
+    const updatedBubble =
+      updatedLayout.find((updatedBubble) =>
+        layout.some(
+          (outdatedBubble) =>
+            outdatedBubble.i === updatedBubble.i &&
+            outdatedBubble.w !== updatedBubble.w &&
+            outdatedBubble.y === updatedBubble.y
+        )
+      ) || updatedLayout[0];
+
+    const adjustBubble = (bubbleParam, layoutParam) => {
+      for (let i = 0; i < layoutParam.length; i++) {
+        const currentBubble = layoutParam[i];
+        if (
+          currentBubble.i !== bubbleParam.i &&
+          isColliding(bubbleParam, currentBubble)
+        ) {
+          const overlapWidth = bubbleParam.x + bubbleParam.w - currentBubble.x;
+          currentBubble.x += overlapWidth;
+
+          adjustBubble(currentBubble, layoutParam);
+        }
+
+        var outdatedBubble = layout.find(
+          (bubble) =>
+            bubble.i == currentBubble.i &&
+            bubble.x == currentBubble.x &&
+            bubble.y == currentBubble.y
+        );
+
+        if (outdatedBubble) {
+          const delayedTime = outdatedBubble.w * initialWidth;
+
+          if (delayedTime <= 0) return;
+
+          let bubbleDelay = {
+            bubbleId: currentBubble.i,
+            delayedTime: delayedTime,
+          };
+
+          delayedBubbles.push(bubbleDelay);
+        }
+      }
+    };
+
+    const adjustedLayout = updatedLayout.map((bubble) => ({ ...bubble }));
+
+    adjustBubble(updatedBubble, adjustedLayout);
+
+    const bubbleIndex = adjustedLayout.findIndex(
+      (bubble) => bubble.i === updatedBubble.i
+    );
+    if (bubbleIndex !== -1) {
+      adjustedLayout[bubbleIndex] = updatedBubble;
+    } else {
+      adjustedLayout.push(updatedBubble);
+    }
+
+    setDelayedBubbles((prevDelayedBubbles) => [
+      ...prevDelayedBubbles,
+      ...delayedBubbles,
+    ]);
+
+    return adjustedLayout;
+  };
+  //#endregion
 
   const handleZoom = (e) => {
     if (e.deltaY > 0) {
-      if (view === "days") {
-        // VISAO DE MESES
-        setView("months");
+      if (viewMode === timelineViewMode.day) {
+        // Visão de meses
+        setViewMode(timelineViewMode.month);
         setQuantityColumns(quantityMonths);
-      } else if (view === "months") {
-        // VISAO DE ANOS
-        setView("years");
+      } else if (viewMode === timelineViewMode.month) {
+        // Visao de anos
+        setViewMode(timelineViewMode.year);
         setQuantityColumns(quantityYears);
       }
     } else {
-      if (view === "years") {
-        // VISAO DE MESES
-        setView("months");
+      if (viewMode === timelineViewMode.year) {
+        // Visão de meses
+        setViewMode(timelineViewMode.month);
         setQuantityColumns(quantityMonths);
-      } else if (view === "months") {
-        // VISAO DE DIAS
-        setView("days");
+      } else if (viewMode === timelineViewMode.month) {
+        // Visão de dias
+        setViewMode(timelineViewMode.day);
         setQuantityColumns(quantityDays);
       }
     }
   };
 
-  const onBubbleDrop = (layoutItem, _ev) => {
-    if (!layout.lg) return;
-
-    const isNearExistingBlock = layout.lg.some((existingLayout) => {
-      return (
-        Math.abs(existingLayout.x - layoutItem.x) <= 2 &&
-        Math.abs(existingLayout.y - layoutItem.y) <= 2
-      );
-    });
-
-    layoutItem.static = isNearExistingBlock;
-  };
-
-  const onBubbleDragStart = () => {
-    setScrollEnabled(false);
-  };
-
-  const onBubbleResizeStart = () => {
-    setScrollEnabled(false);
-  };
-
-  const onBubbleDragStop = (newItem, _placeholder, _evt, _element) => {
-    // Chamada do endpoint
-
+  const onBubbleDragStop = (updatedLayout) => {
     setScrollEnabled(true);
-    setLayout(newItem);
-    return;
 
-    //if (!layout) return;
-    //
-    //const isNearExistingBlock = layout.some((existingLayout) => {
-    //  return (
-    //    Math.abs(existingLayout.x - newItem.x) <= 2 &&
-    //    Math.abs(existingLayout.y - newItem.y) <= 2
-    //  );
-    //});
-    //
-    //newItem.static = isNearExistingBlock;
-    //
-    //const updateLayout = layout.map((l) => {
-    //  if (l.i === newItem.i) {
-    //    return { ...l, x: newItem.x, y: newItem.y };
-    //  }
-    //
-    //  return l;
-    //});
-    //
-    //setLayout(updateLayout);
-  };
+    const updatedBubble =
+      updatedLayout.find((updatedBubble) =>
+        layout.some(
+          (outdatedBubble) =>
+            outdatedBubble.i === updatedBubble.i &&
+            (outdatedBubble.x !== updatedBubble.x ||
+              outdatedBubble.y !== updatedBubble.y)
+        )
+      ) || updatedLayout[0];
 
-  function adjustLayout(itemList) {
-    const newItem =
-      itemList.find((item) =>
-        layout.some((l) => l.i === item.i && l.w !== item.w && l.y === item.y)
-      ) || itemList[0];
+    const outdatedBubble =
+      layout.find((outdatedBubble) =>
+        updatedLayout.some(
+          (updatedBubble) =>
+            updatedBubble.i === outdatedBubble.i &&
+            (updatedBubble.x !== outdatedBubble.x ||
+              updatedBubble.y !== outdatedBubble.y)
+        )
+      ) || layout[0];
 
-    // Função auxiliar para verificar se dois itens colidem
-    const isColliding = (item1, item2) => {
-      return (
-        item1.x < item2.x + item2.w &&
-        item1.x + item1.w > item2.x &&
-        item1.y < item2.y + item2.h &&
-        item1.y + item1.h > item2.y
+    const checkCollisionAndUpdateLayout = () => {
+      const hasCollision = updatedLayout.some(
+        (bubble) =>
+          bubble.i !== updatedBubble.i && isColliding(updatedBubble, bubble)
       );
-    };
 
-    // Função para ajustar um item específico e verificar colisions recursivamente
-    const adjustItem = (item, items) => {
-      for (let i = 0; i < items.length; i++) {
-        const currentItem = items[i];
-        if (currentItem.i !== item.i && isColliding(item, currentItem)) {
-          const overlapWidth = item.x + item.w - currentItem.x;
-          currentItem.x += overlapWidth;
-
-          var itemDesatualizado = layout.find(
-            (l) => l.i == item.i && l.x == item.x && l.y == item.y
-          );
-
-          // FAZER A LOGICA DO ADIANTAMENTO DA TASK PARA FICAR VERDE
-
-          if (itemDesatualizado) {
-            const delayedTime = itemDesatualizado.w + itemDesatualizado.x;
-            let delay = {
-              bubbleId: item.i,
-              delayedTime: delayedTime * initialWidth,
-            };
-
-            tasksDelayed.push(delay);
-          }
-
-          // Recursivamente ajustar o item que foi deslocado
-          adjustItem(currentItem, items);
-        }
+      if (hasCollision) {
+        const updatedLayout = updatedLayout.map((bubble) =>
+          bubble.i === updatedBubble.i
+            ? { ...bubble, x: outdatedBubble.x, y: outdatedBubble.y }
+            : bubble
+        );
+        setLayout(updatedLayout);
+      } else {
+        setLayout(updatedLayout);
       }
     };
 
-    // Clonar a lista de itens para evitar mutações diretas
-    const updatedItemList = itemList.map((item) => ({ ...item }));
+    checkCollisionAndUpdateLayout();
 
-    // Ajustar o novo item na lista atualizada
-    adjustItem(newItem, updatedItemList);
+    // Chamada do endpoint
+  };
 
-    // Adicionar ou atualizar o novo item na lista
-    const itemIndex = updatedItemList.findIndex((item) => item.i === newItem.i);
-    if (itemIndex !== -1) {
-      updatedItemList[itemIndex] = newItem;
-    } else {
-      updatedItemList.push(newItem);
-    }
-
-    setTasksDelayed((prevTasksDelayed) => [
-      ...prevTasksDelayed,
-      ...tasksDelayed,
-    ]);
-
-    return updatedItemList;
-  }
-
-  const onBubbleResizeStopTeste = (layoutItens) => {
-    const updatedLayout = adjustLayout(layoutItens);
-    setLayout(updatedLayout);
+  const onBubbleResizeStop = (updatedLayout) => {
+    const adjustedLayout = adjustLayout(updatedLayout);
+    setLayout(adjustedLayout);
     setScrollEnabled(true);
   };
 
-  const onBubbleComplete = () => {
-    // Chamada do endpoint
+  const onBubbleComplete = (id) => {
+    //#region calculateProfitDays
 
-    alert(`Bolha completada: ${Date.now()}`);
+    const calculateProfitDays = () => {
+      let currentDate = Date.now();
+      let endsDate = layoutCustomProps.find(
+        (bubble) => bubble.bubbleId === id
+      ).endsDate;
+
+      const profitDaysMilisseconds = Math.abs(endsDate - currentDate);
+
+      const profitDays = Math.ceil(
+        profitDaysMilisseconds / (1000 * 60 * 60 * 24)
+      );
+
+      if (profitDays <= 0) {
+        return;
+      }
+
+      const newBubbleWidth =
+        layout.find((bubble) => bubble.i === id).w - profitDays;
+
+      setLayout((prevBubble) =>
+        prevBubble.map((prevBox) =>
+          prevBox.i === id
+            ? {
+                ...prevBox,
+                w: newBubbleWidth,
+                static: true,
+              }
+            : prevBox
+        )
+      );
+    };
+
+    //#endregion
+
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === id
+          ? {
+              ...prevBox,
+              isCompleted: true,
+            }
+          : prevBox
+      )
+    );
+
+    // Se for comentar, lembrar de salvar o setLayout com o static: true
+    calculateProfitDays();
+
+    // Chamada do endpoint
   };
 
   return (
@@ -288,62 +353,49 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     >
       <div style={{ position: "absolute" }}>
         <div onWheel={handleZoom} style={{ marginBottom: "5px" }}>
-          {view === "days"
+          {viewMode === timelineViewMode.day
             ? renderDays(widthDays, events, ref)
-            : view === "months"
+            : viewMode === timelineViewMode.month
             ? renderMonths(widthMonths, events, ref)
             : renderYears(widthYears, events, ref)}
         </div>
         <ReactGridLayout
-          style={{
-            height: "100%",
-          }}
-          //onLayoutChange={(newLayout) => setLayout(newLayout)}
-          onLayoutChange={onBubbleResizeStopTeste}
+          isResizable
+          allowOverlap
           layout={layout}
-          isResizable={true}
           margin={[0, 7]}
           rowHeight={50}
           preventCollision={false}
-          compactType={"vertical"}
-          allowOverlap={true}
           cols={quantityDays}
           onDragStop={onBubbleDragStop}
-          onResizeStart={onBubbleResizeStart}
-          //onResizeStop={onBubbleResizeStop}
-          //onResizeStop={onBubbleResizeStopTeste}
-          onDragStart={onBubbleDragStart}
-          onDrop={onBubbleDrop}
+          onDragStart={() => setScrollEnabled(false)}
+          onResizeStart={() => setScrollEnabled(false)}
+          onResizeStop={onBubbleResizeStop}
           containerPadding={[0, 0]}
           maxRows={9}
           resizeHandles={["e"]}
           isDraggable={canDragBubbles}
+          style={{
+            height: "100%",
+          }}
         >
           {layout.map((bubble) => (
-            <div
-              key={bubble.i}
-              className="container-bubble"
-              style={{
-                backgroundColor:
-                  (layoutCustomProps &&
-                    layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                      .color) ??
-                  "black",
-              }}
-            >
+            <div key={bubble.i} style={{ borderRadius: "5px" }}>
               <Bubble
-                delayedTime={
-                  tasksDelayed.find((x) => x.bubbleId === bubble.i) &&
-                  tasksDelayed.find((x) => x.bubbleId === bubble.i).delayedTime
-                }
+                isTimeline
                 canComplete
+                canDrag={setCanDragBubbles}
+                onComplete={() => onBubbleComplete(bubble.i)}
                 bubble={bubble}
                 bubbleCustomProps={
                   layoutCustomProps &&
                   layoutCustomProps.find((x) => x.bubbleId === bubble.i)
                 }
-                canDrag={setCanDragBubbles}
-                onComplete={onBubbleComplete}
+                delayedTime={
+                  delayedBubbles.find((x) => x.bubbleId === bubble.i) &&
+                  delayedBubbles.find((x) => x.bubbleId === bubble.i)
+                    .delayedTime
+                }
               />
             </div>
           ))}

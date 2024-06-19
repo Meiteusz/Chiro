@@ -351,57 +351,37 @@ function ProjectBoard() {
           </MenuItem>
         </Menu>
         <ReactGridLayout
-          style={{
-            height: "100%",
-          }}
+          isResizable
+          preventCollision
           onLayoutChange={(newLayout) => setLayout(newLayout)}
           layout={layout}
           compactType={null}
-          isResizable={true}
           isDraggable={canDragBubbles}
           margin={[1, 1]}
           rowHeight={25}
-          preventCollision={true}
           cols={50}
           containerPadding={[0, 0]}
           maxRows={46}
           onDragStop={onBubbleDragStop}
           onResizeStop={onBubbleResizeStop}
+          style={{
+            height: "100%",
+          }}
         >
           {layout.map((bubble) => (
-            <div
-              key={bubble.i}
-              className="container-bubble"
-              style={{
-                backgroundColor:
-                  (layoutCustomProps &&
-                    layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                      .color) ??
-                  "black",
-                opacity:
-                  (layoutCustomProps &&
-                  layoutCustomProps.find((x) => x.bubbleId === bubble.i).trace
-                    ? "0.7"
-                    : "1") ?? "1",
-                border:
-                  layoutCustomProps &&
-                  layoutCustomProps.find((x) => x.bubbleId === bubble.i).trace
-                    ? "5px dotted #ddd"
-                    : "1px solid",
-              }}
-            >
+            <div key={bubble.i} style={{ borderRadius: "5px" }}>
               <Bubble
                 canChangeColor
                 canDelete
+                onChangeColor={handleChangeColor}
+                onChangeTitle={handleChangeTitle}
+                onDelete={handleDeleteBubble}
+                canDrag={setCanDragBubbles}
                 bubble={bubble}
                 bubbleCustomProps={
                   layoutCustomProps &&
                   layoutCustomProps.find((x) => x.bubbleId === bubble.i)
                 }
-                onChangeColor={handleChangeColor}
-                onChangeTitle={handleChangeTitle}
-                onDelete={handleDeleteBubble}
-                canDrag={setCanDragBubbles}
               />
             </div>
           ))}

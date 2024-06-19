@@ -6,7 +6,7 @@
   /* padding: 1px; */
   cursor: grab;
   border: 1px solid;
-  z-index: 1;
+  z-index: 999;
 }
 
 .container-timeline {
