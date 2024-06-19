@@ -1,6 +1,7 @@
 using Chiro.Application.Exceptions;
 using Chiro.Application.Interfaces;
 using Chiro.Domain.DTOs;
+using Chiro.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,13 +14,11 @@ namespace Chiro.API.Controllers
     {
         private readonly ILogger<BoardActionController> _logger;
         private readonly IProjectService _projectService;
-        private readonly IActionDelayService _actionDelayService;
 
-        public ProjectController(ILogger<BoardActionController> logger, IProjectService projectService, IActionDelayService actionDelayService)
+        public ProjectController(ILogger<BoardActionController> logger, IProjectService projectService)
         {
             _logger = logger;
             _projectService = projectService;
-            _actionDelayService = actionDelayService;
         }
 
         /// <summary>
@@ -31,12 +30,13 @@ namespace Chiro.API.Controllers
         public async Task<IActionResult> CreateProjectAsync([FromBody] CreateProjectDTO createProjectDTO)
         {
             var projectCreated = await _projectService.CreateProject(createProjectDTO);
-            if (!projectCreated)
+            if (projectCreated <= 0)
             {
                 return BadRequest("Project couldn't be created.");
             }
 
-            return Ok("Project Created.");
+            return Ok(projectCreated);
+            //return CreatedAtAction(nameof(GetProjectAsync), new { Id = projectCreated }, createProjectDTO);
         }
 
         /// <summary>
@@ -83,7 +83,6 @@ namespace Chiro.API.Controllers
         public async Task<IActionResult> ResizeAsync([FromBody] ResizeProjectDTO resizeProjectDTO)
         {
             var resized = await _projectService.ResizeAsync(resizeProjectDTO);
-
             if (!resized)
             {
                 return BadRequest("Não foi possível redimencionar o projeto.");
@@ -124,6 +123,40 @@ namespace Chiro.API.Controllers
             }
 
             return Ok("Cor alterada com sucesso.");
+        }
+
+        /// <summary>
+        /// Seta um projeto como "Deleted".
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(long id)
+        {
+            var changedColor = await _projectService.DeleteAsync(id);
+            if (!changedColor)
+            {
+                return BadRequest("Não foi possível deletar o projeto.");
+            }
+
+            return Ok("Project deletado.");
+        }
+
+        /// <summary>
+        /// Altera o nome de um projeto.
+        /// </summary>
+        /// <param name="changeProjectNameDTO"></param>
+        /// <returns></returns>
+        [HttpPost("change-name")]
+        public async Task<IActionResult> ChangeNameAsync([FromBody] ChangeProjectNameDTO changeProjectNameDTO)
+        {
+            var changedName = await _projectService.ChangeNameAsync(changeProjectNameDTO);
+            if (!changedName)
+            {
+                return BadRequest("Não foi possível alterar o nome do projeto.");
+            }
+
+            return Ok("Nome alterado.");
         }
     }
 }

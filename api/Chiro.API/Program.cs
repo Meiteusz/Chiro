@@ -56,7 +56,6 @@ builder.Services.AddTransient<IBoardActionService, BoardActionService>();
 builder.Services.AddTransient<IBoardActionRepository, BoardActionRepository>();
 builder.Services.AddTransient<IProjectService, ProjectService>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
-builder.Services.AddTransient<IActionDelayService, ActionDelayService>();
 builder.Services.AddTransient<IAuthenticationTokenService, AuthenticationTokenService>();
 builder.Services.AddTransient<IAuthenticationTokenRepository, AuthenticationTokenRepository>();
 

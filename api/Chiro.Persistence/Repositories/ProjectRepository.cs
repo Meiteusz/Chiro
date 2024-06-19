@@ -25,10 +25,11 @@ namespace Chiro.Persistence.Repositories
                                           .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> CreateProjectAsync(Domain.Entities.Project project)
+        public async Task<long> CreateProjectAsync(Domain.Entities.Project project)
         {
             await _context.Projects.AddAsync(project);
-            return await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
+            return project.Id;
         }
 
         public async Task<bool> ResizeAsync(long projectId, Project project)
@@ -37,7 +38,9 @@ namespace Chiro.Persistence.Repositories
                                           .UpdateFromQueryAsync(x => new Project
                                           {
                                               Width = project.Width,
-                                              Height = project.Height
+                                              Height = project.Height,
+                                              PositionX = project.PositionX,
+                                              PositionY = project.PositionY
                                           }) > 0;
         }
 
@@ -64,6 +67,24 @@ namespace Chiro.Persistence.Repositories
         {
             return await _context.Projects.Include(i => i.BoardActions).ThenInclude(i => i.BoardActionLinks)
                                           .ToListAsync();
+        }
+
+        public async Task<bool> DeleteAsync(long projectId)
+        {
+            return await _context.Projects.Where(w => w.Id == projectId)
+                                          .UpdateFromQueryAsync(u => new Project
+                                          {
+                                              Deleted = true
+                                          }) > 0;
+        }
+
+        public async Task<bool> ChangeNameAsync(long projectId, Project project)
+        {
+            return await _context.Projects.Where(w => w.Id == projectId)
+                                          .UpdateFromQueryAsync(u => new Project
+                                          {
+                                              Name = project.Name
+                                          }) > 0;
         }
     }
 }

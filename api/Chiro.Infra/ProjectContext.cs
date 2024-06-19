@@ -40,6 +40,8 @@ namespace Chiro.Infra
                 .WithMany()
                 .HasForeignKey(bal => bal.LinkedBoardActionId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Project>().HasQueryFilter(p => !p.Deleted);
         }
     }
 }

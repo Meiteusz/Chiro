@@ -12,5 +12,9 @@ namespace Chiro.Domain.DTOs
 
         [Required(ErrorMessage = "O campo Height deve ser preenchido.")]
         public double Height { get; set; }
+
+        public double PositionX { get; set; }
+
+        public double PositionY { get; set; }
     }
 }

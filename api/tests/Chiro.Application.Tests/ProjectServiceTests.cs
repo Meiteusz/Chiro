@@ -12,15 +12,13 @@ namespace Chiro.Application.Tests
     {
         private ProjectService _service;
         private Mock<IProjectRepository> _projectRepositoryMock;
-        private Mock<IActionDelayService> _actionDelayServiceMock;
 
         [SetUp]
         public void Setup()
         {
             _projectRepositoryMock = new Mock<IProjectRepository>();
-            _actionDelayServiceMock = new Mock<IActionDelayService>();
 
-            _service = new ProjectService(_projectRepositoryMock.Object, _actionDelayServiceMock.Object);
+            _service = new ProjectService(_projectRepositoryMock.Object);
         }
 
         [Test]

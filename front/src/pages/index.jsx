@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import RGL, { WidthProvider } from "react-grid-layout";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -9,30 +9,63 @@ import Bubble from "@/components/bubble/bubble";
 
 import "@/app/globals.css";
 import "./styles.css";
+import ProjectService from "@/services/requests/project-service";
+import projectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
-
-let idCounter = 0;
-
-const getId = () => {
-  idCounter++;
-  return idCounter.toString();
-};
 
 const ProjectBoard = () => {
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
   const [canDragBubbles, setCanDragBubbles] = useState(true);
 
-  const handleAddBubble = () => {
-    // Chamada do endpoint
+  useEffect(() => {
+    ProjectService.getAll().then((res) => {
+      res.data.map((project) => {
+        const newItem = {
+          x: project.positionX,
+          y: project.positionY,
+          w: project.width,
+          h: project.height,
+          i: project.id.toString(),
+          minH: 2,
+          maxH: 7,
+          minW: 2,
+          maxW: 5,
+        };
+
+        const newCustomProps = {
+          bubbleId: project.id.toString(),
+          title: project.name,
+          color: project.color,
+        };
+
+        setLayout((prevLayout) => [...prevLayout, newItem]);
+        setLayoutCustomProps((prevCustomProps) => [
+          ...prevCustomProps,
+          newCustomProps,
+        ]);
+      });
+    });
+  }, []);
+
+  const handleAddBubble = async () => {
+    var projectId = await ProjectService.create({
+      Name: "Projeto Teste",
+      Password: "1234",
+      PositionY: 5,
+      PositionX: 5,
+      Width: 100,
+      Height: 100,
+      Color: "#FFF"
+    });
 
     const newItem = {
       x: 3,
       y: 5,
       w: 2,
       h: 3,
-      i: getId(),
+      i: projectId,
       minH: 2,
       maxH: 7,
       minW: 2,
@@ -40,7 +73,7 @@ const ProjectBoard = () => {
     };
 
     const newCustomProps = {
-      bubbleId: newItem.i,
+      bubbleId: projectId,
       title: "",
       color: "black",
     };
@@ -56,33 +89,39 @@ const ProjectBoard = () => {
     // Chamada do endpoint
 
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
+    ProjectService.deleteAsync(id)
   };
 
   const handleChangeColor = (id, color) => {
     // Chamada do endpoint
 
     setLayoutCustomProps((prevBubble) =>
-      prevBubble.map((prevBox) =>
-        prevBox.bubbleId === id
-          ? {
-              ...prevBox,
-              color: color.hex,
-            }
-          : prevBox
-      )
+      prevBubble.map((prevBox) => {
+        if (prevBox.bubbleId === id) {
+          ProjectService.changeColor({ Id: id, Color: color.hex });
+          return {
+            ...prevBox,
+            color: color.hex,
+          };
+        }
+        return prevBox;
+      })
     );
   };
 
   const handleChangeTitle = (id, content) => {
-    // Chamada do endpoint
-
+    ProjectService.changeName({
+      Id: id,
+      Name: content
+    });
+    
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
           ? {
-              ...prevBox,
-              title: content,
-            }
+            ...prevBox,
+            title: content,
+          }
           : prevBox
       )
     );
@@ -95,12 +134,15 @@ const ProjectBoard = () => {
     window.location.href = url;
   };
 
-  const onBubbleDragStop = (e) => {
-    // Chamada do endpoint
-  };
-
-  const onBubbleResizeStop = (e) => {
-    // Chamada do endpoint
+  const onResizeStop = (e, v) => {
+    const changedProject = e.find(w => w.i == v.i);
+    ProjectService.resize({
+      Id: changedProject.i,
+      Width: changedProject.w,
+      Height: changedProject.h,
+      PositionX: changedProject.x,
+      PositionY: changedProject.y,
+    });
   };
 
   return (
@@ -120,8 +162,8 @@ const ProjectBoard = () => {
           margin={[1, 1]}
           rowHeight={25}
           preventCollision={true}
-          onDragStop={onBubbleDragStop}
-          onResizeStop={onBubbleResizeStop}
+          onDragStop={onResizeStop}
+          onResizeStop={onResizeStop}
         >
           {layout.map((bubble) => (
             <div
