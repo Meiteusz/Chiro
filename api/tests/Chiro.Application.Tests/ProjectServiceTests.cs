@@ -38,14 +38,14 @@ namespace Chiro.Application.Tests
 
             Project? createdProject = null;
             _projectRepositoryMock.Setup(s => s.CreateProjectAsync(It.IsAny<Project>()))
-                .ReturnsAsync(true)
+                .ReturnsAsync(1)
                 .Callback<Project>(project => createdProject = project);
 
             // Act
             var result = await _service.CreateProject(createProjectDto);
 
             // Assert
-            result.Should().BeTrue();
+            result.Should().BePositive();
             createdProject.Should().NotBeNull();
             createdProject.Color.Should().Be(createProjectDto.Color);
             createdProject.Name.Should().Be(createProjectDto.Name);

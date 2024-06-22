@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
+
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AppBar from "@mui/material/AppBar";
@@ -11,6 +13,7 @@ import "@/app/globals.css";
 function Navbar({ projectName, showMenu }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
+  const router = useRouter();
 
   const handleOpenMenuButtons = (event) => {
     setAnchorEl(event.currentTarget);
@@ -36,11 +39,11 @@ function Navbar({ projectName, showMenu }) {
             </IconButton>
 
             <Menu anchorEl={anchorEl} open={openMenu} onClose={handleCloseMenu}>
-              <MenuItem onClick={() => window.location.replace("/")}>
+              <MenuItem onClick={() => router.push("/projects")}>
                 Novo Projeto
               </MenuItem>
 
-              <MenuItem onClick={() => window.location.replace("/")}>
+              <MenuItem onClick={() => router.push("/projects")}>
                 Ver Projetos
               </MenuItem>
               <MenuItem onClick={handleCloseMenu}>Criar Link</MenuItem>

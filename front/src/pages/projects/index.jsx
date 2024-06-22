@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import RGL, { WidthProvider } from "react-grid-layout";
+import { useRouter } from "next/router";
 import AddIcon from "@mui/icons-material/Add";
 
 import Navbar from "@/components/navbar";
 import Bubble from "@/components/bubble/bubble";
+import ProjectService from "@/services/requests/project-service";
 
 import "@/app/globals.css";
-import "./styles.css";
-import ProjectService from "@/services/requests/project-service";
-import projectService from "@/services/requests/project-service";
+import "../styles.css";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -18,8 +18,13 @@ const ProjectBoard = () => {
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
   const [canDragBubbles, setCanDragBubbles] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
+    inicializeBubblesLayout();
+  }, []);
+
+  const inicializeBubblesLayout = () => {
     ProjectService.getAll().then((res) => {
       res.data.map((project) => {
         const newItem = {
@@ -47,7 +52,7 @@ const ProjectBoard = () => {
         ]);
       });
     });
-  }, []);
+  };
 
   const handleAddBubble = async () => {
     var projectId = await ProjectService.create({
@@ -57,7 +62,7 @@ const ProjectBoard = () => {
       PositionX: 5,
       Width: 100,
       Height: 100,
-      Color: "#FFF"
+      Color: "#FFF",
     });
 
     const newItem = {
@@ -89,7 +94,7 @@ const ProjectBoard = () => {
     // Chamada do endpoint
 
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
-    ProjectService.deleteAsync(id)
+    ProjectService.deleteAsync(id);
   };
 
   const handleChangeColor = (id, color) => {
@@ -112,30 +117,28 @@ const ProjectBoard = () => {
   const handleChangeTitle = (id, content) => {
     ProjectService.changeName({
       Id: id,
-      Name: content
+      Name: content,
     });
-    
+
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
           ? {
-            ...prevBox,
-            title: content,
-          }
+              ...prevBox,
+              title: content,
+            }
           : prevBox
       )
     );
   };
 
   const handleDoubleClick = (id) => {
-    // Chamada do endpoint
-
     const url = `http://localhost:3000/project-board?bubbleProjectId=${id}`;
-    window.location.href = url;
+    router.push(url);
   };
 
   const onResizeStop = (e, v) => {
-    const changedProject = e.find(w => w.i == v.i);
+    const changedProject = e.find((w) => w.i == v.i);
     ProjectService.resize({
       Id: changedProject.i,
       Width: changedProject.w,

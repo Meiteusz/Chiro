@@ -316,7 +316,7 @@ namespace Chiro.Persistence.Tests
             var result = await _repository.CreateProjectAsync(project);
 
             // Assert
-            result.Should().BeTrue();
+            result.Should().BePositive();
 
             var createdProject = await _context.Projects.FirstOrDefaultAsync(p => p.Name == project.Name);
             createdProject.Should().NotBeNull();
