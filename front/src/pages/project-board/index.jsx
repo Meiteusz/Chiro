@@ -217,24 +217,34 @@ function ProjectBoard() {
     } else {
       return false;
     }
-  }
+    }
 
-  const calculateOverlapArea = (rect1, rect2) => {
-    const x_overlap = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
-    const y_overlap = Math.max(0, Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top));
-    return x_overlap * y_overlap;
-  }
+  const handleSendBubbleToTimeline = (id) => {
+    if (layoutCustomProps.find((bubble) => bubble.bubbleId === id).trace) {
+      return;
+    }
 
-  const onBubbleResizeStop = (e, v) => {
+    setDateModalOpened(true);
+    setSelectedIdBubble(id);
+    };
+
+    const calculateOverlapArea = (rect1, rect2) => {
+        const x_overlap = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
+        const y_overlap = Math.max(0, Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top));
+        return x_overlap * y_overlap;
+    }
+
+};
+
+const onBubbleResizeStop = (e, v) => {
     const changedBubble = e.find(w => w.i == v.i);
     BoardActionService.resize({
-      Id: changedBubble.i,
-      Width: changedBubble.w,
-      Height: changedBubble.h,
-      PositionX: changedBubble.x,
-      PositionY: changedBubble.y,
+        Id: changedBubble.i,
+        Width: changedBubble.w,
+        Height: changedBubble.h,
+        PositionX: changedBubble.x,
+        PositionY: changedBubble.y,
     });
-  };
 
   //#region ConfirmStartEndDate
   const handleConfirmStartEndDate = (boardActionId) => {
@@ -303,8 +313,8 @@ function ProjectBoard() {
       const newItemRastro = {
         w: selectedBubbleParaRastro.w,
         h: selectedBubbleParaRastro.h,
-        x: 10,
-        y: 5,
+        x: selectedBubbleParaRastro.x,
+        y: selectedBubbleParaRastro.y,
         i: selectedBubbleParaRastro.i,
         minW: selectedBubbleParaRastro.minW,
         maxW: selectedBubbleParaRastro.maxW,
@@ -444,8 +454,9 @@ function ProjectBoard() {
           rowHeight={25}
           cols={50}
           containerPadding={[0, 0]}
-          maxRows={46}
-          onDragStop={onBubbleDragStop}
+          maxRows={23.3}
+          //maxRows={46}
+          //onDragStop={onBubbleDragStop}
           onResizeStop={onBubbleResizeStop}
           style={{
             height: "100%",
@@ -456,6 +467,7 @@ function ProjectBoard() {
               <Bubble
                 canChangeColor
                 canDelete
+                onSendBubbleToTimeline={handleSendBubbleToTimeline}
                 onChangeColor={handleChangeColor}
                 onChangeTitle={handleChangeTitle}
                 onDelete={handleDeleteBubble}

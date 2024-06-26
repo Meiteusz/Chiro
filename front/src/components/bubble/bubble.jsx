@@ -11,6 +11,7 @@ import MenuItem from "@mui/material/MenuItem";
 import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ScheduleSendIcon from "@mui/icons-material/ScheduleSend";
 
 import "./styles.css";
 import "@/app/globals.css";
@@ -20,6 +21,7 @@ function Bubble({
   bubbleCustomProps,
   onChangeColor,
   onChangeTitle,
+  onSendBubbleToTimeline,
   onDoubleClick,
   onDelete,
   onComplete,
@@ -49,6 +51,13 @@ function Bubble({
     } else {
       handleCloseContextMenu();
     }
+  };
+
+  const handleSendBubbleToTimeline = () => {
+    if (!onSendBubbleToTimeline) return;
+
+    onSendBubbleToTimeline(bubble.i);
+    handleCloseContextMenu();
   };
 
   const handleDoubleClick = () => {
@@ -124,7 +133,6 @@ function Bubble({
       }}
     >
       <input
-        autofocus
         type="text"
         value={bubbleCustomProps.title ?? ""}
         onChange={handleBubbleNameChange}
@@ -147,7 +155,6 @@ function Bubble({
         }}
       />
       <div
-        id={bubble.i}
         onContextMenu={handleContextMenu}
         onDoubleClick={handleDoubleClick}
         style={{
@@ -198,6 +205,19 @@ function Bubble({
                 )}
               </MenuItem>
             )}
+            {!bubbleCustomProps.trace &&
+              !isTimeline &&
+              bubbleCustomProps.type != undefined && (
+                <MenuItem onClick={handleSendBubbleToTimeline}>
+                  <ListItemIcon>
+                    <ScheduleSendIcon
+                      fontSize="small"
+                      style={{ color: "#24B84F" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText>Timeline</ListItemText>
+                </MenuItem>
+              )}
             {canOpen && (
               <MenuItem
                 disabled={!bubbleCustomProps.title}

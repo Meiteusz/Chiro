@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 
 import "@/app/globals.css";
 import "./styles.css";
@@ -8,6 +9,7 @@ import "./styles.css";
 const AuthScreen = () => {
   const [tokenValue, setTokenValue] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleInputChange = (event) => {
     setTokenValue(event.target.value);
@@ -19,7 +21,8 @@ const AuthScreen = () => {
     if (tokenValue != "123") {
       setError("Token inválido.");
     } else {
-      window.location.href = "http://localhost:3000/";
+      router.push("/projects");
+
       setError(null);
     }
   };

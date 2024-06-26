@@ -51,6 +51,12 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
 
   useEffect(() => {
     if (layoutBubble && layoutBubbleProps) {
+      layout.forEach((bubble) => {
+        if (isColliding(layoutBubble, bubble)) {
+          layoutBubble.y += 1;
+        }
+      });
+
       setLayout((prevLayout) => [...prevLayout, layoutBubble]);
       setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
     }
@@ -64,10 +70,6 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
         res.data.boardActions.forEach((boardAction) => {
           var data = calculateDifferenceInDays(boardAction);
 
-          console.log({
-            TR: boardAction.timelineRow,
-            B: boardAction
-          });
 
           setLayout((prevLayout) => [
             ...prevLayout, {
@@ -259,54 +261,28 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
     }
   };
 
-  const onBubbleDragStop = (updatedLayout) => {
-    setScrollEnabled(true);
+  const onBubbleDragStop = (updatedLayout, oldItem, newItem) => {
+    const hasCollision = updatedLayout.some(
+      (bubble) => bubble.i !== newItem.i && isColliding(newItem, bubble)
+    );
 
-    const updatedBubble =
-      updatedLayout.find((updatedBubble) =>
-        layout.some(
-          (outdatedBubble) =>
-            outdatedBubble.i === updatedBubble.i &&
-            (outdatedBubble.x !== updatedBubble.x ||
-              outdatedBubble.y !== updatedBubble.y)
+    if (hasCollision) {
+      //setLayout((prevLayout) =>
+      //  prevLayout.map((item) => (item.i === oldItem.i ? oldItem : item))
+      //);
+      setLayout((prevLayout) =>
+        prevLayout.map((item) =>
+          item.i === oldItem.i ? { ...item, x: 10 } : item
         )
-      ) || updatedLayout[0];
-
-    const outdatedBubble =
-      layout.find((outdatedBubble) =>
-        updatedLayout.some(
-          (updatedBubble) =>
-            updatedBubble.i === outdatedBubble.i &&
-            (updatedBubble.x !== outdatedBubble.x ||
-              updatedBubble.y !== outdatedBubble.y)
-        )
-      ) || layout[0];
-
-    const checkCollisionAndUpdateLayout = () => {
-      const hasCollision = updatedLayout.some(
-        (bubble) =>
-          bubble.i !== updatedBubble.i && isColliding(updatedBubble, bubble)
       );
-
-      if (hasCollision) {
-        const updatedLayout = updatedLayout.map((bubble) =>
-          bubble.i === updatedBubble.i
-            ? { ...bubble, x: outdatedBubble.x, y: outdatedBubble.y }
-            : bubble
-        );
-        setLayout(updatedLayout);
-      } else {
-        setLayout(updatedLayout);
-      }
-    };
+    } else {
+      setLayout((prevLayout) =>
+        prevLayout.map((item) => (item.i === newItem.i ? newItem : item))
+      );
+    }
+  };
 
     checkCollisionAndUpdateLayout();
-
-    // Chamada do endpoint
-    console.log({
-      Origem: 1,
-      Bubble: updatedBubble
-    });
 
     var data = getStartAndEndDate(updatedBubble);
     BoardActionService.changePeriod({
@@ -378,7 +354,9 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
       (bubble) => bubble.bubbleId === id
     ).endsDate;
 
-    const profitDaysMilisseconds = Math.abs(endsDate - currentDate);
+      if (new Date(endsDate) <= currentDate) return;
+
+      const profitDaysMilisseconds = Math.abs(endsDate - currentDate);
 
     const profitDays = Math.ceil(
       profitDaysMilisseconds / (1000 * 60 * 60 * 24)
