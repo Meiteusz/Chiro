@@ -70,7 +70,6 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
         res.data.boardActions.forEach((boardAction) => {
           var data = calculateDifferenceInDays(boardAction);
 
-
           setLayout((prevLayout) => [
             ...prevLayout, {
               x: data.differenceFromStartDate,
@@ -280,16 +279,13 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
         prevLayout.map((item) => (item.i === newItem.i ? newItem : item))
       );
     }
-  };
 
-    checkCollisionAndUpdateLayout();
-
-    var data = getStartAndEndDate(updatedBubble);
+    var data = getStartAndEndDate(newItem);
     BoardActionService.changePeriod({
-      Id: updatedBubble.i,
+      Id: newItem.i,
       StartDate: data.startDate,
       EndDate: data.endDate,
-      TimelineRow: updatedBubble.y
+      TimelineRow: newItem.y
     })
   };
 
@@ -307,10 +303,6 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
             outdatedBubble.y === updatedBubble.y
         )
       ) || updatedLayout[0];
-
-    console.log({
-      Bubble: updatedBubble
-    });
 
     var data = getStartAndEndDate(updatedBubble);
     BoardActionService.changePeriod({
@@ -354,9 +346,9 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
       (bubble) => bubble.bubbleId === id
     ).endsDate;
 
-      if (new Date(endsDate) <= currentDate) return;
+    if (new Date(endsDate) <= currentDate) return;
 
-      const profitDaysMilisseconds = Math.abs(endsDate - currentDate);
+    const profitDaysMilisseconds = Math.abs(endsDate - currentDate);
 
     const profitDays = Math.ceil(
       profitDaysMilisseconds / (1000 * 60 * 60 * 24)
