@@ -1,4 +1,5 @@
 using Chiro.Application.Interfaces;
+using Chiro.Application.Services;
 using Chiro.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,13 +29,13 @@ namespace Chiro.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] CreateBoardActionDTO createBoardActionDTO)
         {
-            var createdBoardAction = await _boardActionService.CreateBoardActionAsync(createBoardActionDTO);
-            if (!createdBoardAction)
+            var boardActionId = await _boardActionService.CreateBoardActionAsync(createBoardActionDTO);
+            if (boardActionId <= 0)
             {
                 return BadRequest("Board Action couldn't be created.");
             }
 
-            return Ok("Board Action Created.");
+            return Ok(boardActionId);
         }
 
         /// <summary>
@@ -137,6 +138,41 @@ namespace Chiro.API.Controllers
             }
 
             return Ok("Board Action Linked.");
+        }
+
+        /// <summary>
+        /// Deleta uma Board Action.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(long id)
+        {
+            var deletedBoardAction = await _boardActionService.DeleteAsync(id);
+            if (!deletedBoardAction)
+            {
+                return BadRequest("Não foi possível deletar a Board Action.");
+            }
+
+            return Ok("Board Action deletada.");
+        }
+
+
+        /// <summary>
+        /// Altera o conteúdo de um Projeto.
+        /// </summary>
+        /// <param name="changeBoardActionContentDTO"></param>
+        /// <returns></returns>
+        [HttpPost("change-content")]
+        public async Task<IActionResult> ChangeContentAsync([FromBody] ChangeBoardActionContentDTO changeBoardActionContentDTO)
+        {
+            var changedName = await _boardActionService.ChangeContentAsync(changeBoardActionContentDTO);
+            if (!changedName)
+            {
+                return BadRequest("Não foi possível alterar o nome do projeto.");
+            }
+
+            return Ok("Nome alterado.");
         }
     }
 }

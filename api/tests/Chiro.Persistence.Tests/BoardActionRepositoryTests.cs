@@ -129,7 +129,7 @@ namespace Chiro.Persistence.Tests
                     Content = content
                 });
 
-                result.Should().BeTrue();
+                result.Should().BeGreaterThan(0);
                 var BoardAction = await context.BoardActions.FirstAsync();
 
                 BoardAction.Should().NotBeNull();

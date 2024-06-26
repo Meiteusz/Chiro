@@ -5,7 +5,7 @@ namespace Chiro.Domain.Interfaces
 {
     public interface IBoardActionRepository
     {
-        Task<bool> CreateBoardActionAsync(BoardAction boardAction);
+        Task<long> CreateBoardActionAsync(BoardAction boardAction);
 
         Task<bool> ChangeColorAsync(long boardActionId, BoardAction boardAction);
 
@@ -24,5 +24,9 @@ namespace Chiro.Domain.Interfaces
         Task<bool> LinkAsync(BoardActionLink boardActionLink);
 
         Task<bool> SaveChangesAsync();
+
+        Task<bool> DeleteAsync(long boardActionId);
+
+        Task<bool> ChangeContentAsync(long boardActionId, BoardAction boardAction);
     }
 }

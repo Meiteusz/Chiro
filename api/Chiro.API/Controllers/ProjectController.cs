@@ -51,7 +51,7 @@ namespace Chiro.API.Controllers
         }
 
         /// <summary>
-        /// Buscar um único projeto juntamente com o Board e a Board.
+        /// Buscar um ï¿½nico projeto juntamente com o Board e a Board.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -85,14 +85,14 @@ namespace Chiro.API.Controllers
             var resized = await _projectService.ResizeAsync(resizeProjectDTO);
             if (!resized)
             {
-                return BadRequest("Não foi possível redimencionar o projeto.");
+                return BadRequest("Nï¿½o foi possï¿½vel redimencionar o projeto.");
             }
 
             return Ok("Projeto redimencionado com sucesso.");
         }
 
         /// <summary>
-        /// Altera a posição de um projeto.
+        /// Altera a posiï¿½ï¿½o de um projeto.
         /// </summary>
         /// <param name="moveProjectDTO"></param>
         /// <returns></returns>
@@ -102,7 +102,7 @@ namespace Chiro.API.Controllers
             var moved = await _projectService.MoveAsync(moveProjectDTO);
             if (!moved)
             {
-                return BadRequest("Projeto não pode ser movido.");
+                return BadRequest("Projeto nï¿½o pode ser movido.");
             }
 
             return Ok("Projeto movido.");
@@ -119,7 +119,7 @@ namespace Chiro.API.Controllers
             var changedColor = await _projectService.ChangeColorAsync(changeProjectColorDTO);
             if (!changedColor)
             {
-                return BadRequest("Não foi possível alterar a cor do projeto.");
+                return BadRequest("Nï¿½o foi possï¿½vel alterar a cor do projeto.");
             }
 
             return Ok("Cor alterada com sucesso.");
@@ -136,7 +136,7 @@ namespace Chiro.API.Controllers
             var changedColor = await _projectService.DeleteAsync(id);
             if (!changedColor)
             {
-                return BadRequest("Não foi possível deletar o projeto.");
+                return BadRequest("Nï¿½o foi possï¿½vel deletar o projeto.");
             }
 
             return Ok("Project deletado.");
@@ -153,7 +153,7 @@ namespace Chiro.API.Controllers
             var changedName = await _projectService.ChangeNameAsync(changeProjectNameDTO);
             if (!changedName)
             {
-                return BadRequest("Não foi possível alterar o nome do projeto.");
+                return BadRequest("Nï¿½o foi possï¿½vel alterar o nome do projeto.");
             }
 
             return Ok("Nome alterado.");

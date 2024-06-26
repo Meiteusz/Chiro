@@ -1,5 +1,5 @@
 ﻿using Chiro.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace Chiro.Domain.DTOs
 {
@@ -14,10 +14,10 @@ namespace Chiro.Domain.DTOs
         public double Height { get; set; }
         public BoardActionType BoardActionType { get; set; }
 
-        [Required(ErrorMessage = "O campo StartDate deve ser preenchido.")]
-        public DateTime StartDate { get; set; }
+        [JsonProperty("startsDate")]
+        public DateTime? StartDate { get; set; }
 
-        [Required(ErrorMessage = "O campo EndDate deve ser preenchido.")]
-        public DateTime EndDate { get; set; }
+        [JsonProperty("endsDate")]
+        public DateTime? EndDate { get; set; }
     }
 }

@@ -78,14 +78,14 @@ namespace Chiro.Application.Tests
 
             BoardAction? createdBoardAction = null;
             _repositoryMock.Setup(s => s.CreateBoardActionAsync(It.IsAny<BoardAction>()))
-                .ReturnsAsync(true)
+                .ReturnsAsync(1)
                 .Callback<BoardAction>(boardAction => createdBoardAction = boardAction);
 
             // Act
             var result = await _service.CreateBoardActionAsync(createBoardActionDto);
 
             // Assert
-            result.Should().BeTrue();
+            result.Should().BeGreaterThan(0);
             createdBoardAction.Should().NotBeNull();
             createdBoardAction.ProjectId.Should().Be(createBoardActionDto.ProjectId);
             createdBoardAction.Content.Should().Be(createBoardActionDto.Content);

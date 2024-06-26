@@ -14,10 +14,11 @@ namespace Chiro.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<bool> CreateBoardActionAsync(BoardAction boardAction)
+        public async Task<long> CreateBoardActionAsync(BoardAction boardAction)
         {
             await _context.BoardActions.AddRangeAsync(boardAction);
-            return await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
+            return boardAction.Id;
         }
 
         public async Task<bool> ChangeColorAsync(long boardActionId, BoardAction boardAction)
@@ -35,7 +36,9 @@ namespace Chiro.Persistence.Repositories
                                               .UpdateFromQueryAsync(x => new BoardAction
                                               {
                                                   Width = boardAction.Width,
-                                                  Height = boardAction.Height
+                                                  Height = boardAction.Height,
+                                                  PositionX = boardAction.PositionX,
+                                                  PositionY = boardAction.PositionY
                                               }) > 0;
         }
 
@@ -54,13 +57,14 @@ namespace Chiro.Persistence.Repositories
             return _context.BoardActions.Where(board => board.ProjectId == projectId).ToList();
         }
 
-        public async Task<bool> ChangePeriodAsync(long BoardActionId, BoardAction BoardAction)
+        public async Task<bool> ChangePeriodAsync(long boardActionId, BoardAction boardAction)
         {
-            return await _context.BoardActions.Where(w => w.Id == BoardActionId)
+            return await _context.BoardActions.Where(w => w.Id == boardActionId)
                                               .UpdateFromQueryAsync(x => new BoardAction
                                               {
-                                                  StartDate = BoardAction.StartDate,
-                                                  EndDate = BoardAction.EndDate,
+                                                  StartDate = boardAction.StartDate,
+                                                  EndDate = boardAction.EndDate,
+                                                  TimelineRow = boardAction.TimelineRow
                                               }) > 0;
         }
 
@@ -87,6 +91,21 @@ namespace Chiro.Persistence.Repositories
         public async Task<bool> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> DeleteAsync(long boardActionId)
+        {
+            return await _context.BoardActions.Where(w => w.Id == boardActionId)
+                                              .DeleteFromQueryAsync() > 0;
+        }
+
+        public async Task<bool> ChangeContentAsync(long boardActionId, BoardAction boardAction)
+        {
+            return await _context.BoardActions.Where(w => w.Id == boardActionId)
+                                              .UpdateFromQueryAsync(x => new BoardAction
+                                              {
+                                                  Content = boardAction.Content,
+                                              }) > 0;
         }
     }
 }

@@ -84,7 +84,7 @@ function Bubble({
   const handleBubbleComplete = () => {
     if (!onComplete) return;
 
-    onComplete();
+    onComplete(bubble.i);
     handleCloseContextMenu();
   };
 

@@ -10,7 +10,6 @@ import Bubble from "@/components/bubble/bubble";
 import "@/app/globals.css";
 import "./styles.css";
 import ProjectService from "@/services/requests/project-service";
-import projectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -86,15 +85,11 @@ const ProjectBoard = () => {
   };
 
   const handleDeleteBubble = (id) => {
-    // Chamada do endpoint
-
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
     ProjectService.deleteAsync(id)
   };
 
   const handleChangeColor = (id, color) => {
-    // Chamada do endpoint
-
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) => {
         if (prevBox.bubbleId === id) {

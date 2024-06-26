@@ -1,13 +1,19 @@
 import { ENDPOINTS } from "../endpoints";
-import { usePost } from "./api-client";
+import { usePost, useDelete } from "./api-client";
 
 const create = async (data) => {
   try {
-    return await usePost(ENDPOINTS.boardAction.base, data);
+    const response = await usePost(ENDPOINTS.boardAction.base, data);
+    if (response && response.data) {
+      return response.data.toString();
+    }
+
+    console.error("Criação de Board-Action falhou:", error);
   } catch (error) {
     console.error("Criação de Board-Action falhou:", error);
-    throw error;
   }
+
+  return "";
 };
 
 const changeColor = async (data) => {
@@ -64,6 +70,22 @@ const link = async (data) => {
   }
 };
 
+const deleteAsync = async (id) => {
+  try {
+    return await useDelete(ENDPOINTS.boardAction.delete(id));
+  } catch (error) {
+    console.error("Mudança de Cor de Project falhou:", error);
+  }
+};
+
+const changeContent = async (data) => {
+  try {
+    return await usePost(ENDPOINTS.boardAction.changeContent, data);
+  } catch (error) {
+    console.error("Redimensionamento de Project falhou:", error);
+  }
+};
+
 export default {
   create,
   changeColor,
@@ -72,4 +94,6 @@ export default {
   changePeriod,
   conclude,
   link,
+  deleteAsync,
+  changeContent
 };

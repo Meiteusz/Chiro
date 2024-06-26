@@ -16,7 +16,12 @@ function StartEndDateModal({
   setStartDate,
   endDate,
   setEndDate,
+  boardActionId
 }) {
+  const handleConfirm = () => {
+    onConfirm(boardActionId);
+  };
+
   return (
     <Modal
       keepMounted
@@ -58,7 +63,7 @@ function StartEndDateModal({
           </Grid>
         </LocalizationProvider>
         <div className="container-confirm">
-          <ClassicButton onClick={onConfirm} title="Confirmar" />
+          <ClassicButton onClick={handleConfirm} title="Confirmar" />
         </div>
       </Box>
     </Modal>

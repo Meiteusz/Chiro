@@ -13,6 +13,8 @@ const ENDPOINTS = {
     changePeriod: `board-action/change-period`,
     conclude: `board-action/conclude`,
     link: `board-action/link`,
+    delete: (id) => `board-action/${id}`,
+    changeContent: `board-action/change-content`
   },
   project: {
     base: `project`,

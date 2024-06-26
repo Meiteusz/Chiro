@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from 'next/router';
 import RGL, { WidthProvider } from "react-grid-layout";
 import AddIcon from "@mui/icons-material/Add";
 import Menu from "@mui/material/Menu";
@@ -10,10 +11,13 @@ import Navbar from "@/components/navbar";
 import Timeline from "@/components/timeline/timeline";
 import Bubble from "@/components/bubble/bubble";
 import StartEndDateModal from "@/components/modal/starts-end-date-modal";
+import BoardActionService from "@/services/requests/board-action-service";
+import ProjectService from "@/services/requests/project-service";
 
 import "@/app/globals.css";
 import "./styles.css";
 import "../styles.css";
+
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -46,6 +50,46 @@ function ProjectBoard() {
   const [layoutTimeline, setLayoutTimeline] = useState();
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
 
+  const router = useRouter();
+  const { bubbleProjectId } = router.query;
+
+  useEffect(() => {
+    if (bubbleProjectId) {
+      ProjectService.getById(bubbleProjectId).then((res) => {
+        res.data.boardActions.forEach((boardAction) => {
+          const newItem = {
+            i: boardAction.id.toString(),
+            w: boardAction.width,
+            h: boardAction.height,
+            x: boardAction.positionX,
+            y: boardAction.positionY,
+            minW: 4,
+            maxW: 10,
+            minH: 2,
+            maxH: 5,
+          };
+
+          const newCustomProps = {
+            bubbleId: boardAction.id.toString(),
+            title: boardAction.content,
+            color: boardAction.color,
+            startsDate: new Date(boardAction.startDate),
+            endsDate: new Date(boardAction.endDate),
+            trace: false,
+          };
+
+          setLayout((prevLayout) => [...prevLayout, newItem]);
+          setLayoutCustomProps((prevCustomProps) => [
+            ...prevCustomProps,
+            newCustomProps,
+          ]);
+        });
+      }).catch((error) => {
+        console.error("Error fetching project:", error);
+      });
+    }
+  }, [bubbleProjectId]);
+
   const handleOpenMenuBubbleOptions = (event) => {
     setMenuBubbleOptions(event.currentTarget);
   };
@@ -54,15 +98,12 @@ function ProjectBoard() {
     setMenuBubbleOptions(null);
   };
 
-  const handleAddBubble = (bubbleType) => {
-    // Chamada do endpoint
-
+  const handleAddBubble = async (bubbleType) => {
     const newItem = {
       w: 4,
       h: 2,
       x: 10,
       y: 5,
-      i: getId(),
       minW: 4,
       maxW: 10,
       minH: 2,
@@ -79,6 +120,21 @@ function ProjectBoard() {
       trace: false,
     };
 
+    var boardActionId = await BoardActionService.create({
+      Content: `Bolha ${boardActionType}`,
+      PositionY: newItem.y,
+      PositionX: newItem.x,
+      Width: newItem.w,
+      Height: newItem.h,
+      Color: newCustomProps.color,
+      StartsDate: newCustomProps.startsDate,
+      EndsDate: newCustomProps.endsDate,
+      ProjectId: bubbleProjectId
+    });
+
+    newItem.i = boardActionId;
+    newCustomProps.bubbleId = boardActionId;
+
     setLayout((prevLayout) => [...prevLayout, newItem]);
     setLayoutCustomProps((prevCustomProps) => [
       ...prevCustomProps,
@@ -88,63 +144,100 @@ function ProjectBoard() {
   };
 
   const handleDeleteBubble = (id) => {
-    // Chamada do endpoint
-
+    console.log("Deletando");
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
+    BoardActionService.deleteAsync(id)
   };
 
   const handleChangeColor = (id, color) => {
-    // Chamada do endpoint
-
     setLayoutCustomProps((prevBubble) =>
-      prevBubble.map((prevBox) =>
-        prevBox.bubbleId === id
-          ? {
-              ...prevBox,
-              color: color.hex,
-            }
-          : prevBox
-      )
+      prevBubble.map((prevBox) => {
+        if (prevBox.bubbleId === id) {
+          BoardActionService.changeColor({ Id: id, Color: color.hex });
+          return {
+            ...prevBox,
+            color: color.hex,
+          }
+        }
+        return prevBox;
+      })
     );
   };
 
   const handleChangeTitle = (id, content) => {
-    // Chamada do endpoint
+    BoardActionService.changeContent({
+      Id: id,
+      Content: content
+    });
 
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
           ? {
-              ...prevBox,
-              title: content,
-            }
+            ...prevBox,
+            title: content,
+          }
           : prevBox
       )
     );
   };
 
-  const onBubbleDragStop = (e) => {
-    const layoutCopyTimeline = e.find((item) => item.y >= 26); //FOI PRA TIMELINE? (VALIDAR MELHOR) - // PEGA A UNICA BUBBLE QUE FOI PARA TIMELINE POIS SO PODE UMA POR VEZ
-
-    if (!layoutCopyTimeline) return; // APENAS FOI ARRASTADA NO BOARD
-
-    // Explicação da linha de cima (melhorar):
-    // Ao fazer essa busca de bubbles que estão com o y >= 26, achamos a bubble que foi para a timeline caso houve
-    // por que pegar o index 0? simples, porque não vamos ter mais bubbles nessa lista,
-    // o máximo que ela vai trazer, vai ser uma, a mesma que foi movimentada para timeline
-    // dessa forma, uma copia da bubble é criada na timeline e essa é apagada pois são dois layouts diferentes
-    // (a timeline tem um layout próprio)
+  const onBubbleDragStop = (e, v) => {
+    if (!isOverlapping(v.i)) {
+      const changedBubble = e.find(w => w.i == v.i);
+      BoardActionService.resize({
+        Id: changedBubble.i,
+        Width: changedBubble.w,
+        Height: changedBubble.h,
+        PositionX: changedBubble.x,
+        PositionY: changedBubble.y,
+      });
+      return;
+    }
 
     setDateModalOpened(true);
-    setSelectedIdBubble(layoutCopyTimeline.i);
+    setSelectedIdBubble(v.i);
   };
 
-  const onBubbleResizeStop = (e) => {
-    // Chamada do endpoint
+  const isOverlapping = (bubbleId) => {
+    const childElement = document.getElementById(bubbleId);
+
+    if (childElement) {
+      const parentElement = childElement.closest('.react-grid-layout');
+      if (parentElement) {
+        const timelineArea = document.getElementById("timeline-body").getBoundingClientRect();
+        const bubbleArea = childElement.getBoundingClientRect();
+
+        const overlapArea = calculateOverlapArea(timelineArea, bubbleArea);
+        const bubbleAreaTotal = bubbleArea.width * bubbleArea.height;
+        return overlapArea >= 0.9 * bubbleAreaTotal;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  const calculateOverlapArea = (rect1, rect2) => {
+    const x_overlap = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
+    const y_overlap = Math.max(0, Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top));
+    return x_overlap * y_overlap;
+  }
+
+  const onBubbleResizeStop = (e, v) => {
+    const changedBubble = e.find(w => w.i == v.i);
+    BoardActionService.resize({
+      Id: changedBubble.i,
+      Width: changedBubble.w,
+      Height: changedBubble.h,
+      PositionX: changedBubble.x,
+      PositionY: changedBubble.y,
+    });
   };
 
   //#region ConfirmStartEndDate
-  const handleConfirmStartEndDate = () => {
+  const handleConfirmStartEndDate = (boardActionId) => {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
 
     if (currentStartsDate && currentEndsDate) {
@@ -160,7 +253,7 @@ function ProjectBoard() {
       var diasComeco = Math.abs(currentStartsDate - dataInicial);
       var diasDif = Math.floor(diasComeco / (1000 * 60 * 60 * 24));
       var selectedBubbleCustomProps = layoutCustomProps.find(
-        (x) => x.bubbleId === selectedIdBubble
+        (x) => x.bubbleId === boardActionId
       );
 
       const newItem = {
@@ -168,7 +261,7 @@ function ProjectBoard() {
         y: 0,
         w: diferencaEmDias,
         h: 1,
-        i: getId(),
+        i: boardActionId.toString(),
       };
 
       const newCustomProps = {
@@ -185,20 +278,25 @@ function ProjectBoard() {
       setLayoutCustomPropsTimeline(newCustomProps);
 
       var selectedBubbleParaRastro = layout.find(
-        (x) => x.i === selectedIdBubble
+        (x) => x.i === boardActionId
       );
       var selectedBubbleCustomPropsParaRastro = layoutCustomProps.find(
-        (x) => x.bubbleId === selectedIdBubble
+        (x) => x.bubbleId === boardActionId
       );
 
       setLayout((prevLayout) =>
-        prevLayout.filter((item) => item.i !== selectedIdBubble)
+        prevLayout.filter((item) => item.i !== boardActionId)
       );
       setLayoutCustomProps((prevLayout) =>
-        prevLayout.filter((item) => item.bubbleId !== selectedIdBubble)
+        prevLayout.filter((item) => item.bubbleId !== boardActionId)
       );
 
       // Chamada do endpoint
+      BoardActionService.changePeriod({
+        Id: boardActionId,
+        StartDate: currentStartsDate,
+        EndDate: currentEndsDate,
+      });
 
       //#region Criação da bolha de rastro
 
@@ -230,22 +328,6 @@ function ProjectBoard() {
       ]);
 
       //#endregion
-
-      const completeBubble = {
-        bubble: newItem,
-        customProps: newCustomProps,
-      };
-
-      console.log(
-        `Informações da bolha: ${JSON.stringify(
-          completeBubble
-        )}\nAtividade definida para começar ${new Date(
-          currentStartsDate
-        ).toLocaleDateString("pt-BR", options)} e terminar ${new Date(
-          currentEndsDate
-        ).toLocaleDateString("pt-BR", options)}`
-      );
-
       setCurrentStartsDate(null);
       setCurrentEndsDate(null);
       setDateModalOpened(false);
@@ -291,14 +373,14 @@ function ProjectBoard() {
         prevBoxes.map((box) =>
           box.id === selectedIdBubble
             ? {
-                ...box,
-                x:
-                  bubbles.find((x) => x.id === selectedIdBubble)
-                    .lastPositionX ?? 300,
-                y:
-                  bubbles.find((x) => x.id === selectedIdBubble)
-                    .lastPositionY ?? 20,
-              }
+              ...box,
+              x:
+                bubbles.find((x) => x.id === selectedIdBubble)
+                  .lastPositionX ?? 300,
+              y:
+                bubbles.find((x) => x.id === selectedIdBubble)
+                  .lastPositionY ?? 20,
+            }
             : box
         )
       );
@@ -322,6 +404,7 @@ function ProjectBoard() {
           setStartDate={setCurrentStartsDate}
           endDate={currentEndsDate}
           setEndDate={setCurrentEndsDate}
+          boardActionId={selectedIdBubble}
         />
         <button className="add-bubble" onClick={handleOpenMenuBubbleOptions}>
           <AddIcon />
@@ -391,6 +474,7 @@ function ProjectBoard() {
         <Timeline
           layoutBubble={layoutTimeline}
           layoutBubbleProps={layoutCustomPropsTimeline}
+          bubbleProjectId={bubbleProjectId}
         />
       </div>
     </div>
