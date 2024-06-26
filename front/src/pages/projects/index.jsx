@@ -137,7 +137,7 @@ const ProjectBoard = () => {
     router.push(url);
   };
 
-  const onResizeStop = (e, v) => {
+  const onUpdateBubble = (e, v) => {
     const changedProject = e.find((w) => w.i == v.i);
     ProjectService.resize({
       Id: changedProject.i,
@@ -165,8 +165,8 @@ const ProjectBoard = () => {
           margin={[1, 1]}
           rowHeight={25}
           preventCollision={true}
-          onDragStop={onResizeStop}
-          onResizeStop={onResizeStop}
+          onDragStop={onUpdateBubble}
+          onResizeStop={onUpdateBubble}
         >
           {layout.map((bubble) => (
             <div

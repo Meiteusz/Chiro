@@ -49,6 +49,12 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
 
   useEffect(() => {
     if (layoutBubble && layoutBubbleProps) {
+      layout.forEach((bubble) => {
+        if (isColliding(layoutBubble, bubble)) {
+          layoutBubble.y += 1;
+        }
+      });
+
       setLayout((prevLayout) => [...prevLayout, layoutBubble]);
       setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
     }
@@ -83,15 +89,17 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
       endsDate: new Date(2024, 0, 7),
     };
 
-    //setLayout((prevLayout) => [...prevLayout, newItem, newItem2]);
-    //setLayoutCustomProps((prevLayout) => [
-    //  ...prevLayout,
-    //  newCustomProps,
-    //  newCustomProps2,
-    //]);
+    setLayout((prevLayout) => [...prevLayout, newItem, newItem2]);
+    setLayoutCustomProps((prevLayout) => [
+      ...prevLayout,
+      newCustomProps,
+      newCustomProps2,
+    ]);
+  }, [layoutBubble]);
 
-    scrollToCurrentDate();
-  }, [layoutBubble, viewMode]);
+  useEffect(() => {
+    //scrollToCurrentDate();
+  }, [viewMode]);
 
   //#region getCellWidth
   const getCellWidth = () => {
@@ -238,50 +246,25 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     }
   };
 
-  const onBubbleDragStop = (updatedLayout) => {
-    setScrollEnabled(true);
+  const onBubbleDragStop = (updatedLayout, oldItem, newItem) => {
+    const hasCollision = updatedLayout.some(
+      (bubble) => bubble.i !== newItem.i && isColliding(newItem, bubble)
+    );
 
-    const updatedBubble =
-      updatedLayout.find((updatedBubble) =>
-        layout.some(
-          (outdatedBubble) =>
-            outdatedBubble.i === updatedBubble.i &&
-            (outdatedBubble.x !== updatedBubble.x ||
-              outdatedBubble.y !== updatedBubble.y)
+    if (hasCollision) {
+      //setLayout((prevLayout) =>
+      //  prevLayout.map((item) => (item.i === oldItem.i ? oldItem : item))
+      //);
+      setLayout((prevLayout) =>
+        prevLayout.map((item) =>
+          item.i === oldItem.i ? { ...item, x: 10 } : item
         )
-      ) || updatedLayout[0];
-
-    const outdatedBubble =
-      layout.find((outdatedBubble) =>
-        updatedLayout.some(
-          (updatedBubble) =>
-            updatedBubble.i === outdatedBubble.i &&
-            (updatedBubble.x !== outdatedBubble.x ||
-              updatedBubble.y !== outdatedBubble.y)
-        )
-      ) || layout[0];
-
-    const checkCollisionAndUpdateLayout = () => {
-      const hasCollision = updatedLayout.some(
-        (bubble) =>
-          bubble.i !== updatedBubble.i && isColliding(updatedBubble, bubble)
       );
-
-      if (hasCollision) {
-        const updatedLayout = updatedLayout.map((bubble) =>
-          bubble.i === updatedBubble.i
-            ? { ...bubble, x: outdatedBubble.x, y: outdatedBubble.y }
-            : bubble
-        );
-        setLayout(updatedLayout);
-      } else {
-        setLayout(updatedLayout);
-      }
-    };
-
-    checkCollisionAndUpdateLayout();
-
-    // Chamada do endpoint
+    } else {
+      setLayout((prevLayout) =>
+        prevLayout.map((item) => (item.i === newItem.i ? newItem : item))
+      );
+    }
   };
 
   const onBubbleResizeStop = (updatedLayout) => {
@@ -298,6 +281,8 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
       let endsDate = layoutCustomProps.find(
         (bubble) => bubble.bubbleId === id
       ).endsDate;
+
+      if (new Date(endsDate) <= currentDate) return;
 
       const profitDaysMilisseconds = Math.abs(endsDate - currentDate);
 

@@ -123,21 +123,38 @@ function ProjectBoard() {
     );
   };
 
-  const onBubbleDragStop = (e) => {
-    const layoutCopyTimeline = e.find((item) => item.y >= 26); //FOI PRA TIMELINE? (VALIDAR MELHOR) - // PEGA A UNICA BUBBLE QUE FOI PARA TIMELINE POIS SO PODE UMA POR VEZ
-
-    if (!layoutCopyTimeline) return; // APENAS FOI ARRASTADA NO BOARD
-
-    // Explicação da linha de cima (melhorar):
-    // Ao fazer essa busca de bubbles que estão com o y >= 26, achamos a bubble que foi para a timeline caso houve
-    // por que pegar o index 0? simples, porque não vamos ter mais bubbles nessa lista,
-    // o máximo que ela vai trazer, vai ser uma, a mesma que foi movimentada para timeline
-    // dessa forma, uma copia da bubble é criada na timeline e essa é apagada pois são dois layouts diferentes
-    // (a timeline tem um layout próprio)
+  const handleSendBubbleToTimeline = (id) => {
+    if (layoutCustomProps.find((bubble) => bubble.bubbleId === id).trace) {
+      return;
+    }
 
     setDateModalOpened(true);
-    setSelectedIdBubble(layoutCopyTimeline.i);
+    setSelectedIdBubble(id);
   };
+
+  //const onBubbleDragStop = (e) => {
+  //  const layoutCopyTimeline = e.find((item) => item.y >= 26); //FOI PRA TIMELINE? (VALIDAR MELHOR) - // PEGA A UNICA BUBBLE QUE FOI PARA TIMELINE POIS SO PODE UMA POR VEZ
+  //
+  //  if (!layoutCopyTimeline) return; // APENAS FOI ARRASTADA NO BOARD
+  //
+  //  if (
+  //    layoutCustomProps.find(
+  //      (bubble) => bubble.i === layoutCopyTimeline.bubbleId
+  //    ).trace
+  //  ) {
+  //    return;
+  //  }
+  //
+  //  // Explicação da linha de cima (melhorar):
+  //  // Ao fazer essa busca de bubbles que estão com o y >= 26, achamos a bubble que foi para a timeline caso houve
+  //  // por que pegar o index 0? simples, porque não vamos ter mais bubbles nessa lista,
+  //  // o máximo que ela vai trazer, vai ser uma, a mesma que foi movimentada para timeline
+  //  // dessa forma, uma copia da bubble é criada na timeline e essa é apagada pois são dois layouts diferentes
+  //  // (a timeline tem um layout próprio)
+  //
+  //  setDateModalOpened(true);
+  //  setSelectedIdBubble(layoutCopyTimeline.i);
+  //};
 
   const onBubbleResizeStop = (e) => {
     // Chamada do endpoint
@@ -205,8 +222,8 @@ function ProjectBoard() {
       const newItemRastro = {
         w: selectedBubbleParaRastro.w,
         h: selectedBubbleParaRastro.h,
-        x: 10,
-        y: 5,
+        x: selectedBubbleParaRastro.x,
+        y: selectedBubbleParaRastro.y,
         i: selectedBubbleParaRastro.i,
         minW: selectedBubbleParaRastro.minW,
         maxW: selectedBubbleParaRastro.maxW,
@@ -361,8 +378,9 @@ function ProjectBoard() {
           rowHeight={25}
           cols={50}
           containerPadding={[0, 0]}
-          maxRows={46}
-          onDragStop={onBubbleDragStop}
+          maxRows={23.3}
+          //maxRows={46}
+          //onDragStop={onBubbleDragStop}
           onResizeStop={onBubbleResizeStop}
           style={{
             height: "100%",
@@ -373,6 +391,7 @@ function ProjectBoard() {
               <Bubble
                 canChangeColor
                 canDelete
+                onSendBubbleToTimeline={handleSendBubbleToTimeline}
                 onChangeColor={handleChangeColor}
                 onChangeTitle={handleChangeTitle}
                 onDelete={handleDeleteBubble}
