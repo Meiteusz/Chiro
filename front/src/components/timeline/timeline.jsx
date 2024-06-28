@@ -29,7 +29,7 @@ import ProjectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
 
-const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
+const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLoad, loadingBoard }) => {
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
   let widthYears = widthMonths * multiplierWidth;
@@ -65,7 +65,8 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
   }, [layoutBubble, viewMode]);
 
   useEffect(() => {
-    if (bubbleProjectId) {
+    if (bubbleProjectId && !loadingBoard) {
+      console.log({ a: 3, loadingBoard})
       ProjectService.getById(bubbleProjectId).then((res) => {
         res.data.boardActions.forEach((boardAction) => {
           var data = calculateDifferenceInDays(boardAction);
@@ -87,6 +88,8 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
               startsDate: new Date(boardAction.startDate),
               endsDate: new Date(boardAction.endDate)
             }]);
+
+          onBubbleLoad(boardAction);
         });
       }).catch((error) => {
         console.error("Error fetching project:", error);
@@ -94,7 +97,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
     }
 
     scrollToCurrentDate();
-  }, [bubbleProjectId]);
+  }, [bubbleProjectId, loadingBoard]);
 
   const calculateDifferenceInDays = (boardAction) => {
     var differenceInMilliseconds = Math.abs(
