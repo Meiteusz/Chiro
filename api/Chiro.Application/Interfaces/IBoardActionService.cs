@@ -4,7 +4,7 @@ namespace Chiro.Application.Interfaces
 {
     public interface IBoardActionService
     {
-        Task<bool> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO);
+        Task<long> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO);
 
         Task<bool> ChangeColorAsync(ChangeBoardActionColorDTO changeBoardActionColorDTO);
 
@@ -19,5 +19,9 @@ namespace Chiro.Application.Interfaces
         Task<bool> LinkAsync(LinkBoardActionDTO linkBoardActionDTO);
 
         Task DelayBoardActionsFromProjectAsync(long projectId);
+
+        Task<bool> DeleteAsync(long boardActionId);
+
+        Task<bool> ChangeContentAsync(ChangeBoardActionContentDTO changeBoardActionContentDTO);
     }
 }

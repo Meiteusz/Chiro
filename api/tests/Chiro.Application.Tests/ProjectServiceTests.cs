@@ -45,7 +45,7 @@ namespace Chiro.Application.Tests
             var result = await _service.CreateProject(createProjectDto);
 
             // Assert
-            result.Should().BePositive();
+            result.Should().BeGreaterThan(0);
             createdProject.Should().NotBeNull();
             createdProject.Color.Should().Be(createProjectDto.Color);
             createdProject.Name.Should().Be(createProjectDto.Name);

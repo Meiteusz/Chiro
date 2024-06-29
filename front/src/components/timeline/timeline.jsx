@@ -24,10 +24,12 @@ import "react-resizable/css/styles.css";
 import "@/app/globals.css";
 import "@/components/timeline/styles.css";
 import { timelineViewMode } from "@/components/timeline/timelineViewMode.js";
+import BoardActionService from "@/services/requests/board-action-service";
+import ProjectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
 
-const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
+const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
   let widthYears = widthMonths * multiplierWidth;
@@ -64,6 +66,65 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
   useEffect(() => {
     scrollToCurrentDate();
   }, [viewMode]);
+
+  useEffect(() => {
+    if (bubbleProjectId) {
+      ProjectService.getById(bubbleProjectId)
+        .then((res) => {
+          res.data.boardActions.forEach((boardAction) => {
+            var data = calculateDifferenceInDays(boardAction);
+
+            setLayout((prevLayout) => [
+              ...prevLayout,
+              {
+                x: data.differenceFromStartDate,
+                w: data.differenceInDays,
+                i: boardAction.id.toString(),
+                y: boardAction.timelineRow?.toString() ?? "0",
+                h: 1,
+              },
+            ]);
+
+            setLayoutCustomProps((prevCustomProps) => [
+              ...prevCustomProps,
+              {
+                bubbleId: boardAction.id.toString(),
+                title: boardAction.content,
+                color: boardAction.color,
+                startsDate: new Date(boardAction.startDate),
+                endsDate: new Date(boardAction.endDate),
+              },
+            ]);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching project:", error);
+        });
+    }
+
+    scrollToCurrentDate();
+  }, [bubbleProjectId]);
+
+  const calculateDifferenceInDays = (boardAction) => {
+    var differenceInMilliseconds = Math.abs(
+      new Date(boardAction.endDate) - new Date(boardAction.startDate)
+    );
+
+    var differenceInDays = Math.ceil(
+      differenceInMilliseconds / (1000 * 60 * 60 * 24) + 1
+    );
+
+    var initialDate = new Date("2024-01-01");
+    var daysFromStart = Math.abs(new Date(boardAction.startDate) - initialDate);
+    var differenceFromStartDate = Math.floor(
+      daysFromStart / (1000 * 60 * 60 * 24)
+    );
+
+    return {
+      differenceFromStartDate: differenceFromStartDate,
+      differenceInDays: differenceInDays,
+    };
+  };
 
   //#region forceUpdate
   const forceUpdate = () => {
@@ -236,53 +297,106 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     }
 
     setLayout([...newLayout]);
+
+    var data = getStartAndEndDate(newItem);
+    BoardActionService.changePeriod({
+      Id: newItem.i,
+      StartDate: data.startDate,
+      EndDate: data.endDate,
+      TimelineRow: newItem.y,
+    });
   };
 
   const onBubbleResizeStop = (updatedLayout) => {
     const adjustedLayout = adjustLayout(updatedLayout);
     setLayout(adjustedLayout);
     setScrollEnabled(true);
+
+    const updatedBubble =
+      updatedLayout.find((updatedBubble) =>
+        layout.some(
+          (outdatedBubble) =>
+            outdatedBubble.i === updatedBubble.i &&
+            outdatedBubble.w !== updatedBubble.w &&
+            outdatedBubble.y === updatedBubble.y
+        )
+      ) || updatedLayout[0];
+
+    var data = getStartAndEndDate(updatedBubble);
+    BoardActionService.changePeriod({
+      Id: updatedBubble.i,
+      StartDate: data.startDate,
+      EndDate: data.endDate,
+      TimelineRow: updatedBubble.y,
+    });
   };
 
-  const onBubbleComplete = (id) => {
-    //#region calculateProfitDays
+  const getStartAndEndDate = (bubble) => {
+    const initialDate = new Date("2024-01-01");
+    const newStartDate = new Date(initialDate);
+    newStartDate.setDate(initialDate.getDate() + bubble.x);
 
-    const calculateProfitDays = () => {
-      let currentDate = Date.now();
-      let endsDate = layoutCustomProps.find(
-        (bubble) => bubble.bubbleId === id
-      ).endsDate;
+    const newEndDate = new Date(newStartDate);
+    newEndDate.setDate(newStartDate.getDate() + bubble.w - 1);
 
-      if (new Date(endsDate) <= currentDate) return;
-
-      const profitDaysMilisseconds = Math.abs(endsDate - currentDate);
-
-      const profitDays = Math.ceil(
-        profitDaysMilisseconds / (1000 * 60 * 60 * 24)
-      );
-
-      if (profitDays <= 0) {
-        return;
-      }
-
-      const newBubbleWidth =
-        layout.find((bubble) => bubble.i === id).w - profitDays;
-
-      setLayout((prevBubble) =>
-        prevBubble.map((prevBox) =>
-          prevBox.i === id
-            ? {
-                ...prevBox,
-                w: newBubbleWidth,
-                static: true,
-              }
-            : prevBox
-        )
-      );
+    return {
+      startDate: newStartDate,
+      endDate: newEndDate,
     };
+  };
 
-    //#endregion
+  const getUpdatedBubbleFromLayout = (updatedLayout) => {
+    return (
+      updatedLayout.find((updatedBubble) =>
+        layout.some(
+          (outdatedBubble) =>
+            outdatedBubble.i === updatedBubble.i &&
+            outdatedBubble.w !== updatedBubble.w &&
+            outdatedBubble.y === updatedBubble.y
+        )
+      ) || updatedLayout[0]
+    );
+  };
 
+  //#region calculateProfitDays
+
+  const calculateProfitDays = () => {
+    let currentDate = Date.now();
+    let endsDate = layoutCustomProps.find(
+      (bubble) => bubble.bubbleId === id
+    ).endsDate;
+
+    if (new Date(endsDate) <= currentDate) return;
+
+    const profitDaysMilisseconds = Math.abs(endsDate - currentDate);
+
+    const profitDays = Math.ceil(
+      profitDaysMilisseconds / (1000 * 60 * 60 * 24)
+    );
+
+    if (profitDays <= 0) {
+      return;
+    }
+
+    const newBubbleWidth =
+      layout.find((bubble) => bubble.i === id).w - profitDays;
+
+    setLayout((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.i === id
+          ? {
+              ...prevBox,
+              w: newBubbleWidth,
+              static: true,
+            }
+          : prevBox
+      )
+    );
+  };
+
+  //#endregion
+
+  const onBubbleComplete = (id) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
@@ -297,7 +411,9 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
     // Se for comentar, lembrar de salvar o setLayout com o static: true
     calculateProfitDays();
 
-    // Chamada do endpoint
+    BoardActionService.conclude({
+      Id: id,
+    });
   };
 
   return (
@@ -357,7 +473,10 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
             </div>
           ))}
         </ReactGridLayout>
-        <div style={{ marginTop: "5px", whiteSpace: "nowrap" }}>
+        <div
+          id="timeline-body"
+          style={{ marginTop: "5px", whiteSpace: "nowrap" }}
+        >
           {Array.from({ length: 9 }).map((_, rowIndex) => (
             <div key={rowIndex}>
               <div

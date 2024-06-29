@@ -20,6 +20,7 @@ function StartEndDateModal({
   setStartDate,
   endDate,
   setEndDate,
+  boardActionId,
 }) {
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -34,6 +35,10 @@ function StartEndDateModal({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const handleConfirm = () => {
+    onConfirm(boardActionId);
+  };
 
   return (
     <Modal keepMounted open={open} onClose={onClose}>
@@ -84,7 +89,7 @@ function StartEndDateModal({
           </Grid>
         </LocalizationProvider>
         <div className="container-confirm">
-          <ClassicButton onClick={onConfirm} title="Confirmar" />
+          <ClassicButton onClick={handleConfirm} title="Confirmar" />
         </div>
       </Box>
     </Modal>

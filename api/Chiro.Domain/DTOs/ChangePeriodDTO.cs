@@ -12,5 +12,8 @@ namespace Chiro.Domain.DTOs
 
         [Required(ErrorMessage = "O campo EndDate deve ser preenchido.")]
         public DateTime EndDate { get; set; }
+
+        [Required(ErrorMessage = "O campo TimelineRow deve ser preenchido.")]
+        public int TimelineRow { get; set; }
     }
 }

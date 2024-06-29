@@ -7,10 +7,10 @@ import AddIcon from "@mui/icons-material/Add";
 
 import Navbar from "@/components/navbar";
 import Bubble from "@/components/bubble/bubble";
-import ProjectService from "@/services/requests/project-service";
 
 import "@/app/globals.css";
 import "../styles.css";
+import ProjectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -40,6 +40,8 @@ const ProjectBoard = () => {
           minW: 2,
           maxW: 5,
         };
+
+        console.log(newItem);
 
         const newCustomProps = {
           bubbleId: project.id.toString(),
@@ -121,9 +123,9 @@ const ProjectBoard = () => {
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
           ? {
-              ...prevBox,
-              title: content,
-            }
+            ...prevBox,
+            title: content,
+          }
           : prevBox
       )
     );

@@ -28,7 +28,7 @@ namespace Chiro.Application.Services
             });
         }
 
-        public async Task<bool> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO)
+        public async Task<long> CreateBoardActionAsync(CreateBoardActionDTO createBoardActionDTO)
         {
             ArgumentNullException.ThrowIfNull(createBoardActionDTO);
 
@@ -66,6 +66,8 @@ namespace Chiro.Application.Services
             {
                 Width = resizeBoardActionDTO.Width,
                 Height = resizeBoardActionDTO.Height,
+                PositionX = resizeBoardActionDTO.PositionX,
+                PositionY = resizeBoardActionDTO.PositionY
             });
         }
 
@@ -77,6 +79,7 @@ namespace Chiro.Application.Services
             {
                 StartDate = changePeriodDTO.StartDate,
                 EndDate = changePeriodDTO.EndDate,
+                TimelineRow = changePeriodDTO.TimelineRow
             });
         }
 
@@ -121,6 +124,23 @@ namespace Chiro.Application.Services
             }
 
             await _repository.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteAsync(long boardActionId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(boardActionId);
+
+            return await _repository.DeleteAsync(boardActionId);
+        }
+
+        public async Task<bool> ChangeContentAsync(ChangeBoardActionContentDTO changeBoardActionContentDTO)
+        {
+            ArgumentNullException.ThrowIfNull(changeBoardActionContentDTO);
+
+            return await _repository.ChangeContentAsync(changeBoardActionContentDTO.Id, new BoardAction
+            {
+                Content = changeBoardActionContentDTO.Content,
+            });
         }
 
         #endregion

@@ -10,11 +10,12 @@ namespace Chiro.Domain.Entities
         public double PositionX { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public DateTime? AdjustedDate { get; set; }
         public DateTime? ConcludedAt { get; set; }
         public BoardActionType BoardActionType { get; set; }
+        public int? TimelineRow { get; set; }
 
         public long ProjectId { get; set; }
         public Project Project { get; set; }
@@ -48,8 +49,16 @@ namespace Chiro.Domain.Entities
 
         public long Delay()
         {
-            StartDate = StartDate.AddDays(1);
-            EndDate = EndDate.AddDays(1);
+            if (StartDate.HasValue)
+            {
+                StartDate = StartDate.Value.AddDays(1);
+            }
+
+            if (EndDate.HasValue)
+            {
+                EndDate = EndDate.Value.AddDays(1);
+            }
+
             return Id;
         }
     }
