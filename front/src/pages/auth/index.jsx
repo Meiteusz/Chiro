@@ -3,6 +3,10 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 
+import ProjectService from "@/services/requests/auth-service";
+import cookiesKeys from "@/data/keys";
+import { setCookie } from "@/data/cookies";
+
 import "@/app/globals.css";
 import "./styles.css";
 
@@ -15,15 +19,17 @@ const AuthScreen = () => {
     setTokenValue(event.target.value);
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     // Chamada do endpoint
 
-    if (tokenValue != "123") {
-      setError("Token inválido.");
-    } else {
-      router.push("/projects");
+    var token = await ProjectService.authenticate({ token: "123" });
 
+    if ((token && token.data) != undefined) {
       setError(null);
+      setCookie(cookiesKeys.token, token.data);
+      router.push("/projects");
+    } else {
+      setError("Token inválido.");
     }
   };
 

@@ -40,6 +40,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
 
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
+  const [layoutUpdatedKey, setLayoutUpdatedKey] = useState(0);
 
   const [viewMode, setViewMode] = useState(timelineViewMode.day);
   const [scrollEnabled, setScrollEnabled] = useState(true);
@@ -117,6 +118,18 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
       differenceInDays: differenceInDays
     }
   };
+
+  useEffect(() => {
+    scrollToCurrentDate();
+  }, [viewMode]);
+
+  //#region forceUpdate
+  const forceUpdate = () => {
+    // Usar com cautela!!
+    setLayoutUpdatedKey(layoutUpdatedKey + 1);
+  };
+
+  //#endregion
 
   //#region getCellWidth
   const getCellWidth = () => {
@@ -268,28 +281,27 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
       (bubble) => bubble.i !== newItem.i && isColliding(newItem, bubble)
     );
 
+    let newLayout;
     if (hasCollision) {
-      //setLayout((prevLayout) =>
-      //  prevLayout.map((item) => (item.i === oldItem.i ? oldItem : item))
-      //);
-      setLayout((prevLayout) =>
-        prevLayout.map((item) =>
-          item.i === oldItem.i ? { ...item, x: 10 } : item
-        )
+      newLayout = updatedLayout.map((item) =>
+        item.i === oldItem.i ? oldItem : item
       );
+      forceUpdate();
     } else {
-      setLayout((prevLayout) =>
-        prevLayout.map((item) => (item.i === newItem.i ? newItem : item))
+      newLayout = updatedLayout.map((item) =>
+        item.i === newItem.i ? newItem : item
       );
+
+      var data = getStartAndEndDate(newItem);
+      BoardActionService.changePeriod({
+        Id: newItem.i,
+        StartDate: data.startDate,
+        EndDate: data.endDate,
+        TimelineRow: newItem.y
+      });
     }
 
-    var data = getStartAndEndDate(newItem);
-    BoardActionService.changePeriod({
-      Id: newItem.i,
-      StartDate: data.startDate,
-      EndDate: data.endDate,
-      TimelineRow: newItem.y
-    })
+    setLayout([...newLayout]);
   };
 
   const onBubbleResizeStop = (updatedLayout) => {
@@ -415,6 +427,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
               : renderYears(widthYears, events, ref)}
         </div>
         <ReactGridLayout
+          key={layoutUpdatedKey}
           isResizable
           allowOverlap
           layout={layout}

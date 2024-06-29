@@ -1,5 +1,5 @@
-import { usePost } from "../api-methods";
-import { ENDPOINTS } from "../endpoints";
+import { usePost } from "@/services/api-client";
+import { ENDPOINTS } from "@/services/endpoints";
 
 const authenticate = async (requestData) => {
   try {
