@@ -24,9 +24,11 @@ const ProjectBoard = () => {
     inicializeBubblesLayout();
   }, []);
 
-  const inicializeBubblesLayout = () => {
-    ProjectService.getAll().then((res) => {
-      res.data.map((project) => {
+  const inicializeBubblesLayout = async () => {
+    var bubblesResponse = await ProjectService.getAll();
+
+    bubblesResponse &&
+      bubblesResponse.data.map((project) => {
         const newItem = {
           x: project.positionX,
           y: project.positionY,
@@ -51,7 +53,6 @@ const ProjectBoard = () => {
           newCustomProps,
         ]);
       });
-    });
   };
 
   const handleAddBubble = async () => {
@@ -91,15 +92,11 @@ const ProjectBoard = () => {
   };
 
   const handleDeleteBubble = (id) => {
-    // Chamada do endpoint
-
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
     ProjectService.deleteAsync(id);
   };
 
   const handleChangeColor = (id, color) => {
-    // Chamada do endpoint
-
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) => {
         if (prevBox.bubbleId === id) {
@@ -133,7 +130,7 @@ const ProjectBoard = () => {
   };
 
   const handleDoubleClick = (id) => {
-    const url = `http://localhost:3000/project-board?bubbleProjectId=${id}`;
+    const url = `project-board?bubbleProjectId=${id}`;
     router.push(url);
   };
 
@@ -184,16 +181,16 @@ const ProjectBoard = () => {
                 canOpen
                 canChangeColor
                 canDelete
-                bubble={bubble}
-                bubbleCustomProps={
-                  layoutCustomProps &&
-                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                }
                 onChangeColor={handleChangeColor}
                 onChangeTitle={handleChangeTitle}
                 onDoubleClick={handleDoubleClick}
                 onDelete={handleDeleteBubble}
                 canDrag={setCanDragBubbles}
+                bubble={bubble}
+                bubbleCustomProps={
+                  layoutCustomProps &&
+                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                }
               />
             </div>
           ))}

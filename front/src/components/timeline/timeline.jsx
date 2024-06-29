@@ -38,6 +38,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
 
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
+  const [layoutUpdatedKey, setLayoutUpdatedKey] = useState(0);
 
   const [viewMode, setViewMode] = useState(timelineViewMode.day);
   const [scrollEnabled, setScrollEnabled] = useState(true);
@@ -58,48 +59,19 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
       setLayout((prevLayout) => [...prevLayout, layoutBubble]);
       setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
     }
-
-    const newItem = {
-      x: 0,
-      y: 0,
-      w: 2,
-      h: 1,
-      i: "1",
-    };
-
-    const newCustomProps = {
-      bubbleId: newItem.i,
-      title: "bubble 1",
-      color: "yellow",
-    };
-
-    const newItem2 = {
-      x: 2,
-      y: 0,
-      w: 5,
-      h: 1,
-      i: "2",
-    };
-
-    const newCustomProps2 = {
-      bubbleId: newItem2.i,
-      title: "bubble 2",
-      color: "blue",
-      startsDate: new Date(2024, 0, 3),
-      endsDate: new Date(2024, 0, 7),
-    };
-
-    setLayout((prevLayout) => [...prevLayout, newItem, newItem2]);
-    setLayoutCustomProps((prevLayout) => [
-      ...prevLayout,
-      newCustomProps,
-      newCustomProps2,
-    ]);
   }, [layoutBubble]);
 
   useEffect(() => {
-    //scrollToCurrentDate();
+    scrollToCurrentDate();
   }, [viewMode]);
+
+  //#region forceUpdate
+  const forceUpdate = () => {
+    // Usar com cautela!!
+    setLayoutUpdatedKey(layoutUpdatedKey + 1);
+  };
+
+  //#endregion
 
   //#region getCellWidth
   const getCellWidth = () => {
@@ -251,20 +223,19 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
       (bubble) => bubble.i !== newItem.i && isColliding(newItem, bubble)
     );
 
+    let newLayout;
     if (hasCollision) {
-      //setLayout((prevLayout) =>
-      //  prevLayout.map((item) => (item.i === oldItem.i ? oldItem : item))
-      //);
-      setLayout((prevLayout) =>
-        prevLayout.map((item) =>
-          item.i === oldItem.i ? { ...item, x: 10 } : item
-        )
+      newLayout = updatedLayout.map((item) =>
+        item.i === oldItem.i ? oldItem : item
       );
+      forceUpdate();
     } else {
-      setLayout((prevLayout) =>
-        prevLayout.map((item) => (item.i === newItem.i ? newItem : item))
+      newLayout = updatedLayout.map((item) =>
+        item.i === newItem.i ? newItem : item
       );
     }
+
+    setLayout([...newLayout]);
   };
 
   const onBubbleResizeStop = (updatedLayout) => {
@@ -345,6 +316,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps }) => {
             : renderYears(widthYears, events, ref)}
         </div>
         <ReactGridLayout
+          key={layoutUpdatedKey}
           isResizable
           allowOverlap
           layout={layout}

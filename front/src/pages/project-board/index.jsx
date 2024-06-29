@@ -271,58 +271,17 @@ function ProjectBoard() {
   //#endregion
 
   //#region CloseStartEndDateModal
-  const handleCloseStartEndDateModal = (event, reason) => {
-    if (!reason) {
-      setDateModalOpened(false);
-      return;
-    }
-
-    let startsDate = bubbles.find((x) => x.id === selectedIdBubble).startsDate;
-    let endsDate = bubbles.find((x) => x.id === selectedIdBubble).endsDate;
-
-    if (
-      !startsDate ||
-      isNaN(new Date(startsDate)) ||
-      !endsDate ||
-      isNaN(new Date(endsDate))
-    ) {
-      const bubbleIndex = bubbles.findIndex(
-        (bubble) => bubble.id === selectedIdBubble
-      );
-
-      if (bubbleIndex !== -1) {
-        const bubbleRef = bubbleRefs.current[bubbleIndex];
-        if (bubbleRef && bubbleRef.current) {
-          bubbleRef.current.updatePosition({
-            x:
-              bubbles.find((x) => x.id === selectedIdBubble).lastPositionX ??
-              300,
-            y:
-              bubbles.find((x) => x.id === selectedIdBubble).lastPositionY ??
-              20,
-          });
-        }
-      }
-
-      setBubbles((prevBoxes) =>
-        prevBoxes.map((box) =>
-          box.id === selectedIdBubble
-            ? {
-                ...box,
-                x:
-                  bubbles.find((x) => x.id === selectedIdBubble)
-                    .lastPositionX ?? 300,
-                y:
-                  bubbles.find((x) => x.id === selectedIdBubble)
-                    .lastPositionY ?? 20,
-              }
-            : box
-        )
-      );
-
-      setCurrentStartsDate(null);
-      setCurrentEndsDate(null);
-    }
+  const handleCloseStartEndDateModal = () => {
+    //const bubbleIndex = layout.findIndex((item) => item.i === selectedIdBubble);
+    //
+    //if (bubbleIndex !== -1) {
+    //  const updatedLayout = layout.map((item) =>
+    //    item.i === selectedIdBubble
+    //      ? { ...item, x: initialPosition.x, y: initialPosition.y }
+    //      : item
+    //  );
+    //  setLayout(updatedLayout);
+    //}
 
     setDateModalOpened(false);
   };
@@ -334,6 +293,7 @@ function ProjectBoard() {
       <div className="top-board">
         <StartEndDateModal
           open={dateModalOpened}
+          onClose={handleCloseStartEndDateModal}
           onConfirm={handleConfirmStartEndDate}
           startdate={currentStartsDate}
           setStartDate={setCurrentStartsDate}
