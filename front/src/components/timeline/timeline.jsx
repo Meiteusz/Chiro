@@ -29,7 +29,7 @@ import ProjectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
 
-const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
+const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLoad, loadingBoard }) => {
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
   let widthYears = widthMonths * multiplierWidth;
@@ -56,6 +56,11 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
         if (isColliding(layoutBubble, bubble)) {
           layoutBubble.y += 1;
         }
+      });
+
+      console.log({
+        LB: layoutBubble,
+        LBP: layoutBubbleProps
       });
 
       setLayout((prevLayout) => [...prevLayout, layoutBubble]);
@@ -95,6 +100,8 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
                 endsDate: new Date(boardAction.endDate),
               },
             ]);
+            
+            onBubbleLoad(boardAction);
           });
         })
         .catch((error) => {
@@ -103,7 +110,8 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
     }
 
     scrollToCurrentDate();
-  }, [bubbleProjectId]);
+  }, [bubbleProjectId, loadingBoard]);
+  
 
   const calculateDifferenceInDays = (boardAction) => {
     var differenceInMilliseconds = Math.abs(
@@ -125,6 +133,16 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
       differenceInDays: differenceInDays,
     };
   };
+
+  //#region forceUpdate
+  const forceUpdate = () => {
+    // Usar com cautela!!
+    setLayoutUpdatedKey(layoutUpdatedKey + 1);
+  };
+
+  useEffect(() => {
+    scrollToCurrentDate();
+  }, [viewMode]);
 
   //#region forceUpdate
   const forceUpdate = () => {
@@ -182,7 +200,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
       item1.x + item1.w > item2.x &&
       item1.y < item2.y + item2.h &&
       item1.y + item1.h > item2.y
-    );
+    ) && item1.y == item2.y;
   };
   //#endregion
 
@@ -294,17 +312,17 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId }) => {
       newLayout = updatedLayout.map((item) =>
         item.i === newItem.i ? newItem : item
       );
+
+      var data = getStartAndEndDate(newItem);
+      BoardActionService.changePeriod({
+        Id: newItem.i,
+        StartDate: data.startDate,
+        EndDate: data.endDate,
+        TimelineRow: newItem.y,
+      });
     }
 
     setLayout([...newLayout]);
-
-    var data = getStartAndEndDate(newItem);
-    BoardActionService.changePeriod({
-      Id: newItem.i,
-      StartDate: data.startDate,
-      EndDate: data.endDate,
-      TimelineRow: newItem.y,
-    });
   };
 
   const onBubbleResizeStop = (updatedLayout) => {

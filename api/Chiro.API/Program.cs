@@ -3,6 +3,7 @@ using Chiro.Application.Services;
 using Chiro.Domain.Interfaces;
 using Chiro.Infra;
 using Chiro.Persistence.Repositories;
+using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -58,6 +59,8 @@ builder.Services.AddTransient<IProjectService, ProjectService>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
 builder.Services.AddTransient<IAuthenticationTokenService, AuthenticationTokenService>();
 builder.Services.AddTransient<IAuthenticationTokenRepository, AuthenticationTokenRepository>();
+
+DotEnv.Load();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
  .AddJwtBearer(options =>

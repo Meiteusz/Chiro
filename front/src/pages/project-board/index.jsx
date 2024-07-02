@@ -49,6 +49,8 @@ function ProjectBoard() {
   const [layoutTimeline, setLayoutTimeline] = useState();
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
 
+  const [loadingBoard, setLoadingBoard] = useState();
+
   const router = useRouter();
   const { bubbleProjectId } = router.query;
 
@@ -90,7 +92,7 @@ function ProjectBoard() {
         });
     }
   }, [bubbleProjectId]);
-
+  
   const handleOpenMenuBubbleOptions = (event) => {
     setMenuBubbleOptions(event.currentTarget);
   };
@@ -412,7 +414,44 @@ function ProjectBoard() {
 
     setDateModalOpened(false);
   };
+
   //#endregion
+  const onBubbleLoad = (bubble) => {
+    console.log({
+      Descartado: bubble
+    });
+
+    if (!bubble.startDate && !bubble.endDate) {
+      return;
+    }
+
+    const newItemRastro = {
+      w: bubble.width,
+      h: bubble.height,
+      x: bubble.positionX,
+      y: bubble.positionY,
+      i: bubble.id.toString(),
+      minW: 4,
+      maxW: 10,
+      minH: 2,
+      maxH: 5,
+    };
+
+    const newCustomPropsRastro = {
+      bubbleId: newItemRastro.i,
+      title: bubble.content,
+      color: bubble.color,
+      startsDate: new Date(bubble.startDate),
+      endsDate: new Date(bubble.endDate),
+      trace: true,
+    };
+
+    setLayout((prevLayout) => [...prevLayout, newItemRastro]);
+    setLayoutCustomProps((prevCustomProps) => [
+      ...prevCustomProps,
+      newCustomPropsRastro,
+    ]);
+  };
 
   return (
     <div className="container-boards">
@@ -499,6 +538,8 @@ function ProjectBoard() {
           layoutBubble={layoutTimeline}
           layoutBubbleProps={layoutCustomPropsTimeline}
           bubbleProjectId={bubbleProjectId}
+          onBubbleLoad={onBubbleLoad}
+          loadingBoard={loadingBoard}
         />
       </div>
     </div>

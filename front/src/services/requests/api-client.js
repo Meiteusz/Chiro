@@ -1,13 +1,13 @@
 import axios from "axios";
 
 const BASE_URL =
-  process.env.REACT_APP_BASE_URL || `http://localhost:5220/api/v1`;
+  process.env.REACT_APP_BASE_URL || `https://localhost:7170/api/v1`;
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
-    "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTk0NDU1NzUsImlzcyI6ImRpc3BvQGdtYWlsLmNvbSIsImF1ZCI6ImRpc3BvQGdtYWlsLmNvbSJ9.NUOjXOR6GtkCvO_PPQmWWosyoJTInoHGVtHt6zkATVo`
+    "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTk4ODM5MzMsImlzcyI6ImRpc3BvQGdtYWlsLmNvbSIsImF1ZCI6ImRpc3BvQGdtYWlsLmNvbSJ9.DnAuX5xg913WP4A7wucI9ccv5Aka_swhog_oSC9Jglw`
   },
 });
 

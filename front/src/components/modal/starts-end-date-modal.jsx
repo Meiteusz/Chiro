@@ -22,6 +22,7 @@ function StartEndDateModal({
   setEndDate,
   boardActionId,
 }) {
+  
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -39,6 +40,20 @@ function StartEndDateModal({
   const handleConfirm = () => {
     onConfirm(boardActionId);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <Modal keepMounted open={open} onClose={onClose}>
