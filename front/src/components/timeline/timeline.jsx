@@ -58,6 +58,11 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
         }
       });
 
+      console.log({
+        LB: layoutBubble,
+        LBP: layoutBubbleProps
+      });
+
       setLayout((prevLayout) => [...prevLayout, layoutBubble]);
       setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
     }
@@ -67,7 +72,6 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
 
   useEffect(() => {
     if (bubbleProjectId && !loadingBoard) {
-      console.log({ a: 3, loadingBoard})
       ProjectService.getById(bubbleProjectId).then((res) => {
         res.data.boardActions.forEach((boardAction) => {
           var data = calculateDifferenceInDays(boardAction);
@@ -99,6 +103,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
 
     scrollToCurrentDate();
   }, [bubbleProjectId, loadingBoard]);
+  
 
   const calculateDifferenceInDays = (boardAction) => {
     var differenceInMilliseconds = Math.abs(
@@ -179,7 +184,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
       item1.x + item1.w > item2.x &&
       item1.y < item2.y + item2.h &&
       item1.y + item1.h > item2.y
-    );
+    ) && item1.y == item2.y;
   };
   //#endregion
 
@@ -297,7 +302,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
         Id: newItem.i,
         StartDate: data.startDate,
         EndDate: data.endDate,
-        TimelineRow: newItem.y
+        TimelineRow: newItem.y,
       });
     }
 

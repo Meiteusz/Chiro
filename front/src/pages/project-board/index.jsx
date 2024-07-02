@@ -85,13 +85,6 @@ function ProjectBoard() {
             ...prevCustomProps,
             newCustomProps,
           ]);
-        });
-      }).then(() => {
-        setLoadingBoard(false);
-      }).catch((error) => {
-        console.error("Error fetching project:", error);
-      });
-    }
   }, [bubbleProjectId]);
 
   const handleOpenMenuBubbleOptions = (event) => {
@@ -286,11 +279,6 @@ function ProjectBoard() {
         endsDate: currentEndsDate,
         trace: false,
       };
-
-      console.log({
-        NewItem: newItem,
-        NewCustomProps: newCustomProps
-      });
 
       setLayoutTimeline(newItem);
       setLayoutCustomPropsTimeline(newCustomProps);
