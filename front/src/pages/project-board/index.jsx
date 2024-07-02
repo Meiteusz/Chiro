@@ -70,7 +70,7 @@ function ProjectBoard() {
             minH: 2,
             maxH: 5,
           };
-
+  
           const newCustomProps = {
             bubbleId: boardAction.id.toString(),
             title: boardAction.content,
@@ -79,14 +79,17 @@ function ProjectBoard() {
             endsDate: new Date(boardAction.endDate),
             trace: false,
           };
-
+  
           setLayout((prevLayout) => [...prevLayout, newItem]);
           setLayoutCustomProps((prevCustomProps) => [
             ...prevCustomProps,
             newCustomProps,
           ]);
+        });
+      });
+    }
   }, [bubbleProjectId]);
-
+  
   const handleOpenMenuBubbleOptions = (event) => {
     setMenuBubbleOptions(event.currentTarget);
   };
@@ -527,6 +530,6 @@ function ProjectBoard() {
       </div>
     </div>
   );
-};
+}
 
 export default ProjectBoard;
