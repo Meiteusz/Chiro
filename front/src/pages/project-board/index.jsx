@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 import RGL, { WidthProvider } from "react-grid-layout";
 import AddIcon from "@mui/icons-material/Add";
 import Menu from "@mui/material/Menu";
@@ -17,7 +17,6 @@ import ProjectService from "@/services/requests/project-service";
 import "@/app/globals.css";
 import "./styles.css";
 import "../styles.css";
-
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -57,36 +56,40 @@ function ProjectBoard() {
 
   useEffect(() => {
     if (bubbleProjectId) {
-      ProjectService.getById(bubbleProjectId).then((res) => {
-        res.data.boardActions.forEach((boardAction) => {
-          const newItem = {
-            i: boardAction.id.toString(),
-            w: boardAction.width,
-            h: boardAction.height,
-            x: boardAction.positionX,
-            y: boardAction.positionY,
-            minW: 4,
-            maxW: 10,
-            minH: 2,
-            maxH: 5,
-          };
-  
-          const newCustomProps = {
-            bubbleId: boardAction.id.toString(),
-            title: boardAction.content,
-            color: boardAction.color,
-            startsDate: new Date(boardAction.startDate),
-            endsDate: new Date(boardAction.endDate),
-            trace: false,
-          };
-  
-          setLayout((prevLayout) => [...prevLayout, newItem]);
-          setLayoutCustomProps((prevCustomProps) => [
-            ...prevCustomProps,
-            newCustomProps,
-          ]);
+      ProjectService.getById(bubbleProjectId)
+        .then((res) => {
+          res.data.boardActions.forEach((boardAction) => {
+            const newItem = {
+              i: boardAction.id.toString(),
+              w: boardAction.width,
+              h: boardAction.height,
+              x: boardAction.positionX,
+              y: boardAction.positionY,
+              minW: 4,
+              maxW: 10,
+              minH: 2,
+              maxH: 5,
+            };
+
+            const newCustomProps = {
+              bubbleId: boardAction.id.toString(),
+              title: boardAction.content,
+              color: boardAction.color,
+              startsDate: new Date(boardAction.startDate),
+              endsDate: new Date(boardAction.endDate),
+              trace: false,
+            };
+
+            setLayout((prevLayout) => [...prevLayout, newItem]);
+            setLayoutCustomProps((prevCustomProps) => [
+              ...prevCustomProps,
+              newCustomProps,
+            ]);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching project:", error);
         });
-      });
     }
   }, [bubbleProjectId]);
   
@@ -129,7 +132,7 @@ function ProjectBoard() {
       Color: newCustomProps.color,
       StartsDate: newCustomProps.startsDate,
       EndsDate: newCustomProps.endsDate,
-      ProjectId: bubbleProjectId
+      ProjectId: bubbleProjectId,
     });
 
     newItem.i = boardActionId;
@@ -146,7 +149,7 @@ function ProjectBoard() {
   const handleDeleteBubble = (id) => {
     console.log("Deletando");
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
-    BoardActionService.deleteAsync(id)
+    BoardActionService.deleteAsync(id);
   };
 
   const handleChangeColor = (id, color) => {
@@ -157,7 +160,7 @@ function ProjectBoard() {
           return {
             ...prevBox,
             color: color.hex,
-          }
+          };
         }
         return prevBox;
       })
@@ -167,16 +170,16 @@ function ProjectBoard() {
   const handleChangeTitle = (id, content) => {
     BoardActionService.changeContent({
       Id: id,
-      Content: content
+      Content: content,
     });
 
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
           ? {
-            ...prevBox,
-            title: content,
-          }
+              ...prevBox,
+              title: content,
+            }
           : prevBox
       )
     );
@@ -184,7 +187,7 @@ function ProjectBoard() {
 
   const onBubbleDragStop = (e, v) => {
     if (!isOverlapping(v.i)) {
-      const changedBubble = e.find(w => w.i == v.i);
+      const changedBubble = e.find((w) => w.i == v.i);
       BoardActionService.resize({
         Id: changedBubble.i,
         Width: changedBubble.w,
@@ -203,9 +206,11 @@ function ProjectBoard() {
     const childElement = document.getElementById(bubbleId);
 
     if (childElement) {
-      const parentElement = childElement.closest('.react-grid-layout');
+      const parentElement = childElement.closest(".react-grid-layout");
       if (parentElement) {
-        const timelineArea = document.getElementById("timeline-body").getBoundingClientRect();
+        const timelineArea = document
+          .getElementById("timeline-body")
+          .getBoundingClientRect();
         const bubbleArea = childElement.getBoundingClientRect();
 
         const overlapArea = calculateOverlapArea(timelineArea, bubbleArea);
@@ -217,7 +222,7 @@ function ProjectBoard() {
     } else {
       return false;
     }
-  }
+  };
 
   const handleSendBubbleToTimeline = (id) => {
     if (layoutCustomProps.find((bubble) => bubble.bubbleId === id).trace) {
@@ -229,13 +234,19 @@ function ProjectBoard() {
   };
 
   const calculateOverlapArea = (rect1, rect2) => {
-    const x_overlap = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
-    const y_overlap = Math.max(0, Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top));
+    const x_overlap = Math.max(
+      0,
+      Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left)
+    );
+    const y_overlap = Math.max(
+      0,
+      Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top)
+    );
     return x_overlap * y_overlap;
-  }
+  };
 
   const onBubbleResizeStop = (e, v) => {
-    const changedBubble = e.find(w => w.i == v.i);
+    const changedBubble = e.find((w) => w.i == v.i);
     BoardActionService.resize({
       Id: changedBubble.i,
       Width: changedBubble.w,
@@ -243,7 +254,7 @@ function ProjectBoard() {
       PositionX: changedBubble.x,
       PositionY: changedBubble.y,
     });
-  }
+  };
 
   //#region ConfirmStartEndDate
   const handleConfirmStartEndDate = (boardActionId) => {
@@ -283,12 +294,15 @@ function ProjectBoard() {
         trace: false,
       };
 
+      console.log({
+        NewItem: newItem,
+        NewCustomProps: newCustomProps,
+      });
+
       setLayoutTimeline(newItem);
       setLayoutCustomPropsTimeline(newCustomProps);
 
-      var selectedBubbleParaRastro = layout.find(
-        (x) => x.i === boardActionId
-      );
+      var selectedBubbleParaRastro = layout.find((x) => x.i === boardActionId);
       var selectedBubbleCustomPropsParaRastro = layoutCustomProps.find(
         (x) => x.bubbleId === boardActionId
       );
