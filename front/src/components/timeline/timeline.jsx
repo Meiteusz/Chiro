@@ -144,14 +144,6 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
     scrollToCurrentDate();
   }, [viewMode]);
 
-  //#region forceUpdate
-  const forceUpdate = () => {
-    // Usar com cautela!!
-    setLayoutUpdatedKey(layoutUpdatedKey + 1);
-  };
-
-  //#endregion
-
   //#region getCellWidth
   const getCellWidth = () => {
     if (viewMode === timelineViewMode.day) {
