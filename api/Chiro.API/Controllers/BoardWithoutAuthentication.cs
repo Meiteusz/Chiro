@@ -9,7 +9,7 @@ namespace Chiro.API.Controllers
     [Route("api/v1/board-without-authentication")]
     public class BoardWithoutAuthentication : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("create-link")]
         public async Task<IActionResult> CreateLink(string projectId, string randomNumbers)
         {
             try
@@ -32,6 +32,21 @@ namespace Chiro.API.Controllers
             catch (Exception e)
             {
                 return BadRequest(new { Message = "Ocorreu um erro ao gerar o link.", Error = e.Message });
+            }
+        }
+
+        [HttpGet("get-project-with-token")]
+        public async Task<IActionResult> GetProjectIdWithToken(string token)
+        {
+            var projectId = new AES().DecryptAesToken(token).Split("|")[0];
+
+            try
+            {
+                return Ok(projectId);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { Message = "Ocorreu um erro ao carregar o link.", Error = e.Message });
             }
         }
     }
