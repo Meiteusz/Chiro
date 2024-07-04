@@ -15,6 +15,7 @@ const createLink = async (projectId) => {
     try {
       const response = await useGet(ENDPOINTS.boardWithoutAuthentication.createLink(projectId, generateRandomNumber()));
       const url = response.data;
+
       return url;
     } catch (error) {
       console.error("Não foi possível criar o link:", error);

@@ -26,7 +26,7 @@ const ENDPOINTS = {
     changeName: `project/change-name`,
   },
   boardWithoutAuthentication: {
-    createLink: (projectId, randomNumbers) => `board-without-authentication?/create-link?projectId=${projectId}&randomNumbers=${randomNumbers}`,
+    createLink: (projectId, randomNumbers) => `board-without-authentication/create-link?projectId=${projectId}&randomNumbers=${randomNumbers}`,
     getProjectWithToken: (token) => `board-without-authentication/get-project-with-token?token=${token}`
   },
 };

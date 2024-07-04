@@ -10,10 +10,12 @@ import MenuIcon from "@mui/icons-material/Menu";
 
 import "@/app/globals.css";
 import ShareableLinkModal from "./modal/link/shareable-link-modal";
+import BoardWithoutAuthenticationService from "../services/requests/board-without-authentication-service";
 
-function Navbar({ projectName, showMenu }) {
+function Navbar({ projectName, showMenu, projectId }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [url, setUrl] = useState("");
   const openMenu = Boolean(anchorEl);
   const router = useRouter();
   
@@ -25,21 +27,23 @@ function Navbar({ projectName, showMenu }) {
     setAnchorEl(null);
   };
 
-  const handleOpenShareableLinkModal = () => {
-    setAnchorEl(null); // Fechar o menu ao abrir o modal
-    setOpenModal(true); // Abrir o modal
+  const handleOpenShareableLinkModal = async () => {
+    const url = await BoardWithoutAuthenticationService.createLink(projectId);
+    setUrl(url);
+    setAnchorEl(null);
+    setOpenModal(true); 
   };
 
   const handleCloseShareableLinkModal = () => {
-    setOpenModal(false); // Fechar o modal
+    setOpenModal(false);
   };
 
   return (
     <>
       <ShareableLinkModal
         open={openModal}
-        url={"123456"}
-        setOpen={handleCloseShareableLinkModal} // Função para fechar o modal
+        url={url}
+        setOpen={handleCloseShareableLinkModal}
       />
       <AppBar style={{ background: "#1C1C1C", position: "relative" }}>
         <Toolbar variant="dense">

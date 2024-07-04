@@ -455,7 +455,7 @@ function ProjectBoard() {
 
   return (
     <div className="container-boards">
-      <Navbar showMenu projectName="Projeto" />
+      <Navbar showMenu projectName="Projeto" projectId={bubbleProjectId} />
       <div className="top-board">
         <StartEndDateModal
           open={dateModalOpened}
