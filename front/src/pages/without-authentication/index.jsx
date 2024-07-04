@@ -34,6 +34,7 @@ function BoardWithOutAuthentication () {
             if (projectId) {
                 const res = await ProjectService.getById(projectId);
                 res.data.boardActions.forEach((boardActions) => {
+                    console.log(boardActions)
                     handleAddBubbles({
                         width: boardActions.width,
                         height: boardActions.height,
@@ -43,6 +44,14 @@ function BoardWithOutAuthentication () {
                         content: boardActions.content,
                         color: boardActions.color,
                     });
+
+                    handleConfirmStartEndDate({
+                        startDate: boardActions.startDate,
+                        endDate: boardActions.endDate,
+                        id: boardActions.id.toString(),
+                        content: boardActions.content,
+                        color: boardActions.color,     
+                    })
                 });
             }
         } catch (error) {
@@ -75,6 +84,83 @@ function BoardWithOutAuthentication () {
         setLayout((prevLayout) => [...prevLayout, newItem]);
         setLayoutCustomProps((prevCustomProps) => [...prevCustomProps, newCustomProps]);
     };
+
+    const handleConfirmStartEndDate = ({startDate, endDate, id, content, color}) => {
+        console.log({startDate, endDate, id, content, color})
+        if (!startDate && !endDate) return;
+
+        var dateCurrentYear = new Date("2024-01-01");
+        var dayStart = Math.abs(new Date(startDate) - dateCurrentYear);
+        var differenceDays = Math.floor(dayStart / (1000 * 60 * 60 * 24));
+
+        var differenceInMilliseconds = Math.abs(
+            new Date(endDate) - new Date(startDate)
+          );
+
+        var differenceInDays = Math.ceil(
+            differenceInMilliseconds / (1000 * 60 * 60 * 24) + 1
+          );
+
+        const newItem = {
+            x: differenceDays,
+            y: 0,
+            w: differenceInDays,
+            h: 1,
+            i: id.toString(),
+        };
+    
+        const newCustomProps = {
+            bubbleId: newItem.i,
+            type: 0,
+            title: content,
+            color: color,
+            startsDate: new Date(startDate),
+            endsDate: new Date(endDate),
+            trace: false,
+        };
+
+        setLayoutTimeline(newItem);
+        setLayoutCustomPropsTimeline(newCustomProps);
+        
+        /*var bubbleSelectedToTrace = layout.find((x) => x.i === id.toString());
+        var selectedBubbleCustomPropsToTrace = layoutCustomProps.find(
+            (x) => x.bubbleId === id.toString()
+        );
+
+        setLayout((prevLayout) =>
+            prevLayout.filter((item) => item.i !== id.toString())
+        );
+        setLayoutCustomProps((prevLayout) =>
+            prevLayout.filter((item) => item.bubbleId !== id.toString())
+        );
+
+        const newItemRastro = {
+            w: bubbleSelectedToTrace.w,
+            h: bubbleSelectedToTrace.h,
+            x: bubbleSelectedToTrace.x,
+            y: bubbleSelectedToTrace.y,
+            i: bubbleSelectedToTrace.i,
+            minW: bubbleSelectedToTrace.minW,
+            maxW: bubbleSelectedToTrace.maxW,
+            minH: bubbleSelectedToTrace.minH,
+            maxH: bubbleSelectedToTrace.maxH,
+        };
+    
+        const newCustomPropsRastro = {
+            bubbleId: bubbleSelectedToTrace.i,
+            title: selectedBubbleCustomPropsToTrace.title,
+            color: selectedBubbleCustomPropsToTrace.color,
+            startsDate: selectedBubbleCustomPropsToTrace.startsDate,
+            endsDate: selectedBubbleCustomPropsToTrace.endsDate,
+            trace: true,
+        };
+
+        setLayout((prevLayout) => [...prevLayout, newItemRastro]);
+        setLayoutCustomProps((prevCustomProps) => [
+            ...prevCustomProps,
+            newCustomPropsRastro,
+        ]);*/
+    }
 
     useEffect(() => {
         if (param) {
