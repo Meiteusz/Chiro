@@ -25,7 +25,7 @@ namespace Chiro.API.Controllers
                 }
 
                 var token = new AES().GenerateAesTokenWithProjectId(_projectId, _randomNumbers);
-                var url = $"http://localhost:3000/WithoutAuthentication?param={token}";
+                var url = $"http://localhost:3000/without-authentication?param={token}";
 
                 return Ok(url);
             }
