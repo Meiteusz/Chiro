@@ -20,21 +20,20 @@ function BoardWithOutAuthentication () {
     const [paramValue, setParamValue] = useState('');
     const [layout, setLayout] = useState([]);
     const [layoutCustomProps, setLayoutCustomProps] = useState([]);
-    const [layoutTimeline, setLayoutTimeline] = useState();
-    const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
     const [canDragBubbles, setCanDragBubbles] = useState(false);
+    const [loadingBoard, setLoadingBoard] = useState();
+    const [projectId, setProjectId] = useState(0);
 
     const ReactGridLayout = WidthProvider(RGL);
-    let { projectId } = 0;
 
     const handleGetProject = async (param) => {
         try {
-            projectId = await BoardWithoutAuthenticationService.getProjectWithToken(param);
+            const id = await BoardWithoutAuthenticationService.getProjectWithToken(param);
+            setProjectId(id);
 
             if (projectId) {
                 const res = await ProjectService.getById(projectId);
                 res.data.boardActions.forEach((boardActions) => {
-                    console.log(boardActions)
                     handleAddBubbles({
                         width: boardActions.width,
                         height: boardActions.height,
@@ -43,15 +42,7 @@ function BoardWithOutAuthentication () {
                         id: boardActions.id.toString(),
                         content: boardActions.content,
                         color: boardActions.color,
-                    });
-
-                    handleConfirmStartEndDate({
-                        startDate: boardActions.startDate,
-                        endDate: boardActions.endDate,
-                        id: boardActions.id.toString(),
-                        content: boardActions.content,
-                        color: boardActions.color,     
-                    })
+                    });   
                 });
             }
         } catch (error) {
@@ -85,82 +76,38 @@ function BoardWithOutAuthentication () {
         setLayoutCustomProps((prevCustomProps) => [...prevCustomProps, newCustomProps]);
     };
 
-    const handleConfirmStartEndDate = ({startDate, endDate, id, content, color}) => {
-        console.log({startDate, endDate, id, content, color})
-        if (!startDate && !endDate) return;
-
-        var dateCurrentYear = new Date("2024-01-01");
-        var dayStart = Math.abs(new Date(startDate) - dateCurrentYear);
-        var differenceDays = Math.floor(dayStart / (1000 * 60 * 60 * 24));
-
-        var differenceInMilliseconds = Math.abs(
-            new Date(endDate) - new Date(startDate)
-          );
-
-        var differenceInDays = Math.ceil(
-            differenceInMilliseconds / (1000 * 60 * 60 * 24) + 1
-          );
-
-        const newItem = {
-            x: differenceDays,
-            y: 0,
-            w: differenceInDays,
-            h: 1,
-            i: id.toString(),
-        };
+    const onBubbleLoad = (bubble) => {
+        if (!bubble.startDate && !bubble.endDate) {
+          return;
+        }
     
-        const newCustomProps = {
-            bubbleId: newItem.i,
-            type: 0,
-            title: content,
-            color: color,
-            startsDate: new Date(startDate),
-            endsDate: new Date(endDate),
-            trace: false,
-        };
-
-        setLayoutTimeline(newItem);
-        setLayoutCustomPropsTimeline(newCustomProps);
-        
-        /*var bubbleSelectedToTrace = layout.find((x) => x.i === id.toString());
-        var selectedBubbleCustomPropsToTrace = layoutCustomProps.find(
-            (x) => x.bubbleId === id.toString()
-        );
-
-        setLayout((prevLayout) =>
-            prevLayout.filter((item) => item.i !== id.toString())
-        );
-        setLayoutCustomProps((prevLayout) =>
-            prevLayout.filter((item) => item.bubbleId !== id.toString())
-        );
-
         const newItemRastro = {
-            w: bubbleSelectedToTrace.w,
-            h: bubbleSelectedToTrace.h,
-            x: bubbleSelectedToTrace.x,
-            y: bubbleSelectedToTrace.y,
-            i: bubbleSelectedToTrace.i,
-            minW: bubbleSelectedToTrace.minW,
-            maxW: bubbleSelectedToTrace.maxW,
-            minH: bubbleSelectedToTrace.minH,
-            maxH: bubbleSelectedToTrace.maxH,
+          w: bubble.width,
+          h: bubble.height,
+          x: bubble.positionX,
+          y: bubble.positionY,
+          i: bubble.id.toString(),
+          minW: 4,
+          maxW: 10,
+          minH: 2,
+          maxH: 5,
         };
     
         const newCustomPropsRastro = {
-            bubbleId: bubbleSelectedToTrace.i,
-            title: selectedBubbleCustomPropsToTrace.title,
-            color: selectedBubbleCustomPropsToTrace.color,
-            startsDate: selectedBubbleCustomPropsToTrace.startsDate,
-            endsDate: selectedBubbleCustomPropsToTrace.endsDate,
-            trace: true,
+          bubbleId: newItemRastro.i,
+          title: bubble.content,
+          color: bubble.color,
+          startsDate: new Date(bubble.startDate),
+          endsDate: new Date(bubble.endDate),
+          trace: true,
         };
-
+    
         setLayout((prevLayout) => [...prevLayout, newItemRastro]);
         setLayoutCustomProps((prevCustomProps) => [
-            ...prevCustomProps,
-            newCustomPropsRastro,
-        ]);*/
-    }
+          ...prevCustomProps,
+          newCustomPropsRastro,
+        ]);
+      };
 
     useEffect(() => {
         if (param) {
@@ -205,8 +152,9 @@ function BoardWithOutAuthentication () {
             </div>
             <div id="timeline" className="time-line">
                 <Timeline
-                    layoutBubble={layoutTimeline}
-                    layoutBubbleProps={layoutCustomPropsTimeline}
+                    bubbleProjectId={projectId}
+                    loadingBoard={loadingBoard}
+                    onBubbleLoad={onBubbleLoad}
                 />
             </div>
         </div>

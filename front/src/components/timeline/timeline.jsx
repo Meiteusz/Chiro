@@ -30,6 +30,7 @@ import ProjectService from "@/services/requests/project-service";
 const ReactGridLayout = WidthProvider(RGL);
 
 const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLoad, loadingBoard }) => {
+  console.log(bubbleProjectId);
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
   let widthYears = widthMonths * multiplierWidth;
