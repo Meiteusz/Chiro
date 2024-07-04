@@ -9,8 +9,8 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 
 import "@/app/globals.css";
-import ShareableLinkModal from "./modal/link/shareable-link-modal";
-import BoardWithoutAuthenticationService from "../services/requests/board-without-authentication-service";
+import ShareableLinkModal from "@/components/modal/link/shareable-link-modal";
+import BoardWithoutAuthenticationService from "@/services/requests/board-without-authentication-service";
 
 function Navbar({ projectName, showMenu, projectId }) {
   const [anchorEl, setAnchorEl] = useState(null);
