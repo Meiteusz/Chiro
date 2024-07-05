@@ -31,8 +31,8 @@ function BoardWithOutAuthentication () {
             const id = await BoardWithoutAuthenticationService.getProjectWithToken(param);
             setProjectId(id);
 
-            if (projectId) {
-                const res = await ProjectService.getById(projectId);
+            if (id) {
+                const res = await ProjectService.getById(id);
                 res.data.boardActions.forEach((boardActions) => {
                     handleAddBubbles({
                         width: boardActions.width,
@@ -80,7 +80,9 @@ function BoardWithOutAuthentication () {
         if (!bubble.startDate && !bubble.endDate) {
           return;
         }
-    
+
+        console.log("oii")
+
         const newItemRastro = {
           w: bubble.width,
           h: bubble.height,
@@ -126,6 +128,7 @@ function BoardWithOutAuthentication () {
             <Navbar projectName="Projeto" />
             <div className="top-board">
                 <ReactGridLayout
+                    isResizable={false}
                     layout={layout}
                     compactType={null}
                     isDraggable={canDragBubbles}
@@ -155,6 +158,7 @@ function BoardWithOutAuthentication () {
                     bubbleProjectId={projectId}
                     loadingBoard={loadingBoard}
                     onBubbleLoad={onBubbleLoad}
+                    notAuthenticate={true}
                 />
             </div>
         </div>
