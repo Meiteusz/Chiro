@@ -29,7 +29,16 @@ import ProjectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
 
-const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLoad, loadingBoard }) => {
+const Timeline = ({
+  layoutBubble,
+  layoutBubbleProps,
+  bubbleProjectId,
+  onBubbleLoad,
+  loadingBoard,
+  bubbleBeingDeleted,
+  onContentChanged,
+  onColorChanged,
+}) => {
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
   let widthYears = widthMonths * multiplierWidth;
@@ -58,11 +67,6 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
         }
       });
 
-      console.log({
-        LB: layoutBubble,
-        LBP: layoutBubbleProps
-      });
-
       setLayout((prevLayout) => [...prevLayout, layoutBubble]);
       setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
     }
@@ -78,7 +82,6 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
         .then((res) => {
           res.data.boardActions.forEach((boardAction) => {
             var data = calculateDifferenceInDays(boardAction);
-
             setLayout((prevLayout) => [
               ...prevLayout,
               {
@@ -87,6 +90,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
                 i: boardAction.id.toString(),
                 y: boardAction.timelineRow?.toString() ?? "0",
                 h: 1,
+                isCompleted: boardAction.concludedAt == undefined,
               },
             ]);
 
@@ -100,8 +104,12 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
                 endsDate: new Date(boardAction.endDate),
               },
             ]);
-            
+
             onBubbleLoad(boardAction);
+
+            if (boardAction.concludedAt != undefined) {
+              onBubbleComplete(boardAction.id.toString(), false);
+            }
           });
         })
         .catch((error) => {
@@ -111,7 +119,55 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
 
     scrollToCurrentDate();
   }, [bubbleProjectId, loadingBoard]);
-  
+
+  useEffect(() => {
+    if (bubbleBeingDeleted) {
+      handleDeleteTimelineBubble(bubbleBeingDeleted);
+    }
+  }, [bubbleBeingDeleted]);
+
+  useEffect(() => {
+    if (onContentChanged) {
+      handleContentChanged(onContentChanged);
+    }
+  }, [onContentChanged]);
+
+  useEffect(() => {
+    if (onColorChanged) {
+      handleColorChanged(onColorChanged);
+    }
+  }, [onColorChanged]);
+
+  const handleContentChanged = (bubble) => {
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === bubble.id
+          ? {
+              ...prevBox,
+              title: bubble.content,
+            }
+          : prevBox
+      )
+    );
+  };
+
+  const handleColorChanged = (bubble) => {
+    console.log(bubble);
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === bubble.id
+          ? {
+              ...prevBox,
+              color: bubble.color.hex,
+            }
+          : prevBox
+      )
+    );
+  };
+
+  const handleDeleteTimelineBubble = (id) => {
+    setLayout((prevLayout) => [...prevLayout.filter((item) => item.i !== id)]);
+  };
 
   const calculateDifferenceInDays = (boardAction) => {
     var differenceInMilliseconds = Math.abs(
@@ -191,8 +247,9 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
       item1.x < item2.x + item2.w &&
       item1.x + item1.w > item2.x &&
       item1.y < item2.y + item2.h &&
-      item1.y + item1.h > item2.y
-    ) && item1.y == item2.y;
+      item1.y + item1.h > item2.y &&
+      item1.y == item2.y
+    );
   };
   //#endregion
 
@@ -317,6 +374,29 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
     setLayout([...newLayout]);
   };
 
+  const getNumberOfRowsToIncrease = (updatedBubble, updatedLayout) => {
+    let hasCollision = isNewBubbleColliding(updatedBubble, updatedLayout);
+    let increaseBy = 0;
+    if (hasCollision) {
+      increaseBy++;
+      while (hasCollision) {
+        hasCollision = isNewBubbleColliding(updatedBubble, updatedLayout);
+        if (hasCollision) {
+          increaseBy++;
+        }
+      }
+    }
+
+    return increaseBy;
+  };
+
+  const isNewBubbleColliding = (updatedBubble, updatedLayout) => {
+    updatedLayout.some(
+      (bubble) =>
+        bubble.i !== updatedBubble.i && isColliding(updatedBubble, bubble)
+    );
+  };
+
   const onBubbleResizeStop = (updatedLayout) => {
     const adjustedLayout = adjustLayout(updatedLayout);
     setLayout(adjustedLayout);
@@ -337,7 +417,9 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
       Id: updatedBubble.i,
       StartDate: data.startDate,
       EndDate: data.endDate,
-      TimelineRow: updatedBubble.y,
+      TimelineRow:
+        updatedBubble.y +
+        getNumberOfRowsToIncrease(updatedBubble, updatedLayout),
     });
   };
 
@@ -370,11 +452,11 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
 
   //#region calculateProfitDays
 
-  const calculateProfitDays = () => {
+  const calculateProfitDays = (id) => {
     let currentDate = Date.now();
     let endsDate = layoutCustomProps.find(
       (bubble) => bubble.bubbleId === id
-    ).endsDate;
+    )?.endsDate;
 
     if (new Date(endsDate) <= currentDate) return;
 
@@ -406,7 +488,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
 
   //#endregion
 
-  const onBubbleComplete = (id) => {
+  const onBubbleComplete = (id, update) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
@@ -419,11 +501,13 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
     );
 
     // Se for comentar, lembrar de salvar o setLayout com o static: true
-    calculateProfitDays();
+    calculateProfitDays(id);
 
-    BoardActionService.conclude({
-      Id: id,
-    });
+    if (update) {
+      BoardActionService.conclude({
+        Id: id,
+      });
+    }
   };
 
   return (
@@ -468,7 +552,7 @@ const Timeline = ({ layoutBubble, layoutBubbleProps, bubbleProjectId, onBubbleLo
                 isTimeline
                 canComplete
                 canDrag={setCanDragBubbles}
-                onComplete={() => onBubbleComplete(bubble.i)}
+                onComplete={() => onBubbleComplete(bubble.i, true)}
                 bubble={bubble}
                 bubbleCustomProps={
                   layoutCustomProps &&

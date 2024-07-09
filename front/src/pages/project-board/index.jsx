@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import { useRouter } from "next/router";
 import RGL, { WidthProvider } from "react-grid-layout";
 import AddIcon from "@mui/icons-material/Add";
@@ -50,6 +50,9 @@ function ProjectBoard() {
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
 
   const [loadingBoard, setLoadingBoard] = useState();
+  const [bubbleBeingDeleted, setBubbleBeingDeleted] = useState();
+  const [bubbleContentChanged, setBubbleContentChanged] = useState();
+  const [bubbleColorChanged, setBubbleColorChanged] = useState();
 
   const router = useRouter();
   const { bubbleProjectId } = router.query;
@@ -92,7 +95,7 @@ function ProjectBoard() {
         });
     }
   }, [bubbleProjectId]);
-  
+
   const handleOpenMenuBubbleOptions = (event) => {
     setMenuBubbleOptions(event.currentTarget);
   };
@@ -147,8 +150,21 @@ function ProjectBoard() {
   };
 
   const handleDeleteBubble = (id) => {
-    console.log("Deletando");
+    const a = layoutCustomProps.filter((item) => item.bubbleId !== id);
+    const b = layout.filter((item) => item.i !== id);
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
+    setLayoutCustomProps((prevCustomProps) =>
+      prevCustomProps.filter((item) => item.bubbleId !== id)
+    );
+    setBubbleBeingDeleted(id);
+
+    console.log({
+      A: a,
+      A1: layoutCustomProps,
+      B: b,
+      B1: layout,
+    });
+
     BoardActionService.deleteAsync(id);
   };
 
@@ -165,6 +181,11 @@ function ProjectBoard() {
         return prevBox;
       })
     );
+
+    setBubbleColorChanged({
+      id: id,
+      color: color,
+    });
   };
 
   const handleChangeTitle = (id, content) => {
@@ -183,6 +204,11 @@ function ProjectBoard() {
           : prevBox
       )
     );
+
+    setBubbleContentChanged({
+      id: id,
+      content: content,
+    });
   };
 
   const onBubbleDragStop = (e, v) => {
@@ -293,11 +319,6 @@ function ProjectBoard() {
         endsDate: currentEndsDate,
         trace: false,
       };
-
-      console.log({
-        NewItem: newItem,
-        NewCustomProps: newCustomProps,
-      });
 
       setLayoutTimeline(newItem);
       setLayoutCustomPropsTimeline(newCustomProps);
@@ -417,10 +438,6 @@ function ProjectBoard() {
 
   //#endregion
   const onBubbleLoad = (bubble) => {
-    console.log({
-      Descartado: bubble
-    });
-
     if (!bubble.startDate && !bubble.endDate) {
       return;
     }
@@ -513,24 +530,29 @@ function ProjectBoard() {
             height: "100%",
           }}
         >
-          {layout.map((bubble) => (
-            <div key={bubble.i} style={{ borderRadius: "5px" }}>
-              <Bubble
-                canChangeColor
-                canDelete
-                onSendBubbleToTimeline={handleSendBubbleToTimeline}
-                onChangeColor={handleChangeColor}
-                onChangeTitle={handleChangeTitle}
-                onDelete={handleDeleteBubble}
-                canDrag={setCanDragBubbles}
-                bubble={bubble}
-                bubbleCustomProps={
-                  layoutCustomProps &&
-                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                }
-              />
-            </div>
-          ))}
+          {layout
+            .filter(
+              (bubble, index, self) =>
+                index === self.findIndex((t) => t.i === bubble.i)
+            )
+            .map((bubble) => (
+              <div key={bubble.i} style={{ borderRadius: "5px" }}>
+                <Bubble
+                  canChangeColor
+                  canDelete
+                  onSendBubbleToTimeline={handleSendBubbleToTimeline}
+                  onChangeColor={handleChangeColor}
+                  onChangeTitle={handleChangeTitle}
+                  onDelete={handleDeleteBubble}
+                  canDrag={setCanDragBubbles}
+                  bubble={bubble}
+                  bubbleCustomProps={
+                    layoutCustomProps &&
+                    layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                  }
+                />
+              </div>
+            ))}
         </ReactGridLayout>
       </div>
       <div id="timeline" className="time-line">
@@ -540,6 +562,9 @@ function ProjectBoard() {
           bubbleProjectId={bubbleProjectId}
           onBubbleLoad={onBubbleLoad}
           loadingBoard={loadingBoard}
+          bubbleBeingDeleted={bubbleBeingDeleted}
+          onContentChanged={bubbleContentChanged}
+          onColorChanged={bubbleColorChanged}
         />
       </div>
     </div>

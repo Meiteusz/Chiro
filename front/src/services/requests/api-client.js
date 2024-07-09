@@ -1,5 +1,8 @@
 import axios from "axios";
 
+import { getCookie } from "@/data/cookies";
+import cookiesKeys from "@/data/keys";
+
 const BASE_URL =
   process.env.REACT_APP_BASE_URL || `https://localhost:7170/api/v1`;
 
@@ -7,9 +10,21 @@ const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
-    "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTk4ODM5MzMsImlzcyI6ImRpc3BvQGdtYWlsLmNvbSIsImF1ZCI6ImRpc3BvQGdtYWlsLmNvbSJ9.DnAuX5xg913WP4A7wucI9ccv5Aka_swhog_oSC9Jglw`
   },
 });
+
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getCookie(cookiesKeys.token);
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 const useGet = (url, config = {}) => {
   return apiClient.get(url, config);
