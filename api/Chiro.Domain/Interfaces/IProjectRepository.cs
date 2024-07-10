@@ -21,5 +21,7 @@ namespace Chiro.Domain.Interfaces
         Task<bool> DeleteAsync(long projectId);
 
         Task<bool> ChangeNameAsync(long projectId, Project project);
+
+        Task<DateTime> GetCreationDate(long projectId);
     }
 }

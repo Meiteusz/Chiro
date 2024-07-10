@@ -158,5 +158,17 @@ namespace Chiro.API.Controllers
 
             return Ok("Nome alterado.");
         }
+
+        /// <summary>
+        /// Busca as datas para inicio e fim da Timeline
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("timeline-period/{id}")]
+        public async Task<IActionResult> GetTimelinePeriod(long id)
+        {
+            var result = await _projectService.GetTimelinePeriodAsync(id);
+            return Ok(result);
+        }
     }
 }

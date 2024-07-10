@@ -10,6 +10,7 @@
         public double Height { get; set; }
         public string Color { get; set; }
         public bool Deleted { get; set; }
+        public DateTime CreationDate { get; set; }
 
         public List<BoardAction> BoardActions { get; set; }
     }

@@ -11,8 +11,7 @@
 .container-boards {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow-y: hidden;
+  height: 96vh;
 }
 
 .top-board {

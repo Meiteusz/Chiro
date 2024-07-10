@@ -2,6 +2,7 @@
 using Chiro.Domain.Entities;
 using Chiro.Domain.Interfaces;
 using Chiro.Infra;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chiro.Persistence.Repositories
 {
@@ -107,5 +108,10 @@ namespace Chiro.Persistence.Repositories
                                                   Content = boardAction.Content,
                                               }) > 0;
         }
+
+        public async Task<DateTime> GetNewerEndDateByProjectId(long projectId)
+            => await _context.BoardActions.Where(x => x.ProjectId == projectId)
+                                          .OrderByDescending(x => x.EndDate)
+                                          .Select(s => s.EndDate.GetValueOrDefault()).FirstOrDefaultAsync();
     }
 }

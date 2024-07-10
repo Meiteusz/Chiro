@@ -1,5 +1,3 @@
-import { quantityYears } from "../../components/timeline/params";
-
 const mouthsPTBR = [
   "Janeiro",
   "Fevereiro",
@@ -15,9 +13,10 @@ const mouthsPTBR = [
   "Dezembro",
 ];
 
-const renderDays = (widthDays,events, ref) => {
+const renderDays = (widthDays, events, ref, startDateTimelinePeriod, quantityYears) => {
+
   const allDays = [];
-  const currentYear = new Date().getFullYear();
+  const currentYear = startDateTimelinePeriod;
   for (let year = currentYear; year < currentYear + quantityYears; year++) {
     for (let month = 0; month < 12; month++) {
       const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -90,7 +89,7 @@ const renderDays = (widthDays,events, ref) => {
   );
 };
 
-const renderMonths = (widthMonths, events, ref) => {
+const renderMonths = (widthMonths, events, ref, startDateTimelinePeriod, quantityYears) => {
   const allMonths = [];
   const currentYear = new Date().getFullYear();
   for (let year = currentYear; year < currentYear + quantityYears; year++) {
@@ -123,13 +122,30 @@ const renderMonths = (widthMonths, events, ref) => {
                   backgroundColor: "rgba(168, 168, 168, 0.7)",
                   fontWeight: "600",
                   borderRadius: "5px",
-                  width: `${widthMonths}px`,
-                  height: "40px",
+                  width: `${widthMonths / quantityYears}px`,
+                  height: "35px",
                   textAlign: "center",
-                  display: "inline-block",
+                  overflow: "hidden"
                 }}
               >
                 {`${mouthsPTBR[month]}`}
+                <div
+                  style={{
+                    display: "flex",
+                    paddingTop: "5px"
+                  }}
+                >
+                  {Array.from({ length: 4 }, (_, week) => (
+                    <div
+                      key={`${year}-${month}-week${week}`}
+                      style={{
+                        borderRight: "1px solid gray",
+                        width: `${(widthMonths / quantityYears) / 4}px`,
+                        height: "40px",
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -151,26 +167,25 @@ const renderMonths = (widthMonths, events, ref) => {
   );
 };
 
-const renderYears = (widthYears, events, ref) => {
+const renderYears = (widthYears, events, ref, startDateTimelinePeriod, quantityYears) => {
   const allYears = [];
-  const currentYear = new Date().getFullYear();
+  const currentYear = startDateTimelinePeriod;
   for (let year = currentYear; year < currentYear + quantityYears; year++) {
     allYears.push(
       <div
         key={year}
         style={{
           marginTop: "5px",
-          width: `${widthYears}px`,
+          width: `${widthYears / quantityYears}px`,
           textAlign: "center",
           display: "inline-block",
           fontWeight: "600",
           backgroundColor: "#303030",
           padding: "3px",
+          borderRight: "1px solid white",
         }}
       >
-        <label style={{ color: "#F0F0F0", marginBottom: "5px" }}>
-          {year}
-        </label>
+        <label style={{ color: "#F0F0F0", marginBottom: "5px" }}>{year}</label>
       </div>
     );
   }
@@ -188,4 +203,4 @@ const renderYears = (widthYears, events, ref) => {
   );
 };
 
-export {renderDays, renderMonths, renderYears};
+export { renderDays, renderMonths, renderYears };

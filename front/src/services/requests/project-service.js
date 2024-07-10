@@ -1,5 +1,5 @@
 import { ENDPOINTS } from "../endpoints";
-import { usePost, useGet, useDelete } from "../api-client";
+import { usePost, useGet, useDelete } from "@/services/api-client";
 
 const create = async (data) => {
   try {
@@ -72,4 +72,12 @@ const changeName = async (data) => {
   }
 };
 
-export default { create, getAll, getById, resize, move, changeColor, deleteAsync, changeName };
+const getTimelinePeriod = async (id) => {
+  try {
+    return await useGet(ENDPOINTS.project.getTimelinePeriod(id));
+  } catch (error) {
+    console.error("Busca dos periodos da timeline falhou:", error);
+  }
+}
+
+export default { create, getAll, getById, resize, move, changeColor, deleteAsync, changeName, getTimelinePeriod };

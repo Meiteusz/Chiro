@@ -8,18 +8,20 @@ namespace Chiro.Application.Services
 {
     public class ProjectService : IProjectService
     {
-        private readonly IProjectRepository _repository;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IBoardActionRepository _boardActionRepository;
 
-        public ProjectService(IProjectRepository repository)
+        public ProjectService(IProjectRepository projectRepository, IBoardActionRepository boardActionRepository)
         {
-            _repository = repository;
+            _projectRepository = projectRepository;
+            _boardActionRepository = boardActionRepository;
         }
 
         public async Task<long> CreateProject(CreateProjectDTO createProjectDTO)
         {
             ArgumentNullException.ThrowIfNull(createProjectDTO);
 
-            return await _repository.CreateProjectAsync(new Domain.Entities.Project
+            return await _projectRepository.CreateProjectAsync(new Domain.Entities.Project
             {
                 Name = createProjectDTO.Name,
                 Password = Hasher.Encrypt(createProjectDTO.Password, "2b!BDp9fUM2OcGYJ"),
@@ -27,7 +29,8 @@ namespace Chiro.Application.Services
                 PositionY = createProjectDTO.PositionY,
                 Color = createProjectDTO.Color,
                 Height = createProjectDTO.Height,
-                Width = createProjectDTO.Width
+                Width = createProjectDTO.Width,
+                CreationDate = DateTime.UtcNow
             });
         }
 
@@ -35,7 +38,7 @@ namespace Chiro.Application.Services
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(projectId);
 
-            return await _repository.GetProjectAsync(projectId);
+            return await _projectRepository.GetProjectAsync(projectId);
         }
 
         public async Task<Project?> GetDelayedProjectAsync(long projectId)
@@ -48,14 +51,14 @@ namespace Chiro.Application.Services
 
         public async Task<List<Project>> GetProjectsAsync()
         {
-            return await _repository.GetProjectsAsync();
+            return await _projectRepository.GetProjectsAsync();
         }
 
         public async Task<bool> ResizeAsync(ResizeProjectDTO resizeProjectDTO)
         {
             ArgumentNullException.ThrowIfNull(resizeProjectDTO);
 
-            return await _repository.ResizeAsync(resizeProjectDTO.Id, new Project
+            return await _projectRepository.ResizeAsync(resizeProjectDTO.Id, new Project
             {
                 Width = resizeProjectDTO.Width,
                 Height = resizeProjectDTO.Height,
@@ -68,7 +71,7 @@ namespace Chiro.Application.Services
         {
             ArgumentNullException.ThrowIfNull(moveProjectDTO);
 
-            return await _repository.MoveAsync(new Project
+            return await _projectRepository.MoveAsync(new Project
             {
                 Id = moveProjectDTO.Id,
                 PositionX = moveProjectDTO.PositionX,
@@ -80,7 +83,7 @@ namespace Chiro.Application.Services
         {
             ArgumentNullException.ThrowIfNull(changeProjectColorDTO);
 
-            return await _repository.ChangeColorAsync(new Project
+            return await _projectRepository.ChangeColorAsync(new Project
             {
                 Id = changeProjectColorDTO.Id,
                 Color = changeProjectColorDTO.Color
@@ -91,22 +94,37 @@ namespace Chiro.Application.Services
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(projectId);
 
-            return await _repository.DeleteAsync(projectId);
+            return await _projectRepository.DeleteAsync(projectId);
         }
 
         public async Task<List<Project>> GetProjectsWithActionsAsync()
         {
-            return await _repository.GetProjectsWithActionsAsync();
+            return await _projectRepository.GetProjectsWithActionsAsync();
         }
 
         public async Task<bool> ChangeNameAsync(ChangeProjectNameDTO changeProjectNameDTO)
         {
             ArgumentNullException.ThrowIfNull(changeProjectNameDTO);
 
-            return await _repository.ChangeNameAsync(changeProjectNameDTO.Id, new Project
+            return await _projectRepository.ChangeNameAsync(changeProjectNameDTO.Id, new Project
             {
                 Name = changeProjectNameDTO.Name,
             });
+        }
+
+        public async Task<TimelinePeriodDTO> GetTimelinePeriodAsync(long projectId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(projectId);
+            TimelinePeriodDTO period = new();
+
+            var startDate = await _projectRepository.GetCreationDate(projectId);
+            var newerEndDate = await _boardActionRepository.GetNewerEndDateByProjectId(projectId);
+
+            period.StartDate = new DateTime(startDate.Year, 1, 1);
+            period.EndDate = newerEndDate == DateTime.MinValue ? new DateTime(period.StartDate.Year, 12, 31) 
+                                                               : new DateTime(newerEndDate.Year, 12, 31);
+
+            return period;
         }
     }
 }

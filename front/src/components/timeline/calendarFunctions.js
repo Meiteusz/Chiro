@@ -1,7 +1,4 @@
-import { quantityYears } from "../../components/timeline/params";
-
-const calculateDaysQuantity = () => {
-  const currentYear = new Date().getFullYear();
+const calculateDaysQuantity = (currentYear, quantityYears) => {
   let totalDays = 0;
   for (let year = currentYear; year < currentYear + quantityYears; year++) {
     for (let month = 0; month < 12; month++) {
@@ -11,8 +8,7 @@ const calculateDaysQuantity = () => {
   return totalDays;
 };
 
-const calculateQuantityMonths = () => {
-  const currentYear = new Date().getFullYear();
+const calculateQuantityMonths = (currentYear, quantityYears) => {
   let totalMonths = 0;
   for (let year = currentYear; year < currentYear + quantityYears; year++) {
     for (let month = 0; month < 12; month++) {

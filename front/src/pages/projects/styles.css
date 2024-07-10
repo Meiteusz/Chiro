@@ -1,13 +1,8 @@
-.container-layout {
-  height: 100% !important;
-}
-
 .container-bubble {
   border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* padding: 1px; */
   cursor: grab;
   border: 1px solid;
 }

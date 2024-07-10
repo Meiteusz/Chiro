@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChromePicker } from "react-color";
+import { BoardActionType } from "@/utils/constants";
 
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -83,11 +84,11 @@ function Bubble({
     if (!OpenChromePicker) handleCloseContextMenu();
   };
 
-  const handleBubbleNameChange = (event) => {
+  const handleBubbleNameChange = (event, isLeaving) => {
     if (!onChangeTitle) return;
 
     const newName = event.target.value;
-    onChangeTitle(bubble.i, newName);
+    onChangeTitle(bubble.i, newName, isLeaving);
   };
 
   const handleBubbleComplete = () => {
@@ -130,30 +131,58 @@ function Bubble({
           ? "2px solid #27A304"
           : "none",
         opacity: bubbleCustomProps.trace ? "0.7" : "1",
+        overflow: "hidden",
       }}
     >
-      <input
-        type="text"
-        value={bubbleCustomProps.title ?? ""}
-        onChange={handleBubbleNameChange}
-        onContextMenu={handleContextMenu}
-        disabled={canComplete ?? false}
-        style={{
-          position: "absolute",
-          backgroundColor: "transparent",
-          border: "none",
-          color: isDarkColor(bubbleCustomProps.color) ? "white" : "black",
-          width: "100%",
-          outline: "none",
-          fontSize: "22px",
-          textAlign: !isTimeline && "center",
-          fontFamily: "Roboto Mono, monospace",
-          fontWeight: "bold",
-          cursor: "text",
-          pointerEvents: isTimeline ? "none" : "",
-          padding: "5px",
-        }}
-      />
+      {bubbleCustomProps.type == BoardActionType.Link ? (
+        <a
+          className="cancelSelectorName"
+          href={bubbleCustomProps.title}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span
+            style={{
+              backgroundColor: "transparent",
+              border: "none",
+              color: isDarkColor(bubbleCustomProps.color) ? "white" : "black",
+              fontSize: "18px",
+              fontFamily: "Roboto Mono, monospace",
+              fontStyle: "italic",
+              cursor: "pointer",
+              pointerEvents: isTimeline ? "none" : "",
+              textDecorationLine: "underline",
+            }}
+          >
+            {bubbleCustomProps.title ?? ""}
+          </span>
+        </a>
+      ) : (
+        <input
+          autoFocus
+          type="text"
+          value={bubbleCustomProps.title ?? ""}
+          onChange={handleBubbleNameChange}
+          onBlur={(event) => handleBubbleNameChange(event, true)}
+          onContextMenu={handleContextMenu}
+          disabled={canComplete ?? false}
+          style={{
+            position: "absolute",
+            backgroundColor: "transparent",
+            border: "none",
+            color: isDarkColor(bubbleCustomProps.color) ? "white" : "black",
+            width: "100%",
+            outline: "none",
+            fontSize: "22px",
+            textAlign: !isTimeline && "center",
+            fontFamily: "Roboto Mono, monospace",
+            fontWeight: "bold",
+            cursor: "text",
+            pointerEvents: isTimeline ? "none" : "",
+            padding: "5px",
+          }}
+        />
+      )}
       <div
         onContextMenu={handleContextMenu}
         onDoubleClick={handleDoubleClick}

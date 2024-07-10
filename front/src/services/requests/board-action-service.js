@@ -1,5 +1,5 @@
 import { ENDPOINTS } from "../endpoints";
-import { usePost, useDelete } from "./api-client";
+import { usePost, useDelete } from "@/services/api-client";
 
 const create = async (data) => {
   try {

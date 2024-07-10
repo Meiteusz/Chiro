@@ -9,7 +9,7 @@ import Navbar from "@/components/navbar";
 import Bubble from "@/components/bubble/bubble";
 
 import "@/app/globals.css";
-import "../styles.css";
+import "./styles.css";
 import ProjectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
@@ -113,19 +113,21 @@ const ProjectBoard = () => {
     );
   };
 
-  const handleChangeTitle = (id, content) => {
-    ProjectService.changeName({
-      Id: id,
-      Name: content,
-    });
+  const handleChangeTitle = (id, content, isLeaving = false) => {
+    if (isLeaving) {
+      ProjectService.changeName({
+        Id: id,
+        Name: content,
+      });
+    }
 
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === id
           ? {
-            ...prevBox,
-            title: content,
-          }
+              ...prevBox,
+              title: content,
+            }
           : prevBox
       )
     );

@@ -13,25 +13,12 @@ import Bubble from "@/components/bubble/bubble";
 import StartEndDateModal from "@/components/modal/starts-end-date-modal";
 import BoardActionService from "@/services/requests/board-action-service";
 import ProjectService from "@/services/requests/project-service";
+import { BoardActionType } from "@/utils/constants";
 
 import "@/app/globals.css";
 import "./styles.css";
-import "../styles.css";
 
 const ReactGridLayout = WidthProvider(RGL);
-
-let idCounter = 0;
-
-const getId = () => {
-  idCounter++;
-  return idCounter.toString();
-};
-
-const boardActionType = {
-  Text: 0,
-  Link: 1,
-  Player: 2,
-};
 
 function ProjectBoard() {
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
@@ -73,6 +60,7 @@ function ProjectBoard() {
               bubbleId: boardAction.id.toString(),
               title: boardAction.content,
               color: boardAction.color,
+              type: boardAction.boardActionType,
               startsDate: new Date(boardAction.startDate),
               endsDate: new Date(boardAction.endDate),
               trace: false,
@@ -122,7 +110,8 @@ function ProjectBoard() {
     };
 
     var boardActionId = await BoardActionService.create({
-      Content: `Bolha ${boardActionType}`,
+      Content: newCustomProps.title,
+      BoardActionType: newCustomProps.type,
       PositionY: newItem.y,
       PositionX: newItem.x,
       Width: newItem.w,
@@ -165,11 +154,13 @@ function ProjectBoard() {
     );
   };
 
-  const handleChangeTitle = (id, content) => {
-    BoardActionService.changeContent({
-      Id: id,
-      Content: content,
-    });
+  const handleChangeTitle = (id, content, isLeaving = false) => {
+    if (isLeaving) {
+      BoardActionService.changeContent({
+        Id: id,
+        Content: content,
+      });
+    }
 
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
@@ -184,19 +175,28 @@ function ProjectBoard() {
   };
 
   const onBubbleDragStop = (e, v) => {
-    if (!isOverlapping(v.i)) {
-      const changedBubble = e.find((w) => w.i == v.i);
-      BoardActionService.resize({
-        Id: changedBubble.i,
-        Width: changedBubble.w,
-        Height: changedBubble.h,
-        PositionX: changedBubble.x,
-        PositionY: changedBubble.y,
-      });
-      return;
-    }
+    //if (!isOverlapping(v.i)) {
+    //  const changedBubble = e.find((w) => w.i == v.i);
+    //  BoardActionService.resize({
+    //    Id: changedBubble.i,
+    //    Width: changedBubble.w,
+    //    Height: changedBubble.h,
+    //    PositionX: changedBubble.x,
+    //    PositionY: changedBubble.y,
+    //  });
+    //  return;
+    //}
 
-    setDateModalOpened(true);
+    const changedBubble = e.find((w) => w.i == v.i);
+    BoardActionService.resize({
+      Id: changedBubble.i,
+      Width: changedBubble.w,
+      Height: changedBubble.h,
+      PositionX: changedBubble.x,
+      PositionY: changedBubble.y,
+    });
+
+    //setDateModalOpened(true);
     setSelectedIdBubble(v.i);
   };
 
@@ -415,91 +415,93 @@ function ProjectBoard() {
   //#endregion
 
   return (
-    <div className="container-boards">
+    <div>
       <Navbar showMenu projectName="Projeto" />
-      <div className="top-board">
-        <StartEndDateModal
-          open={dateModalOpened}
-          onClose={handleCloseStartEndDateModal}
-          onConfirm={handleConfirmStartEndDate}
-          startdate={currentStartsDate}
-          setStartDate={setCurrentStartsDate}
-          endDate={currentEndsDate}
-          setEndDate={setCurrentEndsDate}
-          boardActionId={selectedIdBubble}
-        />
-        <button className="add-bubble" onClick={handleOpenMenuBubbleOptions}>
-          <AddIcon />
-        </button>
-        <Menu
-          anchorEl={menuBubbleOptions}
-          open={menuBubbleOptionsOpened}
-          onClose={handleCloseMenuBubbleOptions}
-        >
-          <MenuItem
-            className="menu-item"
-            onClick={() => handleAddBubble(boardActionType.Text)}
+      <div className="container-boards">
+        <div className="top-board">
+          <StartEndDateModal
+            open={dateModalOpened}
+            onClose={handleCloseStartEndDateModal}
+            onConfirm={handleConfirmStartEndDate}
+            startdate={currentStartsDate}
+            setStartDate={setCurrentStartsDate}
+            endDate={currentEndsDate}
+            setEndDate={setCurrentEndsDate}
+            boardActionId={selectedIdBubble}
+          />
+          <button className="add-bubble" onClick={handleOpenMenuBubbleOptions}>
+            <AddIcon />
+          </button>
+          <Menu
+            anchorEl={menuBubbleOptions}
+            open={menuBubbleOptionsOpened}
+            onClose={handleCloseMenuBubbleOptions}
           >
-            Tarefa
-          </MenuItem>
-          <MenuItem
-            className="menu-item"
-            onClick={() => handleAddBubble(boardActionType.Player)}
+            <MenuItem
+              className="menu-item"
+              onClick={() => handleAddBubble(BoardActionType.Text)}
+            >
+              Tarefa
+            </MenuItem>
+            <MenuItem
+              className="menu-item"
+              onClick={() => handleAddBubble(BoardActionType.Player)}
+            >
+              Player
+            </MenuItem>
+            <MenuItem
+              className="menu-item"
+              onClick={() => handleAddBubble(BoardActionType.Link)}
+            >
+              Link
+            </MenuItem>
+          </Menu>
+          <ReactGridLayout
+            isResizable
+            preventCollision
+            onLayoutChange={(newLayout) => setLayout(newLayout)}
+            layout={layout}
+            compactType={null}
+            isDraggable={canDragBubbles}
+            margin={[1, 1]}
+            rowHeight={25}
+            cols={50}
+            containerPadding={[0, 0]}
+            maxRows={23.5}
+            //maxRows={46}
+            onDragStop={onBubbleDragStop}
+            onResizeStop={onBubbleResizeStop}
+            style={{
+              height: "100%",
+            }}
           >
-            Player
-          </MenuItem>
-          <MenuItem
-            className="menu-item"
-            onClick={() => handleAddBubble(boardActionType.Link)}
-          >
-            Link
-          </MenuItem>
-        </Menu>
-        <ReactGridLayout
-          isResizable
-          preventCollision
-          onLayoutChange={(newLayout) => setLayout(newLayout)}
-          layout={layout}
-          compactType={null}
-          isDraggable={canDragBubbles}
-          margin={[1, 1]}
-          rowHeight={25}
-          cols={50}
-          containerPadding={[0, 0]}
-          maxRows={23.3}
-          //maxRows={46}
-          onDragStop={onBubbleDragStop}
-          onResizeStop={onBubbleResizeStop}
-          style={{
-            height: "100%",
-          }}
-        >
-          {layout.map((bubble) => (
-            <div key={bubble.i} style={{ borderRadius: "5px" }}>
-              <Bubble
-                canChangeColor
-                canDelete
-                onSendBubbleToTimeline={handleSendBubbleToTimeline}
-                onChangeColor={handleChangeColor}
-                onChangeTitle={handleChangeTitle}
-                onDelete={handleDeleteBubble}
-                canDrag={setCanDragBubbles}
-                bubble={bubble}
-                bubbleCustomProps={
-                  layoutCustomProps &&
-                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                }
-              />
-            </div>
-          ))}
-        </ReactGridLayout>
-      </div>
-      <div id="timeline" className="time-line">
-        <Timeline
-          layoutBubble={layoutTimeline}
-          layoutBubbleProps={layoutCustomPropsTimeline}
-          bubbleProjectId={bubbleProjectId}
-        />
+            {layout.map((bubble) => (
+              <div key={bubble.i} style={{ borderRadius: "5px" }}>
+                <Bubble
+                  canChangeColor
+                  canDelete
+                  onSendBubbleToTimeline={handleSendBubbleToTimeline}
+                  onChangeColor={handleChangeColor}
+                  onChangeTitle={handleChangeTitle}
+                  onDelete={handleDeleteBubble}
+                  canDrag={setCanDragBubbles}
+                  bubble={bubble}
+                  bubbleCustomProps={
+                    layoutCustomProps &&
+                    layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                  }
+                />
+              </div>
+            ))}
+          </ReactGridLayout>
+        </div>
+        <div id="timeline" className="time-line">
+          <Timeline
+            layoutBubble={layoutTimeline}
+            layoutBubbleProps={layoutCustomPropsTimeline}
+            bubbleProjectId={bubbleProjectId}
+          />
+        </div>
       </div>
     </div>
   );

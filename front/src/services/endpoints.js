@@ -24,6 +24,7 @@ const ENDPOINTS = {
     move: `project/move`,
     delete: (id) => `project/${id}`,
     changeName: `project/change-name`,
+    getTimelinePeriod: (id) => `project/timeline-period/${id}`
   },
 };
 
