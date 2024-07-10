@@ -26,6 +26,10 @@ const ENDPOINTS = {
     changeName: `project/change-name`,
     getTimelinePeriod: (id) => `project/timeline-period/${id}`
   },
+  boardWithoutAuthentication: {
+    createLink: (projectId, randomNumbers) => `board-without-authentication/create-link?projectId=${projectId}&randomNumbers=${randomNumbers}`,
+    getProjectWithToken: (token) => `board-without-authentication/get-project-with-token?token=${token}`
+  },
 };
 
 export { LOCALHOST, ENDPOINTS };

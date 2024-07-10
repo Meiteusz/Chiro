@@ -607,7 +607,7 @@ const Timeline = ({
           containerPadding={[0, 0]}
           maxRows={9}
           resizeHandles={["e"]}
-          isDraggable={canDragBubbles}
+          isDraggable={!notAuthenticate && canDragBubbles}
           style={{
             height: "100%",
           }}

@@ -472,7 +472,7 @@ function ProjectBoard() {
 
   return (
     <div>
-      <Navbar showMenu projectName="Projeto" />
+      <Navbar showMenu projectName="Projeto" projectId={bubbleProjectId} />
       <div className="container-boards">
         <div className="top-board">
           <StartEndDateModal

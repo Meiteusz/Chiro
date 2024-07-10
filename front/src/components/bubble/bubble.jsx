@@ -32,11 +32,16 @@ function Bubble({
   canComplete,
   delayedTime,
   isTimeline,
+  notAuthenticate,
 }) {
   const [contextMenu, setContextMenu] = useState(null);
   const [OpenChromePicker, setChromePicker] = useState(false);
 
   const handleContextMenu = (event) => {
+    if (notAuthenticate) {
+      return;
+    }
+
     event.preventDefault();
 
     if (
@@ -55,6 +60,10 @@ function Bubble({
   };
 
   const handleSendBubbleToTimeline = () => {
+    if (notAuthenticate) {
+      return;
+    }
+
     if (!onSendBubbleToTimeline) return;
 
     onSendBubbleToTimeline(bubble.i);
@@ -64,10 +73,18 @@ function Bubble({
   const handleDoubleClick = () => {
     if (!onDoubleClick) return;
 
+    if (notAuthenticate) {
+      return;
+    }
+
     onDoubleClick(bubble.i);
   };
 
   const handleDeleteBubble = () => {
+    if (notAuthenticate) {
+      return;
+    }
+
     setChromePicker(false);
 
     if (!onDelete) return;
@@ -77,6 +94,10 @@ function Bubble({
   };
 
   const handleColorSelection = (color) => {
+    if (notAuthenticate) {
+      return;
+    }
+
     if (!onChangeColor) return;
 
     onChangeColor(bubble.i, color);
@@ -85,6 +106,10 @@ function Bubble({
   };
 
   const handleBubbleNameChange = (event, isLeaving) => {
+    if (notAuthenticate) {
+      return;
+    }
+
     if (!onChangeTitle) return;
 
     const newName = event.target.value;
@@ -92,6 +117,10 @@ function Bubble({
   };
 
   const handleBubbleComplete = () => {
+    if (notAuthenticate) {
+      return;
+    }
+
     if (!onComplete) return;
 
     onComplete(bubble.i);
@@ -99,6 +128,10 @@ function Bubble({
   };
 
   const handleCloseContextMenu = () => {
+    if (notAuthenticate) {
+      return;
+    }
+
     setContextMenu(null);
     canDrag(true);
   };
@@ -114,6 +147,10 @@ function Bubble({
   };
 
   const handleOpenSettingColor = () => {
+    if (notAuthenticate) {
+      return;
+    }
+
     setChromePicker(true);
   };
 
