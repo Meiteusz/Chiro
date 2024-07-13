@@ -13,6 +13,8 @@ import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ScheduleSendIcon from "@mui/icons-material/ScheduleSend";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import Tooltip from "@mui/material/Tooltip";
 
 import "./styles.css";
 import "@/app/globals.css";
@@ -36,6 +38,7 @@ function Bubble({
 }) {
   const [contextMenu, setContextMenu] = useState(null);
   const [OpenChromePicker, setChromePicker] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleContextMenu = (event) => {
     if (notAuthenticate) {
@@ -80,6 +83,34 @@ function Bubble({
     onDoubleClick(bubble.i);
   };
 
+  const handleOnClick = () => {
+    const linkRegex = /https?:\/\/[^\s]+/g;
+    const match = bubbleCustomProps.title.match(linkRegex);
+
+    if (match && match[0] && isValidUrl(match[0])) {
+      const link = match[0];
+      setShowTooltip(true);
+      setTimeout(() => setShowTooltip(false), 3000);
+    }
+  };
+
+  const extractUrlFromString = (text) => {
+    const linkRegex = /(?:https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+    const match = text.match(linkRegex);
+
+    if (match && match.length > 0) {
+      return match[0];
+    }
+
+    return null;
+  };
+
+  const isValidUrl = (url) => {
+    const regex =
+      /^(https?:\/\/)?((([a-zA-Z\d]([a-zA-Z\d-]*[a-zA-Z\d])*)\.)+[a-zA-Z]{2,}|\d{1,3}(\.\d{1,3}){3})(:\d+)?(\/[-a-zA-Z\d%_.~+]*)*(\?[;&a-zA-Z\d%_.~+=-]*)?(#[-a-zA-Z\d_]*)?$/;
+    return regex.test(url);
+  };
+
   const handleDeleteBubble = () => {
     if (notAuthenticate) {
       return;
@@ -106,6 +137,8 @@ function Bubble({
   };
 
   const handleBubbleNameChange = (event, isLeaving) => {
+    setShowTooltip(false);
+
     if (notAuthenticate) {
       return;
     }
@@ -161,7 +194,7 @@ function Bubble({
       onContextMenu={handleContextMenu}
       style={{
         height: "100%",
-        backgroundColor: bubbleCustomProps.color ?? "black",
+        backgroundColor: bubbleCustomProps.color ?? "white",
         border: bubbleCustomProps.trace
           ? "2px dotted #ddd"
           : bubbleCustomProps.isCompleted
@@ -171,58 +204,47 @@ function Bubble({
         overflow: "hidden",
       }}
     >
-      {bubbleCustomProps.type == BoardActionType.Link ? (
+      <input
+        autoFocus
+        type="text"
+        value={bubbleCustomProps.title ?? ""}
+        onChange={handleBubbleNameChange}
+        onBlur={(event) => handleBubbleNameChange(event, true)}
+        onContextMenu={handleContextMenu}
+        disabled={canComplete ?? false}
+        onMouseEnter={handleOnClick}
+        style={{
+          position: "absolute",
+          backgroundColor: "transparent",
+          border: "none",
+          color: isDarkColor(bubbleCustomProps.color) ? "white" : "black",
+          width: "100%",
+          outline: "none",
+          fontSize:
+            bubbleCustomProps.type == BoardActionType.Link ? "16px" : "22px",
+          textAlign: !isTimeline && "center",
+          fontFamily: "Roboto Mono, monospace",
+          fontWeight: "bold",
+          cursor: "text",
+          pointerEvents: isTimeline ? "none" : "",
+          padding: "5px",
+          fontStyle: showTooltip ? "italic" : "none",
+        }}
+      />
+      {showTooltip && bubbleCustomProps.type == BoardActionType.Link && (
         <a
-          className="cancelSelectorName"
-          href={bubbleCustomProps.title}
+          href={extractUrlFromString(bubbleCustomProps.title)}
+          className="tooltip-link"
           target="_blank"
           rel="noreferrer"
         >
-          <span
-            style={{
-              backgroundColor: "transparent",
-              border: "none",
-              color: isDarkColor(bubbleCustomProps.color) ? "white" : "black",
-              fontSize: "18px",
-              fontFamily: "Roboto Mono, monospace",
-              fontStyle: "italic",
-              cursor: "pointer",
-              pointerEvents: isTimeline ? "none" : "",
-              textDecorationLine: "underline",
-            }}
-          >
-            {bubbleCustomProps.title ?? ""}
-          </span>
+          <span>Seguir o link: </span>
+          {extractUrlFromString(bubbleCustomProps.title)}
         </a>
-      ) : (
-        <input
-          autoFocus
-          type="text"
-          value={bubbleCustomProps.title ?? ""}
-          onChange={handleBubbleNameChange}
-          onBlur={(event) => handleBubbleNameChange(event, true)}
-          onContextMenu={handleContextMenu}
-          disabled={canComplete ?? false}
-          style={{
-            position: "absolute",
-            backgroundColor: "transparent",
-            border: "none",
-            color: isDarkColor(bubbleCustomProps.color) ? "white" : "black",
-            width: "100%",
-            outline: "none",
-            fontSize: "22px",
-            textAlign: !isTimeline && "center",
-            fontFamily: "Roboto Mono, monospace",
-            fontWeight: "bold",
-            cursor: "text",
-            pointerEvents: isTimeline ? "none" : "",
-            padding: "5px",
-          }}
-        />
       )}
       <div
+        id={bubble.i}
         onContextMenu={handleContextMenu}
-        onDoubleClick={handleDoubleClick}
         style={{
           backgroundColor: "red",
           height: "100%",
@@ -231,8 +253,26 @@ function Bubble({
           borderBottomRightRadius: "5px",
           marginLeft: `${delayedTime}px`,
           backgroundColor: delayedTime ? "red" : "transparent",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          border: delayedTime ? "1px solid black" : "none",
         }}
       >
+        {delayedTime && (
+          <Tooltip title="Atraso detectado">
+            <WarningAmberIcon
+              style={{
+                color: "black",
+                fontSize: "20px",
+                position: "absolute",
+                right: "25px",
+                top: "5px",
+                borderRadius: "50%",
+              }}
+            />
+          </Tooltip>
+        )}
         {!bubbleCustomProps.isCompleted && (
           <Menu
             anchorEl={contextMenu}
@@ -260,12 +300,12 @@ function Bubble({
                 {OpenChromePicker ? (
                   <ChromePicker
                     disableAlpha={true}
-                    color={bubbleCustomProps.color ?? "black"}
+                    color={bubbleCustomProps.color ?? "white"}
                     onChange={handleColorSelection}
                   />
                 ) : (
                   <Compact
-                    color={bubbleCustomProps.color ?? "black"}
+                    color={bubbleCustomProps.color ?? "white"}
                     onChange={handleColorSelection}
                   />
                 )}

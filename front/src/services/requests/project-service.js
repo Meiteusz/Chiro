@@ -80,4 +80,22 @@ const getTimelinePeriod = async (id) => {
   }
 }
 
-export default { create, getAll, getById, resize, move, changeColor, deleteAsync, changeName, getTimelinePeriod };
+const getProjectName = async (id) => {
+  try {
+    return await useGet(ENDPOINTS.project.getName(id));
+  } catch (error) {
+    console.error("Busca do nome do projeto falhou:", error);
+  }
+}
+
+export default { create,
+                 getAll, 
+                 getById, 
+                 resize, 
+                 move, 
+                 changeColor, 
+                 deleteAsync, 
+                 changeName, 
+                 getTimelinePeriod, 
+                 getProjectName };
+

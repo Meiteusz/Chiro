@@ -24,7 +24,8 @@ const ENDPOINTS = {
     move: `project/move`,
     delete: (id) => `project/${id}`,
     changeName: `project/change-name`,
-    getTimelinePeriod: (id) => `project/timeline-period/${id}`
+    getTimelinePeriod: (id) => `project/timeline-period/${id}`,
+    getName: (id) => `project/name/${id}`,
   },
   boardWithoutAuthentication: {
     createLink: (projectId, randomNumbers) => `board-without-authentication/create-link?projectId=${projectId}&randomNumbers=${randomNumbers}`,

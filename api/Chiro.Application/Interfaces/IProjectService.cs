@@ -26,5 +26,7 @@ namespace Chiro.Application.Interfaces
         Task<bool> ChangeNameAsync(ChangeProjectNameDTO changeProjectNameDTO);
 
         Task<TimelinePeriodDTO> GetTimelinePeriodAsync(long projectId);
+
+        Task<string> GetProjectNameAsync(long projectId);
     }
 }

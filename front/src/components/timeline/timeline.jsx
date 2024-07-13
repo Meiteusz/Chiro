@@ -38,6 +38,7 @@ const Timeline = ({
   bubbleBeingDeleted,
   onContentChanged,
   onColorChanged,
+  notAuthenticate,
 }) => {
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
@@ -88,6 +89,24 @@ const Timeline = ({
       }
     }
   }, [bubbleProjectId, timelineFinished]);
+
+  useEffect(() => {
+    if (bubbleBeingDeleted) {
+      handleDeleteTimelineBubble(bubbleBeingDeleted);
+    }
+  }, [bubbleBeingDeleted]);
+
+  useEffect(() => {
+    if (onContentChanged) {
+      handleContentChanged(onContentChanged);
+    }
+  }, [onContentChanged]);
+
+  useEffect(() => {
+    if (onColorChanged) {
+      handleColorChanged(onColorChanged);
+    }
+  }, [onColorChanged]);
 
   //#region loadThrowedBubbles
   const loadThrowedBubbles = () => {
@@ -180,55 +199,6 @@ const Timeline = ({
   };
   //#endregion
 
-  useEffect(() => {
-    if (bubbleBeingDeleted) {
-      handleDeleteTimelineBubble(bubbleBeingDeleted);
-    }
-  }, [bubbleBeingDeleted]);
-
-  useEffect(() => {
-    if (onContentChanged) {
-      handleContentChanged(onContentChanged);
-    }
-  }, [onContentChanged]);
-
-  useEffect(() => {
-    if (onColorChanged) {
-      handleColorChanged(onColorChanged);
-    }
-  }, [onColorChanged]);
-
-  const handleContentChanged = (bubble) => {
-    setLayoutCustomProps((prevBubble) =>
-      prevBubble.map((prevBox) =>
-        prevBox.bubbleId === bubble.id
-          ? {
-              ...prevBox,
-              title: bubble.content,
-            }
-          : prevBox
-      )
-    );
-  };
-
-  const handleColorChanged = (bubble) => {
-    console.log(bubble);
-    setLayoutCustomProps((prevBubble) =>
-      prevBubble.map((prevBox) =>
-        prevBox.bubbleId === bubble.id
-          ? {
-              ...prevBox,
-              color: bubble.color.hex,
-            }
-          : prevBox
-      )
-    );
-  };
-
-  const handleDeleteTimelineBubble = (id) => {
-    setLayout((prevLayout) => [...prevLayout.filter((item) => item.i !== id)]);
-  };
-
   //#region calculateDifferenceInDays
   const calculateDifferenceInDays = (boardAction) => {
     var differenceInMilliseconds = Math.abs(
@@ -257,10 +227,7 @@ const Timeline = ({
     // Usar com cautela!!
     setLayoutUpdatedKey(layoutUpdatedKey + 1);
   };
-
-  useEffect(() => {
-    scrollToCurrentDate();
-  }, [viewMode]);
+  //#endregion
 
   //#region getCellWidth
   const getCellWidth = () => {
@@ -556,6 +523,37 @@ const Timeline = ({
         Id: id,
       });
     }
+  };
+
+  const handleContentChanged = (bubble) => {
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === bubble.id
+          ? {
+              ...prevBox,
+              title: bubble.content,
+            }
+          : prevBox
+      )
+    );
+  };
+
+  const handleColorChanged = (bubble) => {
+    console.log(bubble);
+    setLayoutCustomProps((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.bubbleId === bubble.id
+          ? {
+              ...prevBox,
+              color: bubble.color.hex,
+            }
+          : prevBox
+      )
+    );
+  };
+
+  const handleDeleteTimelineBubble = (id) => {
+    setLayout((prevLayout) => [...prevLayout.filter((item) => item.i !== id)]);
   };
 
   return (

@@ -40,12 +40,21 @@ function ProjectBoard() {
   const [bubbleBeingDeleted, setBubbleBeingDeleted] = useState();
   const [bubbleContentChanged, setBubbleContentChanged] = useState();
   const [bubbleColorChanged, setBubbleColorChanged] = useState();
+  const [projectName, setProjectName] = useState("");
 
   const router = useRouter();
   const { bubbleProjectId } = router.query;
 
   useEffect(() => {
     if (bubbleProjectId) {
+      ProjectService.getProjectName(bubbleProjectId)
+        .then((res) => {
+          setProjectName(res.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching project name:", error);
+        });
+
       ProjectService.getById(bubbleProjectId)
         .then((res) => {
           res.data.boardActions.forEach((boardAction) => {
@@ -108,7 +117,7 @@ function ProjectBoard() {
       bubbleId: newItem.i,
       type: bubbleType,
       title: "",
-      color: "black",
+      color: "white",
       startsDate: null,
       endsDate: null,
       trace: false,
@@ -437,6 +446,7 @@ function ProjectBoard() {
   };
 
   //#endregion
+
   const onBubbleLoad = (bubble) => {
     if (!bubble.startDate && !bubble.endDate) {
       return;
@@ -472,7 +482,7 @@ function ProjectBoard() {
 
   return (
     <div>
-      <Navbar showMenu projectName="Projeto" projectId={bubbleProjectId} />
+      <Navbar showMenu projectName={projectName} projectId={bubbleProjectId} />
       <div className="container-boards">
         <div className="top-board">
           <StartEndDateModal

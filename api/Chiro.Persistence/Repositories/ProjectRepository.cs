@@ -91,5 +91,10 @@ namespace Chiro.Persistence.Repositories
             => await _context.Projects.Where(x => x.Id == projectId)
                                       .Select(s => s.CreationDate)
                                       .FirstOrDefaultAsync();
+
+        public async Task<string> GetName(long projectId)
+            => await _context.Projects.Where(x => x.Id == projectId)
+                                      .Select(s => s.Name)
+                                      .FirstOrDefaultAsync() ?? "Projeto desconhecido";
     }
 }

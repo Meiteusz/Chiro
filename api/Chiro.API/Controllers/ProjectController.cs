@@ -170,5 +170,17 @@ namespace Chiro.API.Controllers
             var result = await _projectService.GetTimelinePeriodAsync(id);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Busca o nome do projeto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("name/{id}")]
+        public async Task<IActionResult> GetName(long id)
+        {
+            var result = await _projectService.GetProjectNameAsync(id);
+            return Ok(result);
+        }
     }
 }

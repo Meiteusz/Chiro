@@ -119,20 +119,15 @@
 .tooltip-link {
   position: fixed;
   color: #007bff;
-  border-radius: 4px;
-  height: 10px;
-  width: auto; /* Largura automática para se ajustar ao conteúdo */
-  min-width: 50px; /* Largura mínima para garantir que seja visível */
-  text-align: center; /* Centraliza o texto */
+  text-align: center;
   top: 55px;
   z-index: 999;
-  line-height: 1.2;
   font-size: 12px;
   cursor: pointer;
   font-style: italic; 
 }
 .tooltip-link:hover {
-  text-decoration: underline; /* Sublinhado ao passar o mouse */
+  text-decoration: underline;
 }
 
 .tooltip-container:hover .tooltip-link {

@@ -126,5 +126,12 @@ namespace Chiro.Application.Services
 
             return period;
         }
+
+        public async Task<string> GetProjectNameAsync(long projectId)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(projectId);
+
+            return await _projectRepository.GetName(projectId);
+        }
     }
 }

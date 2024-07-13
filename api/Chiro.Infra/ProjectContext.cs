@@ -21,7 +21,12 @@ namespace Chiro.Infra
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-                optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING"));
+                optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING"), builder =>
+                {
+                    builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
+                });
+
+            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
