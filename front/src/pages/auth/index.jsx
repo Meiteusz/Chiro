@@ -20,8 +20,6 @@ const AuthScreen = () => {
   };
 
   const handleButtonClick = async () => {
-    // Chamada do endpoint
-
     var token = await ProjectService.authenticate({ token: "123" });
 
     if ((token && token.data) != undefined) {

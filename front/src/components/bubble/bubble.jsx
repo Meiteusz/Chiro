@@ -44,9 +44,7 @@ function Bubble({
     if (notAuthenticate) {
       return;
     }
-
     event.preventDefault();
-
     if (
       event.target.id === bubble.i ||
       event.target.parentElement.id === bubble.i

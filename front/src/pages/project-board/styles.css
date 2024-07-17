@@ -19,7 +19,7 @@
 }
 
 .time-line {
-  flex: 1;
+  display: "flex";
 }
 
 .add-bubble {

@@ -112,6 +112,13 @@ namespace Chiro.Persistence.Repositories
         public async Task<DateTime> GetNewerEndDateByProjectId(long projectId)
             => await _context.BoardActions.Where(x => x.ProjectId == projectId)
                                           .OrderByDescending(x => x.EndDate)
-                                          .Select(s => s.EndDate.GetValueOrDefault()).FirstOrDefaultAsync();
+                                          .Select(s => s.EndDate.GetValueOrDefault())
+                                          .FirstOrDefaultAsync();
+
+        public async Task<int> GetBiggestTimelineRowByProjectId(long projectId)
+            => await _context.BoardActions.Where(x => x.ProjectId == projectId)
+                                          .OrderByDescending(x => x.TimelineRow)
+                                          .Select(s => s.TimelineRow)
+                                          .FirstOrDefaultAsync() ?? 0;
     }
 }

@@ -39,6 +39,7 @@ const Timeline = ({
   onContentChanged,
   onColorChanged,
   notAuthenticate,
+  setLoading,
 }) => {
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
@@ -59,8 +60,7 @@ const Timeline = ({
   });
   const [startTimelinePeriod, setStartTimelinePeriod] = useState(null);
   const [quantityYearsPeriod, setQuantityYearsPeriod] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [timelineFinished, setTimelineFinished] = useState(false);
+  const [timelineConfigured, setTimelineConfigured] = useState(false);
   let quantityDays = calculateDaysQuantity(
     startTimelinePeriod,
     quantityYearsPeriod
@@ -70,6 +70,7 @@ const Timeline = ({
     quantityYearsPeriod
   );
   const [quantityColumns, setQuantityColumns] = useState(quantityDays);
+  const [timelineRow, setTimelineRow] = useState(0);
 
   useEffect(() => {
     loadThrowedBubbles();
@@ -81,14 +82,14 @@ const Timeline = ({
 
   useEffect(() => {
     if (bubbleProjectId) {
-      getPeriod();
+      getConfiguration();
 
-      if (timelineFinished) {
+      if (timelineConfigured) {
         loadBubbles();
         scrollToCurrentDate();
       }
     }
-  }, [bubbleProjectId, timelineFinished]);
+  }, [bubbleProjectId, timelineConfigured]);
 
   useEffect(() => {
     if (bubbleBeingDeleted) {
@@ -119,26 +120,32 @@ const Timeline = ({
 
       setLayout((prevLayout) => [...prevLayout, layoutBubble]);
       setLayoutCustomProps((prevLayout) => [...prevLayout, layoutBubbleProps]);
+
+      BoardActionService.changePeriod({
+        Id: layoutBubble.i,
+        StartDate: layoutBubbleProps.startsDate,
+        EndDate: layoutBubbleProps.endsDate,
+        TimelineRow: layoutBubble.y,
+      });
     }
   };
   //#endregion
 
-  //#region getPeriod
-  const getPeriod = () => {
-    setIsLoading(true);
-
-    ProjectService.getTimelinePeriod(bubbleProjectId)
+  //#region getConfiguration
+  const getConfiguration = () => {
+    ProjectService.getTimelineConfiguration(bubbleProjectId)
       .then((res) => {
         let startDateTimelinePeriod = new Date(
-          res.data.startDate
+          res.data.period.startDate
         ).getFullYear();
         let quantityDateYearsPeriod =
-          new Date(res.data.endDate).getFullYear() -
-          new Date(res.data.startDate).getFullYear() +
+          new Date(res.data.period.endDate).getFullYear() -
+          new Date(res.data.period.startDate).getFullYear() +
           1;
 
         setStartTimelinePeriod(startDateTimelinePeriod);
         setQuantityYearsPeriod(quantityDateYearsPeriod);
+        setTimelineRow(res.data.biggestRow);
 
         setQuantityColumns(
           calculateDaysQuantity(
@@ -146,13 +153,14 @@ const Timeline = ({
             quantityDateYearsPeriod
           )
         );
-        setTimelineFinished(true);
+        setTimelineConfigured(true);
       })
       .catch((error) => {
         console.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-
-    setIsLoading(false);
   };
   //#endregion
 
@@ -162,6 +170,9 @@ const Timeline = ({
       .then((res) => {
         res.data.boardActions.forEach((boardAction) => {
           var data = calculateDifferenceInDays(boardAction);
+          var bubbleCompleted =
+            boardAction.concludedAt !== undefined &&
+            boardAction.concludedAt !== null;
 
           setLayout((prevLayout) => [
             ...prevLayout,
@@ -169,9 +180,9 @@ const Timeline = ({
               x: data.differenceFromStartDate,
               w: data.differenceInDays,
               i: boardAction.id.toString(),
-              y: boardAction.timelineRow?.toString() ?? "0",
+              y: boardAction.timelineRow ?? 0,
               h: 1,
-              isCompleted: boardAction.concludedAt == undefined,
+              static: bubbleCompleted,
             },
           ]);
 
@@ -183,6 +194,7 @@ const Timeline = ({
               color: boardAction.color,
               startsDate: new Date(boardAction.startDate),
               endsDate: new Date(boardAction.endDate),
+              isCompleted: bubbleCompleted,
             },
           ]);
 
@@ -195,6 +207,9 @@ const Timeline = ({
       })
       .catch((error) => {
         console.error("Error fetching project:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
   //#endregion
@@ -516,7 +531,18 @@ const Timeline = ({
     );
 
     // Se for comentar, lembrar de salvar o setLayout com o static: true
-    calculateProfitDays(id);
+    //calculateProfitDays(id);
+
+    setLayout((prevBubble) =>
+      prevBubble.map((prevBox) =>
+        prevBox.i === id
+          ? {
+              ...prevBox,
+              static: true,
+            }
+          : prevBox
+      )
+    );
 
     if (update) {
       BoardActionService.conclude({
@@ -635,28 +661,30 @@ const Timeline = ({
           id="timeline-body"
           style={{ marginTop: "5px", whiteSpace: "nowrap" }}
         >
-          {Array.from({ length: 9 }).map((_, rowIndex) => (
-            <div key={rowIndex}>
-              {viewMode !== timelineViewMode.year && (
-                <div
-                  className="current-day-timeline"
-                  style={{
-                    left: `${currentDayPosition}px`,
-                  }}
-                />
-              )}
-              {Array.from({ length: quantityColumns }).map((_, colIndex) => (
-                <div
-                  key={colIndex}
-                  className="cell-matriz"
-                  style={{
-                    width: `${getCellWidth()}px`,
-                    height: `${initialHeight}px`,
-                  }}
-                ></div>
-              ))}
-            </div>
-          ))}
+          {Array.from({ length: timelineRow < 8 ? 8 : timelineRow }).map(
+            (_, rowIndex) => (
+              <div key={rowIndex}>
+                {viewMode !== timelineViewMode.year && (
+                  <div
+                    className="current-day-timeline"
+                    style={{
+                      left: `${currentDayPosition}px`,
+                    }}
+                  />
+                )}
+                {Array.from({ length: quantityColumns }).map((_, colIndex) => (
+                  <div
+                    key={colIndex}
+                    className="cell-matriz"
+                    style={{
+                      width: `${getCellWidth()}px`,
+                      height: `${initialHeight}px`,
+                    }}
+                  ></div>
+                ))}
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>

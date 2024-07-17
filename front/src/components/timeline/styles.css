@@ -1,15 +1,5 @@
-.container-bubble {
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* padding: 1px; */
-  border: 1px solid;
-  z-index: 999;
-}
-
 .container-timeline {
-  padding-bottom: 600px;
+  padding-bottom: 540px;
   position: relative;
   overflow-x: auto;
 }

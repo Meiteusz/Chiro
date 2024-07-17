@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, use } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import RGL, { WidthProvider } from "react-grid-layout";
 import AddIcon from "@mui/icons-material/Add";
@@ -13,6 +13,7 @@ import Bubble from "@/components/bubble/bubble";
 import StartEndDateModal from "@/components/modal/starts-end-date-modal";
 import BoardActionService from "@/services/requests/board-action-service";
 import ProjectService from "@/services/requests/project-service";
+import Loading from "@/components/loading/Loading";
 import { BoardActionType } from "@/utils/constants";
 
 import "@/app/globals.css";
@@ -21,6 +22,7 @@ import "./styles.css";
 const ReactGridLayout = WidthProvider(RGL);
 
 function ProjectBoard() {
+  const [loading, setLoading] = useState(false);
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
   const [dateModalOpened, setDateModalOpened] = useState(false);
   const [currentStartsDate, setCurrentStartsDate] = useState(null);
@@ -36,7 +38,6 @@ function ProjectBoard() {
   const [layoutTimeline, setLayoutTimeline] = useState();
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
 
-  const [loadingBoard, setLoadingBoard] = useState();
   const [bubbleBeingDeleted, setBubbleBeingDeleted] = useState();
   const [bubbleContentChanged, setBubbleContentChanged] = useState();
   const [bubbleColorChanged, setBubbleColorChanged] = useState();
@@ -47,51 +48,56 @@ function ProjectBoard() {
 
   useEffect(() => {
     if (bubbleProjectId) {
-      ProjectService.getProjectName(bubbleProjectId)
-        .then((res) => {
-          setProjectName(res.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching project name:", error);
-        });
-
-      ProjectService.getById(bubbleProjectId)
-        .then((res) => {
-          res.data.boardActions.forEach((boardAction) => {
-            const newItem = {
-              i: boardAction.id.toString(),
-              w: boardAction.width,
-              h: boardAction.height,
-              x: boardAction.positionX,
-              y: boardAction.positionY,
-              minW: 4,
-              maxW: 10,
-              minH: 2,
-              maxH: 5,
-            };
-
-            const newCustomProps = {
-              bubbleId: boardAction.id.toString(),
-              title: boardAction.content,
-              color: boardAction.color,
-              type: boardAction.boardActionType,
-              startsDate: new Date(boardAction.startDate),
-              endsDate: new Date(boardAction.endDate),
-              trace: false,
-            };
-
-            setLayout((prevLayout) => [...prevLayout, newItem]);
-            setLayoutCustomProps((prevCustomProps) => [
-              ...prevCustomProps,
-              newCustomProps,
-            ]);
-          });
-        })
-        .catch((error) => {
-          console.error("Error fetching project:", error);
-        });
+      inicializeBubblesBoard();
     }
   }, [bubbleProjectId]);
+
+  const inicializeBubblesBoard = () => {
+    setLoading(true);
+    ProjectService.getProjectName(bubbleProjectId)
+      .then((res) => {
+        setProjectName(res.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching project name:", error);
+      });
+
+    ProjectService.getById(bubbleProjectId)
+      .then((res) => {
+        res.data.boardActions.forEach((boardAction) => {
+          const newItem = {
+            i: boardAction.id.toString(),
+            w: boardAction.width,
+            h: boardAction.height,
+            x: boardAction.positionX,
+            y: boardAction.positionY,
+            minW: 4,
+            maxW: 10,
+            minH: 2,
+            maxH: 5,
+          };
+
+          const newCustomProps = {
+            bubbleId: boardAction.id.toString(),
+            title: boardAction.content,
+            color: boardAction.color,
+            type: boardAction.boardActionType,
+            startsDate: new Date(boardAction.startDate),
+            endsDate: new Date(boardAction.endDate),
+            trace: boardAction.startDate && boardAction.endDate,
+          };
+
+          setLayout((prevLayout) => [...prevLayout, newItem]);
+          setLayoutCustomProps((prevCustomProps) => [
+            ...prevCustomProps,
+            newCustomProps,
+          ]);
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching bubbles project:", error);
+      });
+  };
 
   const handleOpenMenuBubbleOptions = (event) => {
     setMenuBubbleOptions(event.currentTarget);
@@ -155,13 +161,6 @@ function ProjectBoard() {
       prevCustomProps.filter((item) => item.bubbleId !== id)
     );
     setBubbleBeingDeleted(id);
-
-    console.log({
-      A: a,
-      A1: layoutCustomProps,
-      B: b,
-      B1: layout,
-    });
 
     BoardActionService.deleteAsync(id);
   };
@@ -345,11 +344,11 @@ function ProjectBoard() {
       );
 
       // Chamada do endpoint
-      BoardActionService.changePeriod({
-        Id: boardActionId,
-        StartDate: currentStartsDate,
-        EndDate: currentEndsDate,
-      });
+      //BoardActionService.changePeriod({
+      //  Id: boardActionId,
+      //  StartDate: currentStartsDate,
+      //  EndDate: currentEndsDate,
+      //});
 
       //#region Criação da bolha de rastro
 
@@ -480,7 +479,9 @@ function ProjectBoard() {
     ]);
   };
 
-  return (
+  return 1 == 2 ? (
+    <Loading />
+  ) : (
     <div>
       <Navbar showMenu projectName={projectName} projectId={bubbleProjectId} />
       <div className="container-boards">
@@ -534,7 +535,6 @@ function ProjectBoard() {
             cols={50}
             containerPadding={[0, 0]}
             maxRows={23.5}
-            //maxRows={46}
             onDragStop={onBubbleDragStop}
             onResizeStop={onBubbleResizeStop}
             style={{
@@ -572,10 +572,10 @@ function ProjectBoard() {
             layoutBubbleProps={layoutCustomPropsTimeline}
             bubbleProjectId={bubbleProjectId}
             onBubbleLoad={onBubbleLoad}
-            loadingBoard={loadingBoard}
             bubbleBeingDeleted={bubbleBeingDeleted}
             onContentChanged={bubbleContentChanged}
             onColorChanged={bubbleColorChanged}
+            setLoading={setLoading}
           />
         </div>
       </div>

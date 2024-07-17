@@ -160,14 +160,19 @@ namespace Chiro.API.Controllers
         }
 
         /// <summary>
-        /// Busca as datas para inicio e fim da Timeline
+        /// Busca as cofigurações para para montar a Timeline
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("timeline-period/{id}")]
-        public async Task<IActionResult> GetTimelinePeriod(long id)
+        [HttpGet("timeline-configuration/{id}")]
+        public async Task<IActionResult> GetTimelineConfiguration(long id)
         {
-            var result = await _projectService.GetTimelinePeriodAsync(id);
+            var result = new TimelineConfigurationDTO()
+            {
+                Period = await _projectService.GetTimelinePeriodAsync(id),
+                BiggestRow = await _projectService.GetBiggestTimelineRow(id)
+            };
+
             return Ok(result);
         }
 

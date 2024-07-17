@@ -72,11 +72,11 @@ const changeName = async (data) => {
   }
 };
 
-const getTimelinePeriod = async (id) => {
+const getTimelineConfiguration = async (id) => {
   try {
-    return await useGet(ENDPOINTS.project.getTimelinePeriod(id));
+    return await useGet(ENDPOINTS.project.getTimelineConfiguration(id));
   } catch (error) {
-    console.error("Busca dos periodos da timeline falhou:", error);
+    console.error("Busca das configurações da timeline falhou:", error);
   }
 }
 
@@ -96,6 +96,6 @@ export default { create,
                  changeColor, 
                  deleteAsync, 
                  changeName, 
-                 getTimelinePeriod, 
+                 getTimelineConfiguration, 
                  getProjectName };
 

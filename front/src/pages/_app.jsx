@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { useLayoutEffect } from "react";
-import NextNProgress from "nextjs-progressbar";
 
 import { getCookie } from "@/data/cookies";
 import cookiesKeys from "@/data/keys";
@@ -15,10 +14,5 @@ export default function App({ Component, pageProps }) {
     }
   }, []);
 
-  return (
-    <>
-      <NextNProgress />
-      <Component {...pageProps} />
-    </>
-  );
+  return <Component {...pageProps} />;
 }

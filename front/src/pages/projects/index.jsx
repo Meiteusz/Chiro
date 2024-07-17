@@ -7,54 +7,60 @@ import AddIcon from "@mui/icons-material/Add";
 
 import Navbar from "@/components/navbar";
 import Bubble from "@/components/bubble/bubble";
+import ProjectService from "@/services/requests/project-service";
+import Loading from "@/components/loading/Loading";
 
 import "@/app/globals.css";
 import "./styles.css";
-import ProjectService from "@/services/requests/project-service";
 
 const ReactGridLayout = WidthProvider(RGL);
 
 const ProjectBoard = () => {
+  const [loading, setLoading] = useState(false);
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
   const [canDragBubbles, setCanDragBubbles] = useState(true);
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    setLoading(true);
     inicializeBubblesLayout();
-    setLoading(false);
   }, []);
 
-  const inicializeBubblesLayout = async () => {
-    var bubblesResponse = await ProjectService.getAll();
+  const inicializeBubblesLayout = () => {
+    setLoading(true);
+    ProjectService.getAll()
+      .then((res) => {
+        res.data.map((project) => {
+          const newItem = {
+            x: project.positionX,
+            y: project.positionY,
+            w: project.width,
+            h: project.height,
+            i: project.id.toString(),
+            minH: 2,
+            maxH: 7,
+            minW: 2,
+            maxW: 5,
+          };
 
-    bubblesResponse &&
-      bubblesResponse.data.map((project) => {
-        const newItem = {
-          x: project.positionX,
-          y: project.positionY,
-          w: project.width,
-          h: project.height,
-          i: project.id.toString(),
-          minH: 2,
-          maxH: 7,
-          minW: 2,
-          maxW: 5,
-        };
+          const newCustomProps = {
+            bubbleId: project.id.toString(),
+            title: project.name,
+            color: project.color,
+          };
 
-        const newCustomProps = {
-          bubbleId: project.id.toString(),
-          title: project.name,
-          color: project.color,
-        };
-
-        setLayout((prevLayout) => [...prevLayout, newItem]);
-        setLayoutCustomProps((prevCustomProps) => [
-          ...prevCustomProps,
-          newCustomProps,
-        ]);
+          setLayout((prevLayout) => [...prevLayout, newItem]);
+          setLayoutCustomProps((prevCustomProps) => [
+            ...prevCustomProps,
+            newCustomProps,
+          ]);
+        });
+      })
+      .catch((error) => {
+        console.log("Error fetching projects: ", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -150,65 +156,59 @@ const ProjectBoard = () => {
     });
   };
 
-  return (
+  return loading ? (
+    <Loading />
+  ) : (
     <div>
-      {loading ? (
-        <div className="loading-container">
-          <div className="spinner"></div>
-        </div>
-      ) : (
-        <div>
-          <Navbar projectName="Projetos" />
-          <button className="add-bubble" onClick={handleAddBubble}>
-            <AddIcon />
-          </button>
-          <div>
-            <ReactGridLayout
-              className="container-layout"
-              onLayoutChange={(newLayout) => setLayout(newLayout)}
-              layout={layout}
-              compactType={null}
-              isResizable={true}
-              isDraggable={canDragBubbles}
-              margin={[1, 1]}
-              rowHeight={25}
-              preventCollision={true}
-              onDragStop={onUpdateBubble}
-              onResizeStop={onUpdateBubble}
+      <Navbar projectName="Projetos" />
+      <button className="add-bubble" onClick={handleAddBubble}>
+        <AddIcon />
+      </button>
+      <div>
+        <ReactGridLayout
+          className="container-layout"
+          onLayoutChange={(newLayout) => setLayout(newLayout)}
+          layout={layout}
+          compactType={null}
+          isResizable={true}
+          isDraggable={canDragBubbles}
+          margin={[1, 1]}
+          rowHeight={25}
+          preventCollision={true}
+          onDragStop={onUpdateBubble}
+          onResizeStop={onUpdateBubble}
+        >
+          {layout.map((bubble) => (
+            <div
+              className="container-bubble"
+              key={bubble.i}
+              style={{
+                backgroundColor:
+                  (layoutCustomProps &&
+                    layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                      .color) ??
+                  "black",
+              }}
             >
-              {layout.map((bubble) => (
-                <div
-                  className="container-bubble"
-                  key={bubble.i}
-                  style={{
-                    backgroundColor:
-                      (layoutCustomProps &&
-                        layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                          .color) ??
-                      "black",
-                  }}
-                >
-                  <Bubble
-                    canOpen
-                    canChangeColor
-                    canDelete
-                    onChangeColor={handleChangeColor}
-                    onChangeTitle={handleChangeTitle}
-                    onDoubleClick={handleDoubleClick}
-                    onDelete={handleDeleteBubble}
-                    canDrag={setCanDragBubbles}
-                    bubble={bubble}
-                    bubbleCustomProps={
-                      layoutCustomProps &&
-                      layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                    }
-                  />
-                </div>
-              ))}
-            </ReactGridLayout>
-          </div>
-        </div>
-      )}
+              <Bubble
+                canOpen
+                canChangeColor
+                canDelete
+                onChangeColor={handleChangeColor}
+                onChangeTitle={handleChangeTitle}
+                onDoubleClick={handleDoubleClick}
+                onDelete={handleDeleteBubble}
+                canDrag={setCanDragBubbles}
+                bubble={bubble}
+                bubbleCustomProps={
+                  layoutCustomProps &&
+                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                }
+              />
+            </div>
+          ))}
+        </ReactGridLayout>
+      </div>
     </div>
   );
 };

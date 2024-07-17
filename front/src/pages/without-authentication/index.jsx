@@ -11,52 +11,73 @@ import Navbar from "@/components/navbar";
 import "@/app/globals.css";
 import "./styles.css";
 import "../projects/styles.css";
+import Loading from "@/components/loading/Loading";
 
 function BoardWithOutAuthentication() {
   const router = useRouter();
   const { param } = router.query;
 
+  const [loading, setLoading] = useState(false);
   const [paramValue, setParamValue] = useState("");
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
   const [canDragBubbles, setCanDragBubbles] = useState(false);
-  const [loadingBoard, setLoadingBoard] = useState();
   const [projectId, setProjectId] = useState(0);
   const [projectName, setProjectName] = useState("");
 
   const ReactGridLayout = WidthProvider(RGL);
 
-  const handleGetProject = async (param) => {
-    try {
-      const id = await BoardWithoutAuthenticationService.getProjectWithToken(
-        param
-      );
-      setProjectId(id);
+  useEffect(() => {
+    if (param) {
+      setParamValue(param);
+    }
+  }, [param]);
 
-      if (id) {
-        ProjectService.getProjectName(id)
-          .then((res) => {
-            setProjectName(res.data);
-          })
-          .catch((error) => {
-            console.error("Error fetching project name:", error);
-          });
+  useEffect(() => {
+    if (paramValue) {
+      handleGetProject(paramValue);
+    }
+  }, [paramValue]);
 
-        const res = await ProjectService.getById(id);
-        res.data.boardActions.forEach((boardActions) => {
-          handleAddBubbles({
-            width: boardActions.width,
-            height: boardActions.height,
-            x: boardActions.positionX,
-            y: boardActions.positionY,
-            id: boardActions.id.toString(),
-            content: boardActions.content,
-            color: boardActions.color,
-          });
+  const handleGetProject = (param) => {
+    BoardWithoutAuthenticationService.getProjectWithToken(param)
+      .then((res) => {
+        setProjectId(res);
+      })
+      .catch((error) => {
+        console.log("Error fetching project by token: ", error);
+      });
+
+    if (projectId) {
+      setLoading(true);
+      ProjectService.getProjectName(projectId)
+        .then((res) => {
+          setProjectName(res.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching project name: ", error);
         });
-      }
-    } catch (error) {
-      console.error("Erro ao obter o ID do projeto:", error);
+
+      ProjectService.getById(projectId)
+        .then((res) => {
+          res.data.boardActions.map((boardActions) => {
+            handleAddBubbles({
+              width: boardActions.width,
+              height: boardActions.height,
+              x: boardActions.positionX,
+              y: boardActions.positionY,
+              id: boardActions.id.toString(),
+              content: boardActions.content,
+              color: boardActions.color,
+            });
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching project name: ", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   };
 
@@ -94,8 +115,6 @@ function BoardWithOutAuthentication() {
       return;
     }
 
-    console.log("oii");
-
     const newItemRastro = {
       w: bubble.width,
       h: bubble.height,
@@ -124,19 +143,9 @@ function BoardWithOutAuthentication() {
     ]);
   };
 
-  useEffect(() => {
-    if (param) {
-      setParamValue(param);
-    }
-  }, [param]);
-
-  useEffect(() => {
-    if (paramValue) {
-      handleGetProject(paramValue);
-    }
-  }, [paramValue]);
-
-  return (
+  return loading ? (
+    <Loading />
+  ) : (
     <div className="container-boards">
       <Navbar projectName={projectName} />
       <div className="top-board">
@@ -169,9 +178,9 @@ function BoardWithOutAuthentication() {
       <div id="timeline" className="time-line">
         <Timeline
           bubbleProjectId={projectId}
-          loadingBoard={loadingBoard}
           onBubbleLoad={onBubbleLoad}
           notAuthenticate={true}
+          setLoading={setLoading}
         />
       </div>
     </div>

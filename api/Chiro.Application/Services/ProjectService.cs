@@ -133,5 +133,12 @@ namespace Chiro.Application.Services
 
             return await _projectRepository.GetName(projectId);
         }
+
+        public async Task<int> GetBiggestTimelineRow(long projectId)
+        {
+            ArgumentNullException.ThrowIfNull(projectId);
+
+            return await _boardActionRepository.GetBiggestTimelineRowByProjectId(projectId);
+        }
     }
 }

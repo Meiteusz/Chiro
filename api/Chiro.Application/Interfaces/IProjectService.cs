@@ -28,5 +28,7 @@ namespace Chiro.Application.Interfaces
         Task<TimelinePeriodDTO> GetTimelinePeriodAsync(long projectId);
 
         Task<string> GetProjectNameAsync(long projectId);
+
+        Task<int> GetBiggestTimelineRow(long projectId);
     }
 }

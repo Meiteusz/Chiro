@@ -1,5 +1,5 @@
-import { ENDPOINTS } from "../endpoints";
-import { useGet } from "./api-client";
+import { ENDPOINTS } from '@/services/endpoints';
+import { useGet } from "@/services/api-client";
 
 function generateRandomNumber() {
   // Gera um número aleatório entre 0 e 999999 (inclusive)

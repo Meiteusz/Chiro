@@ -29,5 +29,6 @@ namespace Chiro.Domain.Interfaces
         Task<bool> ChangeContentAsync(long boardActionId, BoardAction boardAction);
 
         Task<DateTime> GetNewerEndDateByProjectId(long projectId);
+        Task<int> GetBiggestTimelineRowByProjectId(long projectId);
     }
 }

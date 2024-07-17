@@ -8,9 +8,10 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 
-import "@/app/globals.css";
 import ShareableLinkModal from "@/components/modal/link/shareable-link-modal";
 import BoardWithoutAuthenticationService from "@/services/requests/board-without-authentication-service";
+
+import "@/app/globals.css";
 
 function Navbar({ projectName, showMenu, projectId }) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -18,7 +19,7 @@ function Navbar({ projectName, showMenu, projectId }) {
   const [url, setUrl] = useState("");
   const openMenu = Boolean(anchorEl);
   const router = useRouter();
-  
+
   const handleOpenMenuButtons = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -31,7 +32,7 @@ function Navbar({ projectName, showMenu, projectId }) {
     const url = await BoardWithoutAuthenticationService.createLink(projectId);
     setUrl(url);
     setAnchorEl(null);
-    setOpenModal(true); 
+    setOpenModal(true);
   };
 
   const handleCloseShareableLinkModal = () => {
@@ -59,15 +60,17 @@ function Navbar({ projectName, showMenu, projectId }) {
                 <MenuIcon />
               </IconButton>
 
-              <Menu anchorEl={anchorEl} open={openMenu} onClose={handleCloseMenu}>
-                <MenuItem onClick={() => router.push("/projects")}>
-                  Novo Projeto
-                </MenuItem>
-
+              <Menu
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleCloseMenu}
+              >
                 <MenuItem onClick={() => router.push("/projects")}>
                   Ver Projetos
                 </MenuItem>
-                <MenuItem onClick={handleOpenShareableLinkModal}>Criar Link</MenuItem>
+                <MenuItem onClick={handleOpenShareableLinkModal}>
+                  Criar Link
+                </MenuItem>
               </Menu>
             </div>
           )}

@@ -14,7 +14,7 @@ const ENDPOINTS = {
     conclude: `board-action/conclude`,
     link: `board-action/link`,
     delete: (id) => `board-action/${id}`,
-    changeContent: `board-action/change-content`
+    changeContent: `board-action/change-content`,
   },
   project: {
     base: `project`,
@@ -24,7 +24,7 @@ const ENDPOINTS = {
     move: `project/move`,
     delete: (id) => `project/${id}`,
     changeName: `project/change-name`,
-    getTimelinePeriod: (id) => `project/timeline-period/${id}`,
+    getTimelineConfiguration: (id) => `project/timeline-configuration/${id}`,
     getName: (id) => `project/name/${id}`,
   },
   boardWithoutAuthentication: {
