@@ -38,3 +38,14 @@
   font-family: "Segoe UI", sans-serif;
   font-weight: 600;
 }
+
+.react-transform-wrapper, .react-transform-component, .react-transform-element, .react-grid-layout  {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}
+
+.react-grid-layout {
+  border: 1px solid black;
+}
