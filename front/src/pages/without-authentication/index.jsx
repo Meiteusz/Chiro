@@ -24,6 +24,7 @@ function BoardWithOutAuthentication() {
   const [canDragBubbles, setCanDragBubbles] = useState(false);
   const [projectId, setProjectId] = useState(0);
   const [projectName, setProjectName] = useState("");
+  const [error, setError] = useState("");
 
   const ReactGridLayout = WidthProvider(RGL);
 
@@ -68,15 +69,17 @@ function BoardWithOutAuthentication() {
               });
             })
             .catch((error) => {
-              console.error("Error fetching project name: ", error);
+              console.error("Error fetching project: ", error);
             })
             .finally(() => {
               setLoading(false);
             });
         }
+
       })
       .catch((error) => {
-        console.log("Error fetching project by token: ", error);
+        console.log("Error fetching project by token: ", error.response.data);
+        setError(error.response.data.message + error.response.data.error);
       });
   };
 
@@ -147,6 +150,7 @@ function BoardWithOutAuthentication() {
   ) : (
     <div className="container-boards">
       <Navbar projectName={projectName} />
+      {error && <h1 style={{textAlign: 'center', fontSize: '3rem', marginTop: '20vh'}}>{error}</h1>}
       <div className="top-board">
         <ReactGridLayout
           isResizable={false}

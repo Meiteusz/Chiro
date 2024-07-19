@@ -1,6 +1,8 @@
 using Chiro.Application.Interfaces;
 using Chiro.Application.Services;
 using Chiro.Domain.Interfaces;
+using Chiro.Domain.Utils;
+using Chiro.Domain.Utils.interfaces;
 using Chiro.Infra;
 using Chiro.Persistence.Repositories;
 using dotenv.net;
@@ -52,6 +54,8 @@ builder.Services.AddSwaggerGen(option =>
     );
 });
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddTransient<ProjectContext>();
 builder.Services.AddTransient<IBoardActionService, BoardActionService>();
 builder.Services.AddTransient<IBoardActionRepository, BoardActionRepository>();
@@ -59,6 +63,8 @@ builder.Services.AddTransient<IProjectService, ProjectService>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
 builder.Services.AddTransient<IAuthenticationTokenService, AuthenticationTokenService>();
 builder.Services.AddTransient<IAuthenticationTokenRepository, AuthenticationTokenRepository>();
+builder.Services.AddTransient<IBoardWithoutAuthenticationService, BoardWithoutAuthenticationService>();
+builder.Services.AddTransient<ICacheManager, CacheManager>();
 
 DotEnv.Load();
 
