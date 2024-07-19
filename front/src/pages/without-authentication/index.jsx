@@ -126,20 +126,20 @@ function BoardWithOutAuthentication() {
       minH: 2,
       maxH: 5,
     };
-
+    
     const newCustomPropsRastro = {
-      bubbleId: newItemRastro.i,
-      title: bubble.content,
-      color: bubble.color,
-      startsDate: new Date(bubble.startDate),
-      endsDate: new Date(bubble.endDate),
-      trace: true,
+        bubbleId: newItemRastro.i,
+        title: bubble.content,
+        color: bubble.color,
+        startsDate: new Date(bubble.startDate),
+        endsDate: new Date(bubble.endDate),
+        trace: true,
     };
-
+    
     setLayout((prevLayout) => [...prevLayout, newItemRastro]);
     setLayoutCustomProps((prevCustomProps) => [
-      ...prevCustomProps,
-      newCustomPropsRastro,
+        ...prevCustomProps,
+        newCustomPropsRastro,
     ]);
   };
 
