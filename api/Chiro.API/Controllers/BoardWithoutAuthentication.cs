@@ -1,4 +1,5 @@
-﻿using Chiro.Domain.Utils;
+﻿using Chiro.Application.Interfaces;
+using Chiro.Domain.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,12 @@ namespace Chiro.API.Controllers
     [Route("api/v1/board-without-authentication")]
     public class BoardWithoutAuthentication : ControllerBase
     {
+        private IBoardWithoutAuthenticationService _service;
+        public BoardWithoutAuthentication(IBoardWithoutAuthenticationService service)
+        {
+            _service = service;   
+        }
+
         [HttpGet("create-link")]
         public async Task<IActionResult> CreateLink(string projectId, string randomNumbers)
         {
@@ -24,8 +31,8 @@ namespace Chiro.API.Controllers
                     return BadRequest("Número aleatório inválido");
                 }
 
-                var token = new AES().GenerateAesTokenWithProjectId(_projectId, _randomNumbers);
-                var url = $"http://localhost:3000/without-authentication?param={token}";
+                var token = _service.GenerateToken(_projectId, _randomNumbers);
+                var url = _service.GenerateUrl(token);
 
                 return Ok(url);
             }
@@ -38,11 +45,10 @@ namespace Chiro.API.Controllers
         [AllowAnonymous]
         [HttpGet("get-project-with-token")]
         public async Task<IActionResult> GetProjectIdWithToken(string token)
-        {
-            var projectId = new AES().DecryptAesToken(token).Split("|")[0];
-
+        {         
             try
             {
+                var projectId = _service.DecryptToken(token);
                 return Ok(projectId);
             }
             catch (Exception e)
