@@ -43,42 +43,41 @@ function BoardWithOutAuthentication() {
     BoardWithoutAuthenticationService.getProjectWithToken(param)
       .then((res) => {
         setProjectId(res);
+        if (res) {
+          setLoading(true);
+          ProjectService.getProjectName(res)
+            .then((res) => {
+              setProjectName(res.data);
+            })
+            .catch((error) => {
+              console.error("Error fetching project name: ", error);
+            });
+  
+          ProjectService.getById(res)
+            .then((res) => {
+              res.data.boardActions.forEach((boardActions) => {
+                handleAddBubbles({
+                  width: boardActions.width,
+                  height: boardActions.height,
+                  x: boardActions.positionX,
+                  y: boardActions.positionY,
+                  id: boardActions.id.toString(),
+                  content: boardActions.content,
+                  color: boardActions.color,
+                });
+              });
+            })
+            .catch((error) => {
+              console.error("Error fetching project name: ", error);
+            })
+            .finally(() => {
+              setLoading(false);
+            });
+        }
       })
       .catch((error) => {
         console.log("Error fetching project by token: ", error);
       });
-
-    if (projectId) {
-      setLoading(true);
-      ProjectService.getProjectName(projectId)
-        .then((res) => {
-          setProjectName(res.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching project name: ", error);
-        });
-
-      ProjectService.getById(projectId)
-        .then((res) => {
-          res.data.boardActions.map((boardActions) => {
-            handleAddBubbles({
-              width: boardActions.width,
-              height: boardActions.height,
-              x: boardActions.positionX,
-              y: boardActions.positionY,
-              id: boardActions.id.toString(),
-              content: boardActions.content,
-              color: boardActions.color,
-            });
-          });
-        })
-        .catch((error) => {
-          console.error("Error fetching project name: ", error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
   };
 
   const handleAddBubbles = ({ width, height, x, y, id, content, color }) => {
