@@ -81,8 +81,6 @@ function BoardWithOutAuthentication () {
           return;
         }
 
-        console.log("oii")
-
         const newItemRastro = {
           w: bubble.width,
           h: bubble.height,

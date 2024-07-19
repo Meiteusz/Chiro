@@ -35,6 +35,7 @@ namespace Chiro.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("get-project-with-token")]
         public async Task<IActionResult> GetProjectIdWithToken(string token)
         {
