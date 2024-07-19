@@ -653,6 +653,7 @@ const Timeline = ({
                   delayedBubbles.find((x) => x.bubbleId === bubble.i)
                     .delayedTime
                 }
+                notAuthenticate={notAuthenticate}
               />
             </div>
           ))}
