@@ -5,7 +5,7 @@ import RGL, { WidthProvider } from "react-grid-layout";
 import { useRouter } from "next/router";
 import AddIcon from "@mui/icons-material/Add";
 
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/navbar/navbar";
 import Bubble from "@/components/bubble/bubble";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";

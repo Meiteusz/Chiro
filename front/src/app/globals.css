@@ -44,7 +44,7 @@
 
 
 body {
-  font-family: "Roboto Mono", monospace;
+  font-family: "Segoe UI", sans-serif;
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
 }

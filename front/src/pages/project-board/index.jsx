@@ -7,7 +7,7 @@ import AddIcon from "@mui/icons-material/Add";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/navbar/navbar";
 import Timeline from "@/components/timeline/timeline";
 import Bubble from "@/components/bubble/bubble";
 import StartEndDateModal from "@/components/modal/starts-end-date-modal";

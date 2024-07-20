@@ -11,7 +11,7 @@
 .container-boards {
   display: flex;
   flex-direction: column;
-  height: 96vh;
+  height: 100vh;
 }
 
 .top-board {
@@ -24,8 +24,8 @@
 
 .add-bubble {
   position: absolute;
-  top: 75px;
-  right: 30px;
+  top: 15px;
+  right: 15px;
   padding: 20px;
   border-radius: 50%;
   background-color: #1C1C1C;
@@ -35,6 +35,6 @@
 }
 
 .menu-item {
-  font-family: "Roboto Mono", monospace;
+  font-family: "Segoe UI", sans-serif;
   font-weight: 600;
 }

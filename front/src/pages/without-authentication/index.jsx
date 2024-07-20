@@ -6,7 +6,7 @@ import BoardWithoutAuthenticationService from "@/services/requests/board-without
 import ProjectService from "@/services/requests/project-service";
 import Bubble from "@/components/bubble/bubble";
 import Timeline from "@/components/timeline/timeline";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/navbar/navbar";
 
 import "@/app/globals.css";
 import "./styles.css";

@@ -1,0 +1,59 @@
+.icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+}
+
+.modal-title {
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modal-description {
+  margin-bottom: 24px;
+  font-size: 1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.base-btn {
+  width: 100px;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.base-btn.delete {
+  margin-bottom: 12px;
+  background-color: #FF4141;
+  color: white;
+  border: 1px solid #FF4141;
+}
+
+.delete:hover {
+  background-color: #b71c1c;
+}
+
+.base-btn.cancel {
+  background-color: transparent;
+  color: #1C1C1C;
+}
+
+.cancel:hover {
+  color: #000000;
+}
+
+.button-container {
+  justify-content: flex-end;
+  gap: 5px;
+  float: right;
+}

@@ -127,6 +127,8 @@ const Timeline = ({
         EndDate: layoutBubbleProps.endsDate,
         TimelineRow: layoutBubble.y,
       });
+
+      setTimelineConfigured(false);
     }
   };
   //#endregion

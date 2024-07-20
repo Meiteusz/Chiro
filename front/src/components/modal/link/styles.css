@@ -1,7 +1,20 @@
 /* styles.css */
 .custom-button {
-    color: black;
-    border-color: black;
+  font-weight: 600;
+  font-size: .875rem;
+  min-height: 3rem;
+  padding: .5rem 1.5rem;
+  letter-spacing: .4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  position: relative;
+  border-radius: .5rem;
+  border-width: 1px;
+  border: 1px solid #1C1C1C;
+  user-select: none;
   }
   
   .custom-button:hover {
@@ -24,3 +37,31 @@
     padding: 20px; /* Ajuste o padding conforme necessário */
   }
   
+  .teste {
+    display: flex;
+    align-items: center;
+    border: none;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    height: 1.5rem;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 150%;
+    text-overflow: ellipsis;
+    background: transparent;
+    width: 100%;
+  }
+
+  .divtes {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 1rem;
+    height: 3rem;
+    border: 1px solid #1C1C1C;
+    border-radius: .5rem;
+    width: 100%;
+  }
