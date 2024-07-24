@@ -141,12 +141,12 @@ const Timeline = ({
             x: data.differenceFromStartDate,
             w: data.differenceInDays,
             i: boardAction.id.toString(),
-            y: boardAction.timelineRow?.toString() ?? "0",
+            y: boardAction.timelineRow ?? 0,
             h: 1,
             isCompleted: bubbleCompleted,
-            static: bubbleCompleted
+            static: bubbleCompleted,
           });
-  
+
           newLayoutCustomProps.push({
             bubbleId: boardAction.id.toString(),
             title: boardAction.content,
@@ -164,6 +164,9 @@ const Timeline = ({
       })
       .catch((error) => {
         console.error("Error fetching project:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
   //#endregion
@@ -245,7 +248,10 @@ const Timeline = ({
 
   //#region calculateDifferenceInDays
   const calculateDifferenceInDays = (boardAction) => {
-    const endDate = (boardAction.concludedAt != undefined) ? boardAction.concludedAt : boardAction.endDate;
+    const endDate =
+      boardAction.concludedAt != undefined
+        ? boardAction.concludedAt
+        : boardAction.endDate;
     var differenceInMilliseconds = Math.abs(
       new Date(endDate) - new Date(boardAction.startDate)
     );
@@ -461,7 +467,7 @@ const Timeline = ({
     }
 
     console.log({
-      WillIncreaseBy: increaseBy
+      WillIncreaseBy: increaseBy,
     });
     return increaseBy;
   };

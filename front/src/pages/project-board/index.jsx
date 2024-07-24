@@ -50,7 +50,17 @@ function ProjectBoard() {
   const router = useRouter();
   const { bubbleProjectId } = router.query;
 
-  const [defaultScale, setDefaultScale] = useState(1);
+  const [defaultScale, setDefaultScale] = useState(3);
+  const [maxRows, setMaxRows] = useState(10);
+
+  function getMaxRows() {
+    const width = window.innerWidth;
+    console.log("MAX ROWS: ", width);
+
+    if (width > 1200) return 10;
+    if (width > 900) return 8;
+    return 5;
+  }
 
   const handleScroll = (e) => {
     setDefaultScale(e.state.scale);
@@ -59,6 +69,8 @@ function ProjectBoard() {
   useEffect(() => {
     if (bubbleProjectId) {
       inicializeBubblesBoard();
+
+      getMaxRows();
     }
   }, [bubbleProjectId]);
 
@@ -108,7 +120,7 @@ function ProjectBoard() {
         console.error("Error fetching bubbles project:", error);
       });
 
-      setLoadingBoard(false);
+    setLoadingBoard(false);
   };
 
   const handleOpenMenuBubbleOptions = (event) => {
@@ -121,8 +133,8 @@ function ProjectBoard() {
 
   const handleAddBubble = async (bubbleType) => {
     const newItem = {
-      w: 4,
-      h: 2,
+      w: 45,
+      h: 3,
       x: 10,
       y: 5,
       minW: 4,
@@ -224,6 +236,7 @@ function ProjectBoard() {
 
   const onBubbleDragStart = () => {
     setCanPan(false);
+    console.log(canPan);
   };
 
   const onBubbleDragStop = (e, v) => {
@@ -251,6 +264,7 @@ function ProjectBoard() {
     //setDateModalOpened(true);
     setSelectedIdBubble(v.i);
     setCanPan(true);
+    console.log(canPan);
   };
 
   const isOverlapping = (bubbleId) => {
@@ -305,6 +319,9 @@ function ProjectBoard() {
       PositionX: changedBubble.x,
       PositionY: changedBubble.y,
     });
+
+    setCanPan(true);
+    console.log(canPan);
   };
 
   //#region ConfirmStartEndDate
@@ -326,12 +343,6 @@ function ProjectBoard() {
       var selectedBubbleCustomProps = layoutCustomProps.find(
         (x) => x.bubbleId === boardActionId
       );
-
-      BoardActionService.changePeriod({
-        Id: boardActionId,
-        StartDate: currentStartsDate,
-        EndDate: currentEndsDate,
-      });
 
       const newItem = {
         x: diasDif,
@@ -475,6 +486,16 @@ function ProjectBoard() {
         minH: 2,
         maxH: 5,
       });
+
+      newLayoutCustomProps.push({
+        bubbleId: bubble.id.toString(),
+        title: bubble.content,
+        color: bubble.color,
+        startsDate: new Date(bubble.startDate),
+        endsDate: new Date(bubble.endDate),
+        trace: bubble.timelineRow != null,
+        type: bubble.boardActionType,
+      });
     });
 
     setLayout(newLayout);
@@ -535,12 +556,19 @@ function ProjectBoard() {
               velocityDisabled: true,
             }}
             maxScale={5}
-            minScale={0.9}
+            minScale={0.1}
+            initialScale={defaultScale}
             onWheel={handleScroll}
-            options={{
-              limitToBounds: false,
-              centerContent: true,
+            doubleClick={{
+              disabled: true,
             }}
+            alignmentAnimation={{
+              disabled: true,
+            }}
+            limitToBounds={false}
+            centerOnInit={false}
+            centerZoomedOut={true}
+            disablePadding={true}
           >
             <TransformComponent>
               <ReactGridLayout
@@ -554,15 +582,16 @@ function ProjectBoard() {
                 margin={[1, 1]}
                 rowHeight={10}
                 cols={1000}
+                maxRows={365}
                 containerPadding={[0, 0]}
-                maxRows={23.5}
                 onDragStop={onBubbleDragStop}
                 onDragStart={onBubbleDragStart}
                 onResizeStop={onBubbleResizeStop}
                 onResizeStart={onBubbleDragStart}
-                useCSSTransforms={false}
                 style={{
-                  height: "100%",
+                  width: "8000px !important",
+                  height: "4016px !important",
+                  position: "fixed"
                 }}
               >
                 {layout

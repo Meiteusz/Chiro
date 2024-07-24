@@ -8,6 +8,14 @@
   border: 1px solid;
 }
 
+.container-bubble input {
+  font-size: 8px !important;
+}
+
+#timeline input {
+  font-size: 18px !important;
+}
+
 .container-boards {
   display: flex;
   flex-direction: column;
@@ -46,6 +54,11 @@
   min-height: 100% !important;
 }
 
-.react-grid-layout {
-  border: 1px solid black;
+.top-board .react-grid-layout {
+  border: 1px solid #bec1c2;
+  background-color: #e8eaeb;
+  /* border-top: 5px solid blue;
+  border-bottom: 5px solid red;
+  border-left: 5px solid green;
+  border-right: 5px solid yellow; */
 }
