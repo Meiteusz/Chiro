@@ -51,16 +51,6 @@ function ProjectBoard() {
   const { bubbleProjectId } = router.query;
 
   const [defaultScale, setDefaultScale] = useState(3);
-  const [maxRows, setMaxRows] = useState(10);
-
-  function getMaxRows() {
-    const width = window.innerWidth;
-    console.log("MAX ROWS: ", width);
-
-    if (width > 1200) return 10;
-    if (width > 900) return 8;
-    return 5;
-  }
 
   const handleScroll = (e) => {
     setDefaultScale(e.state.scale);
@@ -69,8 +59,6 @@ function ProjectBoard() {
   useEffect(() => {
     if (bubbleProjectId) {
       inicializeBubblesBoard();
-
-      getMaxRows();
     }
   }, [bubbleProjectId]);
 

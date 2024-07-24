@@ -466,9 +466,6 @@ const Timeline = ({
       }
     }
 
-    console.log({
-      WillIncreaseBy: increaseBy,
-    });
     return increaseBy;
   };
 
