@@ -8,10 +8,10 @@ namespace Chiro.API.Controllers
     [Authorize]
     [ApiController]
     [Route("api/v1/board-without-authentication")]
-    public class BoardWithoutAuthentication : ControllerBase
+    public class BoardWithoutAuthenticationController : ControllerBase
     {
         private IBoardWithoutAuthenticationService _service;
-        public BoardWithoutAuthentication(IBoardWithoutAuthenticationService service)
+        public BoardWithoutAuthenticationController(IBoardWithoutAuthenticationService service)
         {
             _service = service;   
         }

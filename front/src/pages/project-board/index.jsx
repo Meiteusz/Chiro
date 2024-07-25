@@ -46,9 +46,27 @@ function ProjectBoard() {
   const [projectName, setProjectName] = useState("");
   const [loadingBoard, setLoadingBoard] = useState(true);
   const [canPan, setCanPan] = useState(true);
+  const [bubbleProjectId, setBubbleProjectId] = useState(undefined);
 
   const router = useRouter();
-  const { bubbleProjectId } = router.query;
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const queryEncryptProjectId = router.query.bubbleProjectId;
+      console.log(queryEncryptProjectId);
+      
+      if (queryEncryptProjectId) {    
+        try {
+          const id = await ProjectService.getDecryptProjectId(queryEncryptProjectId);
+          setBubbleProjectId(id.data);
+        } catch (error) {
+          console.error('Falha ao descriptografar token:', error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [router.query.bubbleProjectId]);
 
   const [defaultScale, setDefaultScale] = useState(1);
 
@@ -58,6 +76,7 @@ function ProjectBoard() {
 
   useEffect(() => {
     if (bubbleProjectId) {
+      console.log(bubbleProjectId)
       inicializeBubblesBoard();
     }
   }, [bubbleProjectId]);
