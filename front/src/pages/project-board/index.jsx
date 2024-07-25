@@ -50,7 +50,7 @@ function ProjectBoard() {
   const router = useRouter();
   const { bubbleProjectId } = router.query;
 
-  const [defaultScale, setDefaultScale] = useState(3);
+  const [defaultScale, setDefaultScale] = useState(1);
 
   const handleScroll = (e) => {
     setDefaultScale(e.state.scale);
@@ -61,6 +61,12 @@ function ProjectBoard() {
       inicializeBubblesBoard();
     }
   }, [bubbleProjectId]);
+
+  useEffect(() => {
+    document.getElementsByClassName(
+      "transform-component-module_content__FBWxo"
+    )[0].style.transform = "translate(-20000px, -8000px)";
+  }, []);
 
   const inicializeBubblesBoard = () => {
     setLoading(true);
@@ -537,10 +543,10 @@ function ProjectBoard() {
 
           <TransformWrapper
             defaultScale={defaultScale}
-            defaultPositionX={200}
-            defaultPositionY={100}
+            initialPositionY={1}
+            initialPositionX={1}
             panning={{
-              disabled: defaultScale === 0.1 || canPan === false,
+              disabled: canPan === false,
               velocityDisabled: true,
             }}
             maxScale={5}
@@ -556,7 +562,7 @@ function ProjectBoard() {
             limitToBounds={false}
             centerOnInit={false}
             centerZoomedOut={true}
-            disablePadding={true}
+            disablePadding={false}
           >
             <TransformComponent>
               <ReactGridLayout
@@ -570,16 +576,15 @@ function ProjectBoard() {
                 margin={[1, 1]}
                 rowHeight={10}
                 cols={1000}
-                maxRows={365}
-                containerPadding={[0, 0]}
+                maxRows={455}
                 onDragStop={onBubbleDragStop}
                 onDragStart={onBubbleDragStart}
                 onResizeStop={onBubbleResizeStop}
                 onResizeStart={onBubbleDragStart}
                 style={{
                   width: "8000px !important",
-                  height: "4016px !important",
-                  position: "fixed"
+                  height: "5008px !important",
+                  position: "fixed",
                 }}
               >
                 {layout
