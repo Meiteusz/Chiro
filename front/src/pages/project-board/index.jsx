@@ -47,15 +47,15 @@ function ProjectBoard() {
   const [loadingBoard, setLoadingBoard] = useState(true);
   const [canPan, setCanPan] = useState(true);
   const [bubbleProjectId, setBubbleProjectId] = useState(undefined);
+  const [defaultScale, setDefaultScale] = useState(1);
 
   const router = useRouter();
   
   useEffect(() => {
     const fetchData = async () => {
       const queryEncryptProjectId = router.query.bubbleProjectId;
-      console.log(queryEncryptProjectId);
-      
-      if (queryEncryptProjectId) {    
+
+      if (queryEncryptProjectId) {
         try {
           const id = await ProjectService.getDecryptProjectId(queryEncryptProjectId);
           setBubbleProjectId(id.data);
@@ -67,12 +67,6 @@ function ProjectBoard() {
 
     fetchData();
   }, [router.query.bubbleProjectId]);
-
-  const [defaultScale, setDefaultScale] = useState(1);
-
-  const handleScroll = (e) => {
-    setDefaultScale(e.state.scale);
-  };
 
   useEffect(() => {
     if (bubbleProjectId) {
@@ -86,6 +80,10 @@ function ProjectBoard() {
       "transform-component-module_content__FBWxo"
     )[0].style.transform = "translate(-20000px, -8000px)";
   }, []);
+
+  const handleScroll = (e) => {
+    setDefaultScale(e.state.scale);
+  };
 
   const inicializeBubblesBoard = () => {
     setLoading(true);
