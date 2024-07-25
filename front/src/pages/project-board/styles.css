@@ -8,6 +8,14 @@
   border: 1px solid;
 }
 
+.container-bubble input {
+  font-size: 14px !important;
+}
+
+#timeline input {
+  font-size: 18px !important;
+}
+
 .container-boards {
   display: flex;
   flex-direction: column;
@@ -37,4 +45,16 @@
 .menu-item {
   font-family: "Segoe UI", sans-serif;
   font-weight: 600;
+}
+
+.react-transform-wrapper, .react-transform-component, .react-transform-element, .react-grid-layout  {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}
+
+.top-board .react-grid-layout {
+  border: 1px solid #bec1c2;
+  background-color: #e8eaeb;
 }

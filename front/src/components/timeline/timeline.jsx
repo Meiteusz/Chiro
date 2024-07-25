@@ -91,6 +91,86 @@ const Timeline = ({
     }
   }, [bubbleProjectId, timelineConfigured]);
 
+  //#region getPeriod
+  const getPeriod = () => {
+    setIsLoading(true);
+
+    ProjectService.getTimelinePeriod(bubbleProjectId)
+      .then((res) => {
+        let startDateTimelinePeriod = new Date(
+          res.data.startDate
+        ).getFullYear();
+        let quantityDateYearsPeriod =
+          new Date(res.data.endDate).getFullYear() -
+          new Date(res.data.startDate).getFullYear() +
+          1;
+
+        setStartTimelinePeriod(startDateTimelinePeriod);
+        setQuantityYearsPeriod(quantityDateYearsPeriod);
+
+        setQuantityColumns(
+          calculateDaysQuantity(
+            startDateTimelinePeriod,
+            quantityDateYearsPeriod
+          )
+        );
+        setTimelineFinished(true);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    setIsLoading(false);
+  };
+  //#endregion
+
+  //#region loadBubbles
+  const loadBubbles = () => {
+    const newLayout = [];
+    const newLayoutCustomProps = [];
+    const boardActions = [];
+    ProjectService.getById(bubbleProjectId)
+      .then((res) => {
+        res.data.boardActions.forEach((boardAction) => {
+          var bubbleCompleted =
+            boardAction.concludedAt !== undefined &&
+            boardAction.concludedAt !== null;
+
+          var data = calculateDifferenceInDays(boardAction);
+          newLayout.push({
+            x: data.differenceFromStartDate,
+            w: data.differenceInDays,
+            i: boardAction.id.toString(),
+            y: boardAction.timelineRow ?? 0,
+            h: 1,
+            isCompleted: bubbleCompleted,
+            static: bubbleCompleted,
+          });
+
+          newLayoutCustomProps.push({
+            bubbleId: boardAction.id.toString(),
+            title: boardAction.content,
+            color: boardAction.color,
+            startsDate: new Date(boardAction.startDate),
+            endsDate: new Date(boardAction.endDate),
+          });
+
+          boardActions.push(boardAction);
+        });
+
+        setLayout(newLayout);
+        setLayoutCustomProps(newLayoutCustomProps);
+        onBubbleLoad(boardActions);
+      })
+      .catch((error) => {
+        console.error("Error fetching project:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  //#endregion
+
   useEffect(() => {
     if (bubbleBeingDeleted) {
       handleDeleteTimelineBubble(bubbleBeingDeleted);
@@ -166,60 +246,14 @@ const Timeline = ({
   };
   //#endregion
 
-  //#region loadBubbles
-  const loadBubbles = () => {
-    ProjectService.getById(bubbleProjectId)
-      .then((res) => {
-        res.data.boardActions.forEach((boardAction) => {
-          var data = calculateDifferenceInDays(boardAction);
-          var bubbleCompleted =
-            boardAction.concludedAt !== undefined &&
-            boardAction.concludedAt !== null;
-
-          setLayout((prevLayout) => [
-            ...prevLayout,
-            {
-              x: data.differenceFromStartDate,
-              w: data.differenceInDays,
-              i: boardAction.id.toString(),
-              y: boardAction.timelineRow ?? 0,
-              h: 1,
-              static: bubbleCompleted,
-            },
-          ]);
-
-          setLayoutCustomProps((prevCustomProps) => [
-            ...prevCustomProps,
-            {
-              bubbleId: boardAction.id.toString(),
-              title: boardAction.content,
-              color: boardAction.color,
-              startsDate: new Date(boardAction.startDate),
-              endsDate: new Date(boardAction.endDate),
-              isCompleted: bubbleCompleted,
-            },
-          ]);
-
-          onBubbleLoad(boardAction);
-
-          if (boardAction.concludedAt != undefined) {
-            onBubbleComplete(boardAction.id.toString(), false);
-          }
-        });
-      })
-      .catch((error) => {
-        console.error("Error fetching project:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-  //#endregion
-
   //#region calculateDifferenceInDays
   const calculateDifferenceInDays = (boardAction) => {
+    const endDate =
+      boardAction.concludedAt != undefined
+        ? boardAction.concludedAt
+        : boardAction.endDate;
     var differenceInMilliseconds = Math.abs(
-      new Date(boardAction.endDate) - new Date(boardAction.startDate)
+      new Date(endDate) - new Date(boardAction.startDate)
     );
 
     var differenceInDays = Math.ceil(
@@ -633,7 +667,7 @@ const Timeline = ({
           containerPadding={[0, 0]}
           maxRows={9}
           resizeHandles={["e"]}
-          isDraggable={!notAuthenticate && canDragBubbles}
+          isDraggable={canDragBubbles}
           style={{
             height: "100%",
           }}
