@@ -90,7 +90,7 @@ function ProjectBoard() {
             minW: 4,
             maxW: 300,
             minH: 2,
-            maxH: 5,
+            maxH: 25,
           };
 
           const newCustomProps = {
@@ -134,7 +134,7 @@ function ProjectBoard() {
       minW: 4,
       maxW: 300,
       minH: 2,
-      maxH: 5,
+      maxH: 25,
     };
 
     const newCustomProps = {
@@ -478,7 +478,7 @@ function ProjectBoard() {
         minW: 4,
         maxW: 300,
         minH: 2,
-        maxH: 5,
+        maxH: 25,
       });
 
       newLayoutCustomProps.push({
