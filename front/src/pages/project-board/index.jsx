@@ -42,12 +42,34 @@ function ProjectBoard() {
   const [bubbleContentChanged, setBubbleContentChanged] = useState();
   const [bubbleColorChanged, setBubbleColorChanged] = useState();
   const [projectName, setProjectName] = useState("");
+  const [encryptProjectId, setEncryptProjectId] = useState(undefined);
+  const [bubbleProjectId, setBubbleProjectId] = useState(undefined);
 
   const router = useRouter();
-  const { bubbleProjectId } = router.query;
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const queryEncryptProjectId = router.query.bubbleProjectId;
+      console.log(queryEncryptProjectId);
+      
+      if (queryEncryptProjectId) {
+        setEncryptProjectId(queryEncryptProjectId);
+        
+        try {
+          const id = await ProjectService.getDecryptProjectId(queryEncryptProjectId);
+          setBubbleProjectId(id.data);
+        } catch (error) {
+          console.error('Falha ao descriptografar token:', error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [router.query.bubbleProjectId]);
 
   useEffect(() => {
     if (bubbleProjectId) {
+      console.log(bubbleProjectId)
       inicializeBubblesBoard();
     }
   }, [bubbleProjectId]);

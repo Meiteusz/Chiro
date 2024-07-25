@@ -26,6 +26,8 @@ const ENDPOINTS = {
     changeName: `project/change-name`,
     getTimelineConfiguration: (id) => `project/timeline-configuration/${id}`,
     getName: (id) => `project/name/${id}`,
+    getEncryptProjectId: (projectId, randomNumbers) => `project/get-encrypt-projectId?projectId=${projectId}&randomNumbers=${randomNumbers}`,
+    getDecryptProjectId: (token) => `project/get-decrypt-projectId?token=${token}`,
   },
   boardWithoutAuthentication: {
     createLink: (projectId, randomNumbers) => `board-without-authentication/create-link?projectId=${projectId}&randomNumbers=${randomNumbers}`,

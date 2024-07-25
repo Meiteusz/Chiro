@@ -187,5 +187,28 @@ namespace Chiro.API.Controllers
             var result = await _projectService.GetProjectNameAsync(id);
             return Ok(result);
         }
+
+        [HttpGet("get-encrypt-projectId")]
+        public IActionResult GetEncryptProjectId(string projectId, string randomNumbers)
+        {
+            if (!long.TryParse(projectId, out long _projectId))
+            {
+                return BadRequest("ID do projeto inválido.");
+            }
+
+            if (!int.TryParse(randomNumbers, out int _randomNumbers))
+            {
+                return BadRequest("Número aleatório inválido");
+            }
+
+            var encryptProjectId = _projectService.GenerateToken(_projectId, _randomNumbers);
+            return Ok(encryptProjectId);
+        }
+        [HttpGet("get-decrypt-projectId")]
+        public IActionResult GetDecryptProjectId(string token)
+        {
+            var encryptProjectId = _projectService.DecryptToken(token);
+            return Ok(encryptProjectId);
+        }
     }
 }

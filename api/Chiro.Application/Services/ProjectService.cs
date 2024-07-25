@@ -140,5 +140,16 @@ namespace Chiro.Application.Services
 
             return await _boardActionRepository.GetBiggestTimelineRowByProjectId(projectId);
         }
+
+        public string? GenerateToken(long projectId, int randomNumber)
+        {
+            var token = new AES().GenerateAesTokenWithProjectId(projectId, randomNumber);
+            return token;
+        }
+
+        public string? DecryptToken(string token)
+        {
+            return new AES().DecryptAesToken(token).Split("|")[0];
+        }
     }
 }
