@@ -10,6 +10,8 @@ import Bubble from "@/components/bubble/bubble";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
 
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+
 import "@/app/globals.css";
 import "./styles.css";
 
@@ -20,7 +22,13 @@ const ProjectBoard = () => {
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
   const [canDragBubbles, setCanDragBubbles] = useState(true);
+  const [defaultScale, setDefaultScale] = useState(1);
+  const [canPan, setCanPan] = useState(true);
   const router = useRouter();
+
+  const handleScroll = (e) => {
+    setDefaultScale(e.state.scale);
+  };
 
   useEffect(() => {
     inicializeBubblesLayout();
@@ -37,10 +45,10 @@ const ProjectBoard = () => {
             w: project.width,
             h: project.height,
             i: project.id.toString(),
+            minW: 4,
+            maxW: 100,
             minH: 2,
-            maxH: 7,
-            minW: 2,
-            maxW: 5,
+            maxH: 25,
           };
 
           const newCustomProps = {
@@ -81,10 +89,10 @@ const ProjectBoard = () => {
       y: 5,
       w: 2,
       h: 3,
-      minW: 2,
-      maxW: 10,
-      minH: 3,
-      maxH: 5,
+      minW: 4,
+      maxW: 100,
+      minH: 2,
+      maxH: 25,
     };
 
     const newCustomProps = {
@@ -154,6 +162,12 @@ const ProjectBoard = () => {
       PositionX: changedProject.x,
       PositionY: changedProject.y,
     });
+
+    setCanPan(true);
+  };
+
+  const onBubbleDragStart = () => {
+    setCanPan(false);
   };
 
   return loading ? (
@@ -165,49 +179,85 @@ const ProjectBoard = () => {
         <AddIcon />
       </button>
       <div>
-        <ReactGridLayout
-          className="container-layout"
-          onLayoutChange={(newLayout) => setLayout(newLayout)}
-          layout={layout}
-          compactType={null}
-          isResizable={true}
-          isDraggable={canDragBubbles}
-          margin={[1, 1]}
-          rowHeight={25}
-          preventCollision={true}
-          onDragStop={onUpdateBubble}
-          onResizeStop={onUpdateBubble}
+        <TransformWrapper
+          defaultScale={defaultScale}
+          initialPositionY={1}
+          initialPositionX={1}
+          panning={{
+            disabled: canPan === false,
+            velocityDisabled: true,
+          }}
+          maxScale={5}
+          minScale={0.1}
+          initialScale={defaultScale}
+          onWheel={handleScroll}
+          doubleClick={{
+            disabled: true,
+          }}
+          alignmentAnimation={{
+            disabled: true,
+          }}
+          limitToBounds={true}
+          centerOnInit={false}
+          centerZoomedOut={true}
+          disablePadding={false}
         >
-          {layout.map((bubble) => (
-            <div
-              className="container-bubble"
-              key={bubble.i}
+          <TransformComponent>
+            <ReactGridLayout
+              transformScale={defaultScale}
+              className="container-layout"
+              onLayoutChange={(newLayout) => setLayout(newLayout)}
+              layout={layout}
+              compactType={null}
+              isResizable={true}
+              isDraggable={canDragBubbles}
+              margin={[1, 1]}
+              rowHeight={25}
+              maxRows={269.1}
+              cols={1000}
+              preventCollision={true}
+              onDragStop={onUpdateBubble}
+              onResizeStop={onUpdateBubble}
+              onResizeStart={onBubbleDragStart}
+              onDragStart={onBubbleDragStart}
               style={{
-                backgroundColor:
-                  (layoutCustomProps &&
-                    layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                      .color) ??
-                  "black",
+                width: "8000px !important",
+                // height: "7008px !important",
+                position: "fixed",
               }}
             >
-              <Bubble
-                canOpen
-                canChangeColor
-                canDelete
-                onChangeColor={handleChangeColor}
-                onChangeTitle={handleChangeTitle}
-                onDoubleClick={handleDoubleClick}
-                onDelete={handleDeleteBubble}
-                canDrag={setCanDragBubbles}
-                bubble={bubble}
-                bubbleCustomProps={
-                  layoutCustomProps &&
-                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                }
-              />
-            </div>
-          ))}
-        </ReactGridLayout>
+              {layout.map((bubble) => (
+                <div
+                  className="container-bubble"
+                  key={bubble.i}
+                  style={{
+                    backgroundColor:
+                      (layoutCustomProps &&
+                        layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                          .color) ??
+                      "black",
+                  }}
+                >
+                  <Bubble
+                    canOpen
+                    canChangeColor
+                    canDelete
+                    onChangeColor={handleChangeColor}
+                    onChangeTitle={handleChangeTitle}
+                    onDoubleClick={handleDoubleClick}
+                    onDelete={handleDeleteBubble}
+                    canDrag={setCanDragBubbles}
+                    bubble={bubble}
+                    bubbleCustomProps={
+                      layoutCustomProps &&
+                      layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                    }
+                  />
+                </div>
+              ))}
+            </ReactGridLayout>
+          </TransformComponent>
+        </TransformWrapper>
       </div>
     </div>
   );

@@ -88,7 +88,7 @@ function ProjectBoard() {
             x: boardAction.positionX,
             y: boardAction.positionY,
             minW: 4,
-            maxW: 300,
+            maxW: 100,
             minH: 2,
             maxH: 25,
           };
@@ -132,7 +132,7 @@ function ProjectBoard() {
       x: 10,
       y: 5,
       minW: 4,
-      maxW: 300,
+      maxW: 100,
       minH: 2,
       maxH: 25,
     };
@@ -230,22 +230,9 @@ function ProjectBoard() {
 
   const onBubbleDragStart = () => {
     setCanPan(false);
-    console.log(canPan);
   };
 
   const onBubbleDragStop = (e, v) => {
-    //if (!isOverlapping(v.i)) {
-    //  const changedBubble = e.find((w) => w.i == v.i);
-    //  BoardActionService.resize({
-    //    Id: changedBubble.i,
-    //    Width: changedBubble.w,
-    //    Height: changedBubble.h,
-    //    PositionX: changedBubble.x,
-    //    PositionY: changedBubble.y,
-    //  });
-    //  return;
-    //}
-
     const changedBubble = e.find((w) => w.i == v.i);
     BoardActionService.resize({
       Id: changedBubble.i,
@@ -476,7 +463,7 @@ function ProjectBoard() {
         y: bubble.positionY,
         i: bubble.id.toString(),
         minW: 4,
-        maxW: 300,
+        maxW: 100,
         minH: 2,
         maxH: 25,
       });
@@ -559,7 +546,7 @@ function ProjectBoard() {
             alignmentAnimation={{
               disabled: true,
             }}
-            limitToBounds={false}
+            limitToBounds={true}
             centerOnInit={false}
             centerZoomedOut={true}
             disablePadding={false}
@@ -576,14 +563,14 @@ function ProjectBoard() {
                 margin={[1, 1]}
                 rowHeight={10}
                 cols={1000}
-                maxRows={455}
+                maxRows={636.7}
                 onDragStop={onBubbleDragStop}
                 onDragStart={onBubbleDragStart}
                 onResizeStop={onBubbleResizeStop}
                 onResizeStart={onBubbleDragStart}
                 style={{
                   width: "8000px !important",
-                  height: "5008px !important",
+                  height: "7008px !important",
                   position: "fixed",
                 }}
               >

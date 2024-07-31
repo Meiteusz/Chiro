@@ -9,7 +9,7 @@
 }
 
 .container-bubble input {
-  font-size: 4.2vmin !important;
+  font-size: 7vmin !important;
 }
 
 #timeline input {
@@ -60,5 +60,11 @@
 }
 
 .transform-component-module_content__FBWxo {
-  width: 20000px !important;
+  width: 25000px !important;
+  height: 7000px !important;
+  position: fixed;
+}
+
+#timeline-body {
+  background-color: #d6dbdc;
 }
