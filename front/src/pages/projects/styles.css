@@ -33,6 +33,9 @@
 .react-grid-layout {
   border: 1px solid #bec1c2;
   background-color: #e8eaeb;
+  width: 8000px !important;
+  height: 7008px !important;
+  position: fixed;
 }
 
 .transform-component-module_content__FBWxo {
@@ -43,4 +46,10 @@
 
 .container-bubble input {
   font-size: 7vmin !important;
+}
+
+.container-projects {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }

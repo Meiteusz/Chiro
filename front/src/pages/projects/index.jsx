@@ -26,6 +26,12 @@ const ProjectBoard = () => {
   const [canPan, setCanPan] = useState(true);
   const router = useRouter();
 
+  useEffect(() => {
+    document.getElementsByClassName(
+      "transform-component-module_content__FBWxo"
+    )[0].style.transform = "translate(-20000px, -8000px)";
+  }, []);
+
   const handleScroll = (e) => {
     setDefaultScale(e.state.scale);
   };
@@ -173,12 +179,14 @@ const ProjectBoard = () => {
   return loading ? (
     <Loading />
   ) : (
-    <div>
+    <div className="container-projects">
       <Navbar projectName="Projetos" />
       <button className="add-bubble" onClick={handleAddBubble}>
         <AddIcon />
       </button>
-      <div>
+      <div style={{
+        flex: 1
+      }}>
         <TransformWrapper
           defaultScale={defaultScale}
           initialPositionY={1}
@@ -188,7 +196,7 @@ const ProjectBoard = () => {
             velocityDisabled: true,
           }}
           maxScale={5}
-          minScale={0.1}
+          minScale={0.5}
           initialScale={defaultScale}
           onWheel={handleScroll}
           doubleClick={{
@@ -204,6 +212,7 @@ const ProjectBoard = () => {
         >
           <TransformComponent>
             <ReactGridLayout
+              preventCollision
               transformScale={defaultScale}
               className="container-layout"
               onLayoutChange={(newLayout) => setLayout(newLayout)}
@@ -212,17 +221,16 @@ const ProjectBoard = () => {
               isResizable={true}
               isDraggable={canDragBubbles}
               margin={[1, 1]}
-              rowHeight={25}
-              maxRows={269.1}
+              rowHeight={10}
+              maxRows={636.7}
               cols={1000}
-              preventCollision={true}
               onDragStop={onUpdateBubble}
               onResizeStop={onUpdateBubble}
               onResizeStart={onBubbleDragStart}
               onDragStart={onBubbleDragStart}
               style={{
                 width: "8000px !important",
-                // height: "7008px !important",
+                height: "7008px !important",
                 position: "fixed",
               }}
             >
