@@ -53,7 +53,7 @@ const ProjectBoard = () => {
             i: project.id.toString(),
             minW: 4,
             maxW: 100,
-            minH: 2,
+            minH: 8,
             maxH: 25,
           };
 
@@ -97,7 +97,7 @@ const ProjectBoard = () => {
       h: 3,
       minW: 4,
       maxW: 100,
-      minH: 2,
+      minH: 8,
       maxH: 25,
     };
 
@@ -196,14 +196,14 @@ const ProjectBoard = () => {
             velocityDisabled: true,
           }}
           maxScale={5}
-          minScale={0.5}
+          minScale={0.1}
           initialScale={defaultScale}
           onWheel={handleScroll}
           doubleClick={{
             disabled: true,
           }}
           alignmentAnimation={{
-            disabled: true,
+            disabled: false,
           }}
           limitToBounds={true}
           centerOnInit={false}

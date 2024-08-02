@@ -83,7 +83,7 @@ function ProjectBoard() {
             y: boardAction.positionY,
             minW: 4,
             maxW: 100,
-            minH: 2,
+            minH: 8,
             maxH: 25,
           };
 
@@ -122,12 +122,12 @@ function ProjectBoard() {
   const handleAddBubble = async (bubbleType) => {
     const newItem = {
       w: 45,
-      h: 3,
+      h: 8,
       x: 10,
       y: 5,
       minW: 4,
       maxW: 100,
-      minH: 2,
+      minH: 8,
       maxH: 25,
     };
 
@@ -458,7 +458,7 @@ function ProjectBoard() {
         i: bubble.id.toString(),
         minW: 4,
         maxW: 100,
-        minH: 2,
+        minH: 8,
         maxH: 25,
       });
 
