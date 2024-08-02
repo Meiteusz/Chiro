@@ -196,7 +196,7 @@ const ProjectBoard = () => {
             velocityDisabled: true,
           }}
           maxScale={5}
-          minScale={0.1}
+          minScale={0.2}
           initialScale={defaultScale}
           onWheel={handleScroll}
           doubleClick={{

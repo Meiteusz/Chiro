@@ -531,7 +531,7 @@ function ProjectBoard() {
               velocityDisabled: true,
             }}
             maxScale={5}
-            minScale={0.5}
+            minScale={0.2}
             initialScale={defaultScale}
             onWheel={handleScroll}
             doubleClick={{
