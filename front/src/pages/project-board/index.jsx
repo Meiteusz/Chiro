@@ -62,12 +62,6 @@ function ProjectBoard() {
     }
   }, [bubbleProjectId]);
 
-  useEffect(() => {
-    document.getElementsByClassName(
-      "transform-component-module_content__FBWxo"
-    )[0].style.transform = "translate(-20000px, -8000px)";
-  }, []);
-
   const inicializeBubblesBoard = () => {
     setLoading(true);
     ProjectService.getProjectName(bubbleProjectId)
@@ -544,7 +538,7 @@ function ProjectBoard() {
               disabled: true,
             }}
             alignmentAnimation={{
-              disabled: true,
+              disabled: false,
             }}
             limitToBounds={true}
             centerOnInit={false}
