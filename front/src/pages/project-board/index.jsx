@@ -467,6 +467,8 @@ function ProjectBoard() {
   };
 
   //#endregion
+
+  //#region onBubbleLoad
   const onBubbleLoad = (bubbles) => {
     const newLayout = [];
     const newLayoutCustomProps = [];
@@ -497,6 +499,7 @@ function ProjectBoard() {
     setLayout(newLayout);
     setLayoutCustomProps(newLayoutCustomProps);
   };
+  //#endregion
 
   return loading ? (
     <Loading />

@@ -51,10 +51,10 @@ const ProjectBoard = () => {
             w: project.width,
             h: project.height,
             i: project.id.toString(),
-            minH: 2,
-            maxH: 7,
-            minW: 2,
-            maxW: 8,
+            minW: 4,
+            maxW: 100,
+            minH: 8,
+            maxH: 25,
           };
 
           const newCustomProps = {
@@ -95,10 +95,10 @@ const ProjectBoard = () => {
       y: 5,
       w: 2,
       h: 3,
-      minW: 2,
-      maxW: 10,
-      minH: 3,
-      maxH: 8,
+      minW: 4,
+      maxW: 100,
+      minH: 8,
+      maxH: 25,
     };
 
     const newCustomProps = {

@@ -210,7 +210,7 @@ function Bubble({
         onBlur={(event) => handleBubbleNameChange(event, true)}
         onContextMenu={handleContextMenu}
         disabled={canComplete ?? false}
-        onMouseEnter={handleOnClick}
+        //onMouseEnter={handleOnClick}
         style={{
           position: "absolute",
           backgroundColor: "transparent",
