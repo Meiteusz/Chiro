@@ -20,7 +20,7 @@ const AuthScreen = () => {
   };
 
   const handleButtonClick = async () => {
-    var token = await ProjectService.authenticate({ token: "123" });
+    var token = await ProjectService.authenticate({ token: tokenValue });
 
     if ((token && token.data) != undefined) {
       setError(null);

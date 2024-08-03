@@ -154,8 +154,9 @@ const ProjectBoard = () => {
     );
   };
 
-  const handleDoubleClick = (id) => {
-    const url = `project-board?bubbleProjectId=${id}`;
+  const handleDoubleClick = async (id) => {
+    const encryptId = await ProjectService.getEncryptProjectId(id);
+    const url = `project-board?bubbleProjectId=${encryptId.data}`;
     router.push(url);
   };
 

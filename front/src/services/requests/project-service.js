@@ -1,6 +1,16 @@
 import { ENDPOINTS } from "../endpoints";
 import { usePost, useGet, useDelete } from "@/services/api-client";
 
+function generateRandomNumber() {
+  // Gera um número aleatório entre 0 e 999999 (inclusive)
+  const randomNumber = Math.floor(Math.random() * 1000000); // Gera números de 0 a 999999
+
+  // Formata o número para ter exatamente 6 dígitos
+  const formattedNumber = randomNumber.toString().padStart(6, '0');
+
+  return formattedNumber;
+}
+
 const create = async (data) => {
   try {
     const response = await usePost(ENDPOINTS.project.base, data);
@@ -88,6 +98,22 @@ const getProjectName = async (id) => {
   }
 }
 
+const getEncryptProjectId = async (projectId) => {
+  try {
+    return await useGet(ENDPOINTS.project.getEncryptProjectId(projectId, generateRandomNumber()));
+  } catch (error) {
+    console.error("Falha ao encriptar o ID do projeto:", error);
+  }
+}
+
+const getDecryptProjectId = async (token) => {
+  try {
+    return await useGet(ENDPOINTS.project.getDecryptProjectId(token));
+  } catch (error) {
+    console.error("Falha ao descriptografar o ID do projeto:", error);
+  }
+}
+
 export default { create,
                  getAll, 
                  getById, 
@@ -97,5 +123,7 @@ export default { create,
                  deleteAsync, 
                  changeName, 
                  getTimelineConfiguration, 
-                 getProjectName };
+                 getProjectName,
+                 getEncryptProjectId,
+                 getDecryptProjectId };
 
