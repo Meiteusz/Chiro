@@ -15,9 +15,11 @@ import BoardActionService from "@/services/requests/board-action-service";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
 import { BoardActionType } from "@/utils/constants";
-
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "@/app/globals.css";
 import "./styles.css";
+
+import "../../../node_modules/react-grid-layout/css/styles.css";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -42,9 +44,17 @@ function ProjectBoard() {
   const [bubbleContentChanged, setBubbleContentChanged] = useState();
   const [bubbleColorChanged, setBubbleColorChanged] = useState();
   const [projectName, setProjectName] = useState("");
+  const [loadingBoard, setLoadingBoard] = useState(true);
+  const [canPan, setCanPan] = useState(true);
 
   const router = useRouter();
   const { bubbleProjectId } = router.query;
+
+  const [defaultScale, setDefaultScale] = useState(1);
+
+  const handleScroll = (e) => {
+    setDefaultScale(e.state.scale);
+  };
 
   useEffect(() => {
     if (bubbleProjectId) {
@@ -72,9 +82,9 @@ function ProjectBoard() {
             x: boardAction.positionX,
             y: boardAction.positionY,
             minW: 4,
-            maxW: 10,
-            minH: 2,
-            maxH: 5,
+            maxW: 100,
+            minH: 8,
+            maxH: 25,
           };
 
           const newCustomProps = {
@@ -97,6 +107,8 @@ function ProjectBoard() {
       .catch((error) => {
         console.error("Error fetching bubbles project:", error);
       });
+
+    setLoadingBoard(false);
   };
 
   const handleOpenMenuBubbleOptions = (event) => {
@@ -109,14 +121,14 @@ function ProjectBoard() {
 
   const handleAddBubble = async (bubbleType) => {
     const newItem = {
-      w: 4,
-      h: 2,
+      w: 45,
+      h: 8,
       x: 10,
       y: 5,
       minW: 4,
-      maxW: 10,
-      minH: 2,
-      maxH: 5,
+      maxW: 100,
+      minH: 8,
+      maxH: 25,
     };
 
     const newCustomProps = {
@@ -210,19 +222,11 @@ function ProjectBoard() {
     });
   };
 
-  const onBubbleDragStop = (e, v) => {
-    //if (!isOverlapping(v.i)) {
-    //  const changedBubble = e.find((w) => w.i == v.i);
-    //  BoardActionService.resize({
-    //    Id: changedBubble.i,
-    //    Width: changedBubble.w,
-    //    Height: changedBubble.h,
-    //    PositionX: changedBubble.x,
-    //    PositionY: changedBubble.y,
-    //  });
-    //  return;
-    //}
+  const onBubbleDragStart = () => {
+    setCanPan(false);
+  };
 
+  const onBubbleDragStop = (e, v) => {
     const changedBubble = e.find((w) => w.i == v.i);
     BoardActionService.resize({
       Id: changedBubble.i,
@@ -234,6 +238,8 @@ function ProjectBoard() {
 
     //setDateModalOpened(true);
     setSelectedIdBubble(v.i);
+    setCanPan(true);
+    console.log(canPan);
   };
 
   const isOverlapping = (bubbleId) => {
@@ -288,6 +294,9 @@ function ProjectBoard() {
       PositionX: changedBubble.x,
       PositionY: changedBubble.y,
     });
+
+    setCanPan(true);
+    console.log(canPan);
   };
 
   //#region ConfirmStartEndDate
@@ -343,15 +352,7 @@ function ProjectBoard() {
         prevLayout.filter((item) => item.bubbleId !== boardActionId)
       );
 
-      // Chamada do endpoint
-      //BoardActionService.changePeriod({
-      //  Id: boardActionId,
-      //  StartDate: currentStartsDate,
-      //  EndDate: currentEndsDate,
-      //});
-
       //#region Criação da bolha de rastro
-
       const newItemRastro = {
         w: selectedBubbleParaRastro.w,
         h: selectedBubbleParaRastro.h,
@@ -447,38 +448,35 @@ function ProjectBoard() {
   };
 
   //#endregion
+  const onBubbleLoad = (bubbles) => {
+    const newLayout = [];
+    const newLayoutCustomProps = [];
+    bubbles.forEach((bubble) => {
+      newLayout.push({
+        w: bubble.width,
+        h: bubble.height,
+        x: bubble.positionX,
+        y: bubble.positionY,
+        i: bubble.id.toString(),
+        minW: 4,
+        maxW: 100,
+        minH: 8,
+        maxH: 25,
+      });
 
-  const onBubbleLoad = (bubble) => {
-    if (!bubble.startDate && !bubble.endDate) {
-      return;
-    }
+      newLayoutCustomProps.push({
+        bubbleId: bubble.id.toString(),
+        title: bubble.content,
+        color: bubble.color,
+        startsDate: new Date(bubble.startDate),
+        endsDate: new Date(bubble.endDate),
+        trace: bubble.timelineRow != null,
+        type: bubble.boardActionType,
+      });
+    });
 
-    const newItemRastro = {
-      w: bubble.width,
-      h: bubble.height,
-      x: bubble.positionX,
-      y: bubble.positionY,
-      i: bubble.id.toString(),
-      minW: 4,
-      maxW: 10,
-      minH: 2,
-      maxH: 5,
-    };
-
-    const newCustomPropsRastro = {
-      bubbleId: newItemRastro.i,
-      title: bubble.content,
-      color: bubble.color,
-      startsDate: new Date(bubble.startDate),
-      endsDate: new Date(bubble.endDate),
-      trace: true,
-    };
-
-    setLayout((prevLayout) => [...prevLayout, newItemRastro]);
-    setLayoutCustomProps((prevCustomProps) => [
-      ...prevCustomProps,
-      newCustomPropsRastro,
-    ]);
+    setLayout(newLayout);
+    setLayoutCustomProps(newLayoutCustomProps);
   };
 
   return loading ? (
@@ -525,48 +523,83 @@ function ProjectBoard() {
               Link
             </MenuItem>
           </Menu>
-          <ReactGridLayout
-            isResizable
-            preventCollision
-            onLayoutChange={(newLayout) => setLayout(newLayout)}
-            layout={layout}
-            compactType={null}
-            isDraggable={canDragBubbles}
-            margin={[1, 1]}
-            rowHeight={25}
-            cols={50}
-            containerPadding={[0, 0]}
-            maxRows={23.5}
-            onDragStop={onBubbleDragStop}
-            onResizeStop={onBubbleResizeStop}
-            style={{
-              height: "100%",
+
+          <TransformWrapper
+            defaultScale={defaultScale}
+            initialPositionY={1}
+            initialPositionX={1}
+            panning={{
+              disabled: canPan === false,
+              velocityDisabled: true,
             }}
+            maxScale={5}
+            minScale={0.2}
+            initialScale={defaultScale}
+            onWheel={handleScroll}
+            doubleClick={{
+              disabled: true,
+            }}
+            alignmentAnimation={{
+              disabled: false,
+            }}
+            limitToBounds={true}
+            centerOnInit={false}
+            centerZoomedOut={true}
+            disablePadding={false}
           >
-            {layout
-              .filter(
-                (bubble, index, self) =>
-                  index === self.findIndex((t) => t.i === bubble.i)
-              )
-              .map((bubble) => (
-                <div key={bubble.i} style={{ borderRadius: "5px" }}>
-                  <Bubble
-                    canChangeColor
-                    canDelete
-                    onSendBubbleToTimeline={handleSendBubbleToTimeline}
-                    onChangeColor={handleChangeColor}
-                    onChangeTitle={handleChangeTitle}
-                    onDelete={handleDeleteBubble}
-                    canDrag={setCanDragBubbles}
-                    bubble={bubble}
-                    bubbleCustomProps={
-                      layoutCustomProps &&
-                      layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                    }
-                  />
-                </div>
-              ))}
-          </ReactGridLayout>
+            <TransformComponent>
+              <ReactGridLayout
+                transformScale={defaultScale}
+                isResizable
+                preventCollision
+                onLayoutChange={(newLayout) => setLayout(newLayout)}
+                layout={layout}
+                compactType={null}
+                isDraggable={canDragBubbles}
+                margin={[1, 1]}
+                rowHeight={10}
+                cols={1000}
+                maxRows={636.7}
+                onDragStop={onBubbleDragStop}
+                onDragStart={onBubbleDragStart}
+                onResizeStop={onBubbleResizeStop}
+                onResizeStart={onBubbleDragStart}
+                style={{
+                  width: "8000px !important",
+                  height: "7008px !important",
+                  position: "fixed",
+                }}
+              >
+                {layout
+                  .filter(
+                    (bubble, index, self) =>
+                      index === self.findIndex((t) => t.i === bubble.i)
+                  )
+                  .map((bubble) => {
+                    return (
+                      <div key={bubble.i} style={{ borderRadius: "5px" }}>
+                        <Bubble
+                          canChangeColor
+                          canDelete
+                          onSendBubbleToTimeline={handleSendBubbleToTimeline}
+                          onChangeColor={handleChangeColor}
+                          onChangeTitle={handleChangeTitle}
+                          onDelete={handleDeleteBubble}
+                          canDrag={setCanDragBubbles}
+                          bubble={bubble}
+                          bubbleCustomProps={
+                            layoutCustomProps &&
+                            layoutCustomProps.find(
+                              (x) => x.bubbleId === bubble.i
+                            )
+                          }
+                        />
+                      </div>
+                    );
+                  })}
+              </ReactGridLayout>
+            </TransformComponent>
+          </TransformWrapper>
         </div>
         <div id="timeline" className="time-line">
           <Timeline

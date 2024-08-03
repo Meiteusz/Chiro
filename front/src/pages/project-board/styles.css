@@ -8,6 +8,14 @@
   border: 1px solid;
 }
 
+.container-bubble input {
+  font-size: 5vmin !important;
+}
+
+#timeline input {
+  font-size: 18px !important;
+}
+
 .container-boards {
   display: flex;
   flex-direction: column;
@@ -37,4 +45,26 @@
 .menu-item {
   font-family: "Segoe UI", sans-serif;
   font-weight: 600;
+}
+
+.react-transform-wrapper, .react-transform-element, .react-transform-component, .react-grid-layout  {
+  min-height: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  width: 100% !important;
+}
+
+.top-board .react-grid-layout {
+  border: 1px solid #bec1c2;
+  background-color: #d6dbdc;
+}
+
+.transform-component-module_content__FBWxo {
+  width: 25000px !important;
+  height: 7000px !important;
+  position: fixed;
+}
+
+#timeline-body {
+  background-color: #d6dbdc;
 }
