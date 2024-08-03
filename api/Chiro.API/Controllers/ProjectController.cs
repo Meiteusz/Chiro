@@ -36,7 +36,6 @@ namespace Chiro.API.Controllers
             }
 
             return Ok(projectCreated);
-            //return CreatedAtAction(nameof(GetProjectAsync), new { Id = projectCreated }, createProjectDTO);
         }
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace Chiro.API.Controllers
         }
 
         /// <summary>
-        /// Buscar um �nico projeto juntamente com o Board e a Board.
+        /// Buscar um único projeto juntamente com o Board e a Board.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

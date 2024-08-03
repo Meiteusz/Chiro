@@ -40,7 +40,7 @@ const ProjectBoard = () => {
             minH: 2,
             maxH: 7,
             minW: 2,
-            maxW: 5,
+            maxW: 8,
           };
 
           const newCustomProps = {
@@ -84,7 +84,7 @@ const ProjectBoard = () => {
       minW: 2,
       maxW: 10,
       minH: 3,
-      maxH: 5,
+      maxH: 8,
     };
 
     const newCustomProps = {

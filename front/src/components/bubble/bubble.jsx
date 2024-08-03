@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ChromePicker } from "react-color";
 import { BoardActionType } from "@/utils/constants";
 
@@ -257,17 +257,11 @@ function Bubble({
           border: delayedTime ? "1px solid black" : "none",
         }}
       >
-        {delayedTime && (
+        {delayedTime > 0 && (
           <Tooltip title="Atraso detectado">
             <WarningAmberIcon
-              style={{
-                color: "black",
-                fontSize: "20px",
-                position: "absolute",
-                right: "25px",
-                top: "5px",
-                borderRadius: "50%",
-              }}
+              fontSize="small"
+              style={{ marginRight: "15px" }}
             />
           </Tooltip>
         )}
@@ -364,10 +358,12 @@ function Bubble({
         )}
       </div>
       {bubbleCustomProps.isCompleted && (
-        <CheckCircleIcon
-          fontSize="small"
-          style={{ color: "#27A304", marginRight: "15px" }}
-        />
+        <Tooltip title="Concluído">
+          <CheckCircleIcon
+            fontSize="small"
+            style={{ color: "#27A304", marginRight: "15px" }}
+          />
+        </Tooltip>
       )}
     </div>
   );

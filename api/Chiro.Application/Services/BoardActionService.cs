@@ -89,7 +89,8 @@ namespace Chiro.Application.Services
 
             return await _repository.ConcludeBoardActionAsync(concludeBoardActionDTO.Id, new BoardAction
             {
-                ConcludedAt = DateTime.Now
+                ConcludedAt = DateTime.Now,
+                EndDate = concludeBoardActionDTO.EndDate
             });
         }
 

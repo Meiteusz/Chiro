@@ -91,7 +91,7 @@ const renderDays = (widthDays, events, ref, startDateTimelinePeriod, quantityYea
 
 const renderMonths = (widthMonths, events, ref, startDateTimelinePeriod, quantityYears) => {
   const allMonths = [];
-  const currentYear = new Date().getFullYear();
+  const currentYear = startDateTimelinePeriod;
   for (let year = currentYear; year < currentYear + quantityYears; year++) {
     allMonths.push(
       <div key={year} style={{ display: "inline-block" }}>

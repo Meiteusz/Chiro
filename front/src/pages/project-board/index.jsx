@@ -10,7 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Navbar from "@/components/navbar/navbar";
 import Timeline from "@/components/timeline/timeline";
 import Bubble from "@/components/bubble/bubble";
-import StartEndDateModal from "@/components/modal/starts-end-date-modal";
+import StartEndDateModal from "@/components/modal/date/starts-end-date-modal";
 import BoardActionService from "@/services/requests/board-action-service";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
@@ -441,6 +441,8 @@ function ProjectBoard() {
     //  setCurrentEndsDate(null);
     //}
 
+    setCurrentStartsDate(null);
+    setCurrentEndsDate(null);
     setDateModalOpened(false);
   };
 
@@ -479,7 +481,7 @@ function ProjectBoard() {
     ]);
   };
 
-  return 1 == 2 ? (
+  return loading ? (
     <Loading />
   ) : (
     <div>
@@ -490,7 +492,7 @@ function ProjectBoard() {
             open={dateModalOpened}
             onClose={handleCloseStartEndDateModal}
             onConfirm={handleConfirmStartEndDate}
-            startdate={currentStartsDate}
+            startDate={currentStartsDate}
             setStartDate={setCurrentStartsDate}
             endDate={currentEndsDate}
             setEndDate={setCurrentEndsDate}
