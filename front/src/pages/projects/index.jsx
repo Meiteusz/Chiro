@@ -11,6 +11,7 @@ import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
 
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { useError } from "@/components/context/error-network";
 
 import "@/app/globals.css";
 import "./styles.css";
@@ -24,6 +25,7 @@ const ProjectBoard = () => {
   const [canDragBubbles, setCanDragBubbles] = useState(true);
   const [defaultScale, setDefaultScale] = useState(1);
   const [canPan, setCanPan] = useState(true);
+  const { setErrorNetwork } = useError();
   const router = useRouter();
 
   useEffect(() => {
@@ -40,10 +42,12 @@ const ProjectBoard = () => {
     inicializeBubblesLayout();
   }, []);
 
-  const inicializeBubblesLayout = () => {
+  const inicializeBubblesLayout = async () => {
     setLoading(true);
     ProjectService.getAll()
       .then((res) => {
+        setErrorNetwork(null);
+
         res.data.map((project) => {
           const newItem = {
             x: project.positionX,
@@ -72,6 +76,7 @@ const ProjectBoard = () => {
       })
       .catch((error) => {
         console.log("Error fetching projects: ", error);
+        setErrorNetwork(error.code);
       })
       .finally(() => {
         setLoading(false);
@@ -79,16 +84,22 @@ const ProjectBoard = () => {
   };
 
   const handleAddBubble = async () => {
-    var projectId = await ProjectService.create({
-      Name: "",
-      Password: "1234",
-      PositionY: 5,
-      PositionX: 3,
-      Width: 2,
-      Height: 3,
-      Color: "white",
-    });
+    try{
+      var projectId = await ProjectService.create({
+        Name: "",
+        Password: "1234",
+        PositionY: 5,
+        PositionX: 3,
+        Width: 2,
+        Height: 3,
+        Color: "white",
+      });
 
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
+    
     const newItem = {
       i: projectId,
       x: 3,
@@ -114,16 +125,28 @@ const ProjectBoard = () => {
     ]);
   };
 
-  const handleDeleteBubble = (id) => {
+  const handleDeleteBubble = async (id) => {
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
-    ProjectService.deleteAsync(id);
+
+    try{
+      await ProjectService.deleteAsync(id);
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
   };
 
   const handleChangeColor = (id, color) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) => {
         if (prevBox.bubbleId === id) {
-          ProjectService.changeColor({ Id: id, Color: color.hex });
+          try{
+            ProjectService.changeColor({ Id: id, Color: color.hex });
+            setErrorNetwork(null);
+          }catch (error){
+            setErrorNetwork(error.code);
+          }
+          
           return {
             ...prevBox,
             color: color.hex,
@@ -136,10 +159,15 @@ const ProjectBoard = () => {
 
   const handleChangeTitle = (id, content, isLeaving = false) => {
     if (isLeaving) {
-      ProjectService.changeName({
-        Id: id,
-        Name: content,
-      });
+      try{
+        ProjectService.changeName({
+          Id: id,
+          Name: content,
+        });
+        setErrorNetwork(null);
+      }catch (error){
+        setErrorNetwork(error.code);
+      }   
     }
 
     setLayoutCustomProps((prevBubble) =>
@@ -159,17 +187,23 @@ const ProjectBoard = () => {
     router.push(url);
   };
 
-  const onUpdateBubble = (e, v) => {
+  const onUpdateBubble = async (e, v) => {
     const changedProject = e.find((w) => w.i == v.i);
-    ProjectService.resize({
-      Id: changedProject.i,
-      Width: changedProject.w,
-      Height: changedProject.h,
-      PositionX: changedProject.x,
-      PositionY: changedProject.y,
-    });
 
-    setCanPan(true);
+    try{
+      await ProjectService.resize({
+        Id: changedProject.i,
+        Width: changedProject.w,
+        Height: changedProject.h,
+        PositionX: changedProject.x,
+        PositionY: changedProject.y,
+      });
+      
+      setErrorNetwork(null);
+      setCanPan(true);
+    }catch (error){
+      setErrorNetwork(error.code);
+    } 
   };
 
   const onBubbleDragStart = () => {

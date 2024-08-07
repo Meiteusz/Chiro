@@ -19,6 +19,7 @@ const createLink = async (projectId) => {
       return url;
     } catch (error) {
       console.error("Não foi possível criar o link:", error);
+      throw error;
     }
 };
 
@@ -30,6 +31,7 @@ const getProjectWithToken = async (token) => {
     return projectId;
   } catch (error) {
     console.error("Não foi possível recuperar o ID do projeto:", error);
+    throw error;
   }
 };
 

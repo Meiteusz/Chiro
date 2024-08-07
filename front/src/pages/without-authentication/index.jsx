@@ -7,6 +7,7 @@ import ProjectService from "@/services/requests/project-service";
 import Bubble from "@/components/bubble/bubble";
 import Timeline from "@/components/timeline/timeline";
 import Navbar from "@/components/navbar/navbar";
+import { useError } from "@/components/context/error-network";
 
 import "@/app/globals.css";
 import "./styles.css";
@@ -24,6 +25,7 @@ function BoardWithOutAuthentication() {
   const [canDragBubbles, setCanDragBubbles] = useState(false);
   const [projectId, setProjectId] = useState(0);
   const [projectName, setProjectName] = useState("");
+  const { setErrorNetwork } = useError();
 
   const ReactGridLayout = WidthProvider(RGL);
 
@@ -39,27 +41,33 @@ function BoardWithOutAuthentication() {
     }
   }, [paramValue]);
 
-  const handleGetProject = (param) => {
-    BoardWithoutAuthenticationService.getProjectWithToken(param)
-      .then((res) => {
-        setProjectId(res);
-      })
-      .catch((error) => {
-        console.log("Error fetching project by token: ", error);
-      });
+  const handleGetProject = async (param) => {
+    await BoardWithoutAuthenticationService.getProjectWithToken(param)
+    .then((res) => {
+      setErrorNetwork(null);
+      setProjectId(res);
+    })
+    .catch((error) => {
+      console.log("Error fetching project by token: ", error);
+      setErrorNetwork(error.code);
+    });
 
     if (projectId) {
       setLoading(true);
-      ProjectService.getProjectName(projectId)
+      await ProjectService.getProjectName(projectId)
         .then((res) => {
           setProjectName(res.data);
+          setErrorNetwork(null);
         })
         .catch((error) => {
           console.error("Error fetching project name: ", error);
+          setErrorNetwork(error.code);
         });
 
-      ProjectService.getById(projectId)
+      await ProjectService.getById(projectId)
         .then((res) => {
+          setErrorNetwork(null);
+
           res.data.boardActions.map((boardActions) => {
             handleAddBubbles({
               width: boardActions.width,
@@ -74,6 +82,7 @@ function BoardWithOutAuthentication() {
         })
         .catch((error) => {
           console.error("Error fetching project name: ", error);
+          setErrorNetwork(error.code);
         })
         .finally(() => {
           setLoading(false);

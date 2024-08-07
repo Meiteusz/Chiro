@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import ProjectService from "@/services/requests/auth-service";
 import cookiesKeys from "@/data/keys";
 import { setCookie } from "@/data/cookies";
+import { useError } from '@/components/context/error-network';
 
 import "@/app/globals.css";
 import "./styles.css";
@@ -13,6 +14,7 @@ import "./styles.css";
 const AuthScreen = () => {
   const [tokenValue, setTokenValue] = useState("");
   const [error, setError] = useState("");
+  const { setErrorNetwork } = useError();
   const router = useRouter();
 
   const handleInputChange = (event) => {
@@ -20,7 +22,12 @@ const AuthScreen = () => {
   };
 
   const handleButtonClick = async () => {
-    var token = await ProjectService.authenticate({ token: "123" });
+    try{
+      var token = await ProjectService.authenticate({ token: "123" });
+      setNetworkError(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
 
     if ((token && token.data) != undefined) {
       setError(null);

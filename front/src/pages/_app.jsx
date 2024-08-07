@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useLayoutEffect } from "react";
 
 import { getCookie } from "@/data/cookies";
+import { ErrorNetworkProvider } from '@/components/context/error-network';
 import cookiesKeys from "@/data/keys";
 
 export default function App({ Component, pageProps }) {
@@ -14,5 +15,9 @@ export default function App({ Component, pageProps }) {
     }
   }, []);
 
-  return <Component {...pageProps} />;
+  return (
+    <ErrorNetworkProvider>
+      <Component {...pageProps} />
+    </ErrorNetworkProvider>
+  );
 }

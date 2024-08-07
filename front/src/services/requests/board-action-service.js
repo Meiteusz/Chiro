@@ -7,10 +7,9 @@ const create = async (data) => {
     if (response && response.data) {
       return response.data.toString();
     }
-
-    console.error("Criação de Board-Action falhou:", error);
   } catch (error) {
     console.error("Criação de Board-Action falhou:", error);
+    throw error;
   }
 
   return "";
@@ -75,6 +74,7 @@ const deleteAsync = async (id) => {
     return await useDelete(ENDPOINTS.boardAction.delete(id));
   } catch (error) {
     console.error("Mudança de Cor de Project falhou:", error);
+    throw error;
   }
 };
 
@@ -83,6 +83,7 @@ const changeContent = async (data) => {
     return await usePost(ENDPOINTS.boardAction.changeContent, data);
   } catch (error) {
     console.error("Redimensionamento de Project falhou:", error);
+    throw error;
   }
 };
 
