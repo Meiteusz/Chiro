@@ -52,6 +52,7 @@ function ProjectBoard() {
   const { setErrorNetwork } = useError();
   const [bubbleProjectId, setBubbleProjectId] = useState(undefined);
   const [defaultScale, setDefaultScale] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
 
   const router = useRouter();
 
@@ -276,7 +277,19 @@ function ProjectBoard() {
     setCanPan(false);
   };
 
+  const onDragging = () => {
+    setIsDragging(true);
+  }
+
+  const onDraggingStop = () => {
+    setIsDragging(false);
+  }
+
   const onBubbleDragStop = async (e, v) => {
+    if (!isDragging) {
+      return;
+    }
+
     const changedBubble = e.find((w) => w.i == v.i);
 
     try{
@@ -294,6 +307,8 @@ function ProjectBoard() {
     }catch (error){
       setErrorNetwork(error.code);
     }
+
+    onDraggingStop();
   };
 
   const isOverlapping = (bubbleId) => {
@@ -340,6 +355,10 @@ function ProjectBoard() {
   };
 
   const onBubbleResizeStop = async (e, v) => {
+    if (!isDragging) {
+      return;
+    }
+    
     const changedBubble = e.find((w) => w.i == v.i);
 
     try{
@@ -357,7 +376,7 @@ function ProjectBoard() {
     }
 
     setCanPan(true);
-    console.log(canPan);
+    onDraggingStop();
   };
 
   //#region ConfirmStartEndDate
@@ -624,8 +643,10 @@ function ProjectBoard() {
                 rowHeight={10}
                 cols={1000}
                 maxRows={636.7}
+                onDrag={onDragging}
                 onDragStop={onBubbleDragStop}
                 onDragStart={onBubbleDragStart}
+                onResize={onDragging}
                 onResizeStop={onBubbleResizeStop}
                 onResizeStart={onBubbleDragStart}
                 style={{

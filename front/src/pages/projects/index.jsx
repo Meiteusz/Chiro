@@ -26,6 +26,7 @@ const ProjectBoard = () => {
   const [defaultScale, setDefaultScale] = useState(1);
   const [canPan, setCanPan] = useState(true);
   const { setErrorNetwork } = useError();
+  const [isDragging, setIsDragging] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -188,7 +189,19 @@ const ProjectBoard = () => {
     router.push(url);
   };
 
+  const onDragging = () => {
+    setIsDragging(true);
+  }
+
+  const onDraggingStop = () => {
+    setIsDragging(false);
+  }
+
   const onUpdateBubble = async (e, v) => {
+    if (!isDragging) {
+      return;
+    }
+
     const changedProject = e.find((w) => w.i == v.i);
 
     try{
@@ -205,6 +218,8 @@ const ProjectBoard = () => {
     }catch (error){
       setErrorNetwork(error.code);
     } 
+
+    onDraggingStop();
   };
 
   const onBubbleDragStart = () => {
@@ -261,7 +276,9 @@ const ProjectBoard = () => {
               rowHeight={10}
               maxRows={636.7}
               cols={1000}
+              onDrag={onDragging}
               onDragStop={onUpdateBubble}
+              onResize={onDragging}
               onResizeStop={onUpdateBubble}
               onResizeStart={onBubbleDragStart}
               onDragStart={onBubbleDragStart}
