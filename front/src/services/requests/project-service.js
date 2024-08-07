@@ -83,7 +83,7 @@ const changeName = async (data) => {
   try {
     return await usePost(ENDPOINTS.project.changeName, data);
   } catch (error) {
-    console.error("Redimensionamento de Project falhou:", error);
+    console.error("Falha ao mudar nome do projeto:", error);
     throw error;
   }
 };

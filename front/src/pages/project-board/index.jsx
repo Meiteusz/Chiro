@@ -358,7 +358,7 @@ function ProjectBoard() {
     if (!isDragging) {
       return;
     }
-    
+
     const changedBubble = e.find((w) => w.i == v.i);
 
     try{
@@ -614,6 +614,7 @@ function ProjectBoard() {
             panning={{
               disabled: canPan === false,
               velocityDisabled: true,
+              excluded: ["input"]
             }}
             maxScale={5}
             minScale={0.2}

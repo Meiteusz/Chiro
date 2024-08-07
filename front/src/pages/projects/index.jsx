@@ -246,6 +246,7 @@ const ProjectBoard = () => {
           panning={{
             disabled: canPan === false,
             velocityDisabled: true,
+            excluded: ["input"]
           }}
           maxScale={5}
           minScale={0.2}
