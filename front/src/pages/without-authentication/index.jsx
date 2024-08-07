@@ -26,6 +26,7 @@ function BoardWithOutAuthentication() {
   const [projectId, setProjectId] = useState(0);
   const [projectName, setProjectName] = useState("");
   const { setErrorNetwork } = useError();
+  const [error, setError] = useState("");
 
   const ReactGridLayout = WidthProvider(RGL);
 
@@ -41,53 +42,54 @@ function BoardWithOutAuthentication() {
     }
   }, [paramValue]);
 
-  const handleGetProject = async (param) => {
-    await BoardWithoutAuthenticationService.getProjectWithToken(param)
-    .then((res) => {
-      setErrorNetwork(null);
-      setProjectId(res);
-    })
-    .catch((error) => {
-      console.log("Error fetching project by token: ", error);
-      setErrorNetwork(error.code);
-    });
-
-    if (projectId) {
-      setLoading(true);
-      await ProjectService.getProjectName(projectId)
-        .then((res) => {
-          setProjectName(res.data);
-          setErrorNetwork(null);
-        })
-        .catch((error) => {
-          console.error("Error fetching project name: ", error);
-          setErrorNetwork(error.code);
-        });
-
-      await ProjectService.getById(projectId)
-        .then((res) => {
-          setErrorNetwork(null);
-
-          res.data.boardActions.map((boardActions) => {
-            handleAddBubbles({
-              width: boardActions.width,
-              height: boardActions.height,
-              x: boardActions.positionX,
-              y: boardActions.positionY,
-              id: boardActions.id.toString(),
-              content: boardActions.content,
-              color: boardActions.color,
+  const handleGetProject = (param) => {
+    BoardWithoutAuthenticationService.getProjectWithToken(param)
+      .then((res) => {
+        setErrorNetwork(null);
+        setProjectId(res);
+        if (res) {
+          setLoading(true);
+          ProjectService.getProjectName(res)
+            .then((res) => {
+              setErrorNetwork(null);
+              setProjectName(res.data);
+            })
+            .catch((error) => {
+              console.error("Error fetching project name: ", error);
+              setErrorNetwork(error.code);
             });
-          });
-        })
-        .catch((error) => {
-          console.error("Error fetching project name: ", error);
-          setErrorNetwork(error.code);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
+  
+          ProjectService.getById(res)
+            .then((res) => {
+              setErrorNetwork(null);
+
+              res.data.boardActions.forEach((boardActions) => {
+                handleAddBubbles({
+                  width: boardActions.width,
+                  height: boardActions.height,
+                  x: boardActions.positionX,
+                  y: boardActions.positionY,
+                  id: boardActions.id.toString(),
+                  content: boardActions.content,
+                  color: boardActions.color,
+                });
+              });
+            })
+            .catch((error) => {
+              console.error("Error fetching project: ", error);
+              setErrorNetwork(error.code);
+            })
+            .finally(() => {
+              setLoading(false);
+            });
+        }
+
+      })
+      .catch((error) => {
+        console.log("Error fetching project by token: ", error.response.data);
+        setError(error.response.data.message + error.response.data.error);
+        setErrorNetwork(error.code);
+      });
   };
 
   const handleAddBubbles = ({ width, height, x, y, id, content, color }) => {
@@ -135,20 +137,20 @@ function BoardWithOutAuthentication() {
       minH: 2,
       maxH: 5,
     };
-
+    
     const newCustomPropsRastro = {
-      bubbleId: newItemRastro.i,
-      title: bubble.content,
-      color: bubble.color,
-      startsDate: new Date(bubble.startDate),
-      endsDate: new Date(bubble.endDate),
-      trace: true,
+        bubbleId: newItemRastro.i,
+        title: bubble.content,
+        color: bubble.color,
+        startsDate: new Date(bubble.startDate),
+        endsDate: new Date(bubble.endDate),
+        trace: true,
     };
-
+    
     setLayout((prevLayout) => [...prevLayout, newItemRastro]);
     setLayoutCustomProps((prevCustomProps) => [
-      ...prevCustomProps,
-      newCustomPropsRastro,
+        ...prevCustomProps,
+        newCustomPropsRastro,
     ]);
   };
 
@@ -157,6 +159,7 @@ function BoardWithOutAuthentication() {
   ) : (
     <div className="container-boards">
       <Navbar projectName={projectName} />
+      {error && <h1 style={{textAlign: 'center', fontSize: '3rem', marginTop: '20vh'}}>{error}</h1>}
       <div className="top-board">
         <ReactGridLayout
           isResizable={false}

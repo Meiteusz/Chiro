@@ -30,5 +30,7 @@ namespace Chiro.Application.Interfaces
         Task<string> GetProjectNameAsync(long projectId);
 
         Task<int> GetBiggestTimelineRow(long projectId);
+        string? GenerateToken(long projectId, int randomNumber);
+        string? DecryptToken(string token);
     }
 }

@@ -10,7 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Navbar from "@/components/navbar/navbar";
 import Timeline from "@/components/timeline/timeline";
 import Bubble from "@/components/bubble/bubble";
-import StartEndDateModal from "@/components/modal/starts-end-date-modal";
+import StartEndDateModal from "@/components/modal/date/starts-end-date-modal";
 import BoardActionService from "@/services/requests/board-action-service";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
@@ -50,27 +50,40 @@ function ProjectBoard() {
   const [loadingBoard, setLoadingBoard] = useState(true);
   const [canPan, setCanPan] = useState(true);
   const { setErrorNetwork } = useError();
-
-  const router = useRouter();
-  const { bubbleProjectId } = router.query;
-
+  const [bubbleProjectId, setBubbleProjectId] = useState(undefined);
   const [defaultScale, setDefaultScale] = useState(1);
 
-  const handleScroll = (e) => {
-    setDefaultScale(e.state.scale);
-  };
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const queryEncryptProjectId = router.query.bubbleProjectId;
+
+      if (queryEncryptProjectId) {
+        try {
+          const id = await ProjectService.getDecryptProjectId(
+            queryEncryptProjectId
+          );
+          setBubbleProjectId(id.data);
+        } catch (error) {
+          console.error("Falha ao descriptografar token:", error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [router.query.bubbleProjectId]);
 
   useEffect(() => {
     if (bubbleProjectId) {
+      console.log(bubbleProjectId);
       inicializeBubblesBoard();
     }
   }, [bubbleProjectId]);
 
-  useEffect(() => {
-    document.getElementsByClassName(
-      "transform-component-module_content__FBWxo"
-    )[0].style.transform = "translate(-20000px, -8000px)";
-  }, []);
+  const handleScroll = (e) => {
+    setDefaultScale(e.state.scale);
+  };
 
   const inicializeBubblesBoard = () => {
     setLoading(true);
@@ -96,7 +109,7 @@ function ProjectBoard() {
             y: boardAction.positionY,
             minW: 4,
             maxW: 100,
-            minH: 2,
+            minH: 8,
             maxH: 25,
           };
 
@@ -136,12 +149,12 @@ function ProjectBoard() {
   const handleAddBubble = async (bubbleType) => {
     const newItem = {
       w: 45,
-      h: 3,
+      h: 8,
       x: 10,
       y: 5,
       minW: 4,
       maxW: 100,
-      minH: 2,
+      minH: 8,
       maxH: 25,
     };
 
@@ -490,10 +503,14 @@ function ProjectBoard() {
     //  setCurrentEndsDate(null);
     //}
 
+    setCurrentStartsDate(null);
+    setCurrentEndsDate(null);
     setDateModalOpened(false);
   };
 
   //#endregion
+
+  //#region onBubbleLoad
   const onBubbleLoad = (bubbles) => {
     const newLayout = [];
     const newLayoutCustomProps = [];
@@ -506,7 +523,7 @@ function ProjectBoard() {
         i: bubble.id.toString(),
         minW: 4,
         maxW: 100,
-        minH: 2,
+        minH: 8,
         maxH: 25,
       });
 
@@ -524,8 +541,9 @@ function ProjectBoard() {
     setLayout(newLayout);
     setLayoutCustomProps(newLayoutCustomProps);
   };
+  //#endregion
 
-  return 1 == 2 ? (
+  return loading ? (
     <Loading />
   ) : (
     <div>
@@ -536,7 +554,7 @@ function ProjectBoard() {
             open={dateModalOpened}
             onClose={handleCloseStartEndDateModal}
             onConfirm={handleConfirmStartEndDate}
-            startdate={currentStartsDate}
+            startDate={currentStartsDate}
             setStartDate={setCurrentStartsDate}
             endDate={currentEndsDate}
             setEndDate={setCurrentEndsDate}
@@ -579,14 +597,14 @@ function ProjectBoard() {
               velocityDisabled: true,
             }}
             maxScale={5}
-            minScale={0.5}
+            minScale={0.2}
             initialScale={defaultScale}
             onWheel={handleScroll}
             doubleClick={{
               disabled: true,
             }}
             alignmentAnimation={{
-              disabled: true,
+              disabled: false,
             }}
             limitToBounds={true}
             centerOnInit={false}

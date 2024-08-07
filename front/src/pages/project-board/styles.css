@@ -9,7 +9,7 @@
 }
 
 .container-bubble input {
-  font-size: 7vmin !important;
+  font-size: 5vmin !important;
 }
 
 #timeline input {
@@ -56,7 +56,7 @@
 
 .top-board .react-grid-layout {
   border: 1px solid #bec1c2;
-  background-color: #e8eaeb;
+  background-color: #d6dbdc;
 }
 
 .transform-component-module_content__FBWxo {

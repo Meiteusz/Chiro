@@ -34,7 +34,6 @@ const Timeline = ({
   layoutBubbleProps,
   bubbleProjectId,
   onBubbleLoad,
-  loadingBoard,
   bubbleBeingDeleted,
   onContentChanged,
   onColorChanged,
@@ -71,6 +70,7 @@ const Timeline = ({
   );
   const [quantityColumns, setQuantityColumns] = useState(quantityDays);
   const [timelineRow, setTimelineRow] = useState(0);
+  const [validateColision, setValidateColision] = useState(false);
 
   useEffect(() => {
     loadThrowedBubbles();
@@ -91,86 +91,6 @@ const Timeline = ({
     }
   }, [bubbleProjectId, timelineConfigured]);
 
-  //#region getPeriod
-  const getPeriod = () => {
-    setIsLoading(true);
-
-    ProjectService.getTimelinePeriod(bubbleProjectId)
-      .then((res) => {
-        let startDateTimelinePeriod = new Date(
-          res.data.startDate
-        ).getFullYear();
-        let quantityDateYearsPeriod =
-          new Date(res.data.endDate).getFullYear() -
-          new Date(res.data.startDate).getFullYear() +
-          1;
-
-        setStartTimelinePeriod(startDateTimelinePeriod);
-        setQuantityYearsPeriod(quantityDateYearsPeriod);
-
-        setQuantityColumns(
-          calculateDaysQuantity(
-            startDateTimelinePeriod,
-            quantityDateYearsPeriod
-          )
-        );
-        setTimelineFinished(true);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-
-    setIsLoading(false);
-  };
-  //#endregion
-
-  //#region loadBubbles
-  const loadBubbles = () => {
-    const newLayout = [];
-    const newLayoutCustomProps = [];
-    const boardActions = [];
-    ProjectService.getById(bubbleProjectId)
-      .then((res) => {
-        res.data.boardActions.forEach((boardAction) => {
-          var bubbleCompleted =
-            boardAction.concludedAt !== undefined &&
-            boardAction.concludedAt !== null;
-
-          var data = calculateDifferenceInDays(boardAction);
-          newLayout.push({
-            x: data.differenceFromStartDate,
-            w: data.differenceInDays,
-            i: boardAction.id.toString(),
-            y: boardAction.timelineRow ?? 0,
-            h: 1,
-            isCompleted: bubbleCompleted,
-            static: bubbleCompleted,
-          });
-
-          newLayoutCustomProps.push({
-            bubbleId: boardAction.id.toString(),
-            title: boardAction.content,
-            color: boardAction.color,
-            startsDate: new Date(boardAction.startDate),
-            endsDate: new Date(boardAction.endDate),
-          });
-
-          boardActions.push(boardAction);
-        });
-
-        setLayout(newLayout);
-        setLayoutCustomProps(newLayoutCustomProps);
-        onBubbleLoad(boardActions);
-      })
-      .catch((error) => {
-        console.error("Error fetching project:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-  //#endregion
-
   useEffect(() => {
     if (bubbleBeingDeleted) {
       handleDeleteTimelineBubble(bubbleBeingDeleted);
@@ -188,6 +108,15 @@ const Timeline = ({
       handleColorChanged(onColorChanged);
     }
   }, [onColorChanged]);
+
+  useEffect(() => {
+    if (layout.length < 1) return;
+
+    var adjustedLayout = AdjustLayoutOnLoad(layout);
+    if (adjustedLayout) {
+      setLayout(adjustedLayout);
+    }
+  }, [validateColision]);
 
   //#region loadThrowedBubbles
   const loadThrowedBubbles = () => {
@@ -246,6 +175,67 @@ const Timeline = ({
   };
   //#endregion
 
+  //#region loadBubbles
+  const loadBubbles = () => {
+    ProjectService.getById(bubbleProjectId)
+      .then((res) => {
+        res.data.boardActions.forEach((boardAction) => {
+          var data = calculateDifferenceInDays(boardAction);
+          var bubbleCompleted =
+            boardAction.concludedAt !== undefined &&
+            boardAction.concludedAt !== null;
+
+          setLayout((prevLayout) => [
+            ...prevLayout,
+            {
+              x: data.differenceFromStartDate,
+              w: data.differenceInDays + boardAction.qtdDelayDays,
+              i: boardAction.id.toString(),
+              y: boardAction.timelineRow ?? 0,
+              h: 1,
+              static: bubbleCompleted,
+            },
+          ]);
+
+          setLayoutCustomProps((prevCustomProps) => [
+            ...prevCustomProps,
+            {
+              bubbleId: boardAction.id.toString(),
+              title: boardAction.content,
+              color: boardAction.color,
+              startsDate: new Date(boardAction.startDate),
+              endsDate: new Date(boardAction.endDate),
+              isCompleted: bubbleCompleted,
+            },
+          ]);
+
+          if (boardAction.qtdDelayDays > 0) {
+            setDelayedBubbles((prevDelayedBubbles) => [
+              ...prevDelayedBubbles,
+              {
+                bubbleId: boardAction.id.toString(),
+                delayedTime: data.differenceInDays * initialWidth,
+              },
+            ]);
+          }
+
+          onBubbleLoad(boardAction);
+          setValidateColision(!validateColision);
+
+          if (boardAction.concludedAt != undefined) {
+            onBubbleComplete(boardAction.id.toString(), false);
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching project:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  //#endregion
+
   //#region calculateDifferenceInDays
   const calculateDifferenceInDays = (boardAction) => {
     const endDate =
@@ -260,7 +250,7 @@ const Timeline = ({
       differenceInMilliseconds / (1000 * 60 * 60 * 24) + 1
     );
 
-    var initialDate = new Date("2024-01-01");
+    var initialDate = new Date(`${startTimelinePeriod}-01-01`);
     var daysFromStart = Math.abs(new Date(boardAction.startDate) - initialDate);
     var differenceFromStartDate = Math.floor(
       daysFromStart / (1000 * 60 * 60 * 24)
@@ -294,13 +284,15 @@ const Timeline = ({
 
   //#region scrollToCurrentDate
   const scrollToCurrentDate = () => {
+    if (new Date().getFullYear() > startTimelinePeriod + quantityYearsPeriod)
+      return;
+
     const today = new Date();
-    const startOfYear = new Date(today.getFullYear(), 0, 0);
+    const startOfYear = new Date(startTimelinePeriod, 0, 0);
     const diff = today - startOfYear;
     const oneDay = 1000 * 60 * 60 * 24;
     const dayOfYear = Math.floor(diff / oneDay);
     const monthOfYear = today.getMonth();
-    const year = today.getFullYear();
 
     const columnWidth = getCellWidth();
     let currentPosition = 0;
@@ -314,7 +306,7 @@ const Timeline = ({
 
     if (ref.current) {
       ref.current.scrollTo({
-        left: currentPosition - dayOfYear * 4,
+        left: currentPosition - columnWidth * 10,
       });
     }
   };
@@ -356,26 +348,6 @@ const Timeline = ({
 
           adjustBubble(currentBubble, layoutParam);
         }
-
-        var outdatedBubble = layout.find(
-          (bubble) =>
-            bubble.i == currentBubble.i &&
-            bubble.x == currentBubble.x &&
-            bubble.y == currentBubble.y
-        );
-
-        if (outdatedBubble) {
-          const delayedTime = outdatedBubble.w * initialWidth;
-
-          if (delayedTime <= 0) return;
-
-          let bubbleDelay = {
-            bubbleId: currentBubble.i,
-            delayedTime: delayedTime,
-          };
-
-          delayedBubbles.push(bubbleDelay);
-        }
       }
     };
 
@@ -392,10 +364,32 @@ const Timeline = ({
       adjustedLayout.push(updatedBubble);
     }
 
-    setDelayedBubbles((prevDelayedBubbles) => [
-      ...prevDelayedBubbles,
-      ...delayedBubbles,
-    ]);
+    return adjustedLayout;
+  };
+  //#endregion
+
+  //#region AdjustLayoutOnLoad
+  const AdjustLayoutOnLoad = (initialLayout) => {
+    const adjustBubble = (bubbleParam, layoutParam) => {
+      for (let i = 0; i < layoutParam.length; i++) {
+        const currentBubble = layoutParam[i];
+        if (
+          currentBubble.i !== bubbleParam.i &&
+          isColliding(bubbleParam, currentBubble)
+        ) {
+          const overlapWidth = bubbleParam.x + bubbleParam.w - currentBubble.x;
+          currentBubble.x += overlapWidth;
+
+          adjustBubble(currentBubble, layoutParam);
+        }
+      }
+    };
+
+    const adjustedLayout = initialLayout.map((bubble) => ({ ...bubble }));
+
+    for (let i = 0; i < adjustedLayout.length; i++) {
+      adjustBubble(adjustedLayout[i], adjustedLayout);
+    }
 
     return adjustedLayout;
   };
@@ -581,8 +575,11 @@ const Timeline = ({
     );
 
     if (update) {
+      var bubbleCompleted = layout.find((x) => x.i === id);
+      var data = getStartAndEndDate(bubbleCompleted);
       BoardActionService.conclude({
         Id: id,
+        EndDate: data.endDate,
       });
     }
   };
@@ -656,7 +653,7 @@ const Timeline = ({
           isResizable
           allowOverlap
           layout={layout}
-          margin={[0, 7]}
+          margin={[0, 6]}
           rowHeight={50}
           preventCollision={false}
           cols={quantityDays}
@@ -665,7 +662,7 @@ const Timeline = ({
           onResizeStart={() => setScrollEnabled(false)}
           onResizeStop={onBubbleResizeStop}
           containerPadding={[0, 0]}
-          maxRows={9}
+          maxRows={timelineRow < 8 ? 8 : timelineRow}
           resizeHandles={["e"]}
           isDraggable={canDragBubbles}
           style={{
@@ -689,25 +686,28 @@ const Timeline = ({
                   delayedBubbles.find((x) => x.bubbleId === bubble.i)
                     .delayedTime
                 }
+                notAuthenticate={notAuthenticate}
               />
             </div>
           ))}
         </ReactGridLayout>
         <div
           id="timeline-body"
-          style={{ marginTop: "5px", whiteSpace: "nowrap" }}
+          style={{ marginTop: "0px", whiteSpace: "nowrap" }}
         >
           {Array.from({ length: timelineRow < 8 ? 8 : timelineRow }).map(
             (_, rowIndex) => (
               <div key={rowIndex}>
-                {viewMode !== timelineViewMode.year && (
-                  <div
-                    className="current-day-timeline"
-                    style={{
-                      left: `${currentDayPosition}px`,
-                    }}
-                  />
-                )}
+                {viewMode !== timelineViewMode.year &&
+                  new Date().getFullYear() <=
+                    startTimelinePeriod + quantityYearsPeriod && (
+                    <div
+                      className="current-day-timeline"
+                      style={{
+                        left: `${currentDayPosition}px`,
+                      }}
+                    />
+                  )}
                 {Array.from({ length: quantityColumns }).map((_, colIndex) => (
                   <div
                     key={colIndex}

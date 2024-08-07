@@ -22,6 +22,17 @@ namespace Chiro.Domain.Entities
 
         public List<BoardActionLink> BoardActionLinks { get; set; }
 
+        public int QtdDelayDays
+        {
+            get
+            {
+                if (!ConcludedAt.HasValue && EndDate.HasValue && EndDate.Value < DateTime.Now)
+                    return (DateTime.Now - EndDate.Value).Days;
+
+                return 0;
+            }
+        }
+
         public IEnumerable<long> DelaySelfAndChilds()
         {
             var alreadyAdjustedActions = new List<long>

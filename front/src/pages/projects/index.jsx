@@ -57,7 +57,7 @@ const ProjectBoard = () => {
             i: project.id.toString(),
             minW: 4,
             maxW: 100,
-            minH: 2,
+            minH: 8,
             maxH: 25,
           };
 
@@ -108,7 +108,7 @@ const ProjectBoard = () => {
       h: 3,
       minW: 4,
       maxW: 100,
-      minH: 2,
+      minH: 8,
       maxH: 25,
     };
 
@@ -182,8 +182,9 @@ const ProjectBoard = () => {
     );
   };
 
-  const handleDoubleClick = (id) => {
-    const url = `project-board?bubbleProjectId=${id}`;
+  const handleDoubleClick = async (id) => {
+    const encryptId = await ProjectService.getEncryptProjectId(id);
+    const url = `project-board?bubbleProjectId=${encryptId.data}`;
     router.push(url);
   };
 
@@ -218,9 +219,11 @@ const ProjectBoard = () => {
       <button className="add-bubble" onClick={handleAddBubble}>
         <AddIcon />
       </button>
-      <div style={{
-        flex: 1
-      }}>
+      <div
+        style={{
+          flex: 1,
+        }}
+      >
         <TransformWrapper
           defaultScale={defaultScale}
           initialPositionY={1}
@@ -230,14 +233,14 @@ const ProjectBoard = () => {
             velocityDisabled: true,
           }}
           maxScale={5}
-          minScale={0.5}
+          minScale={0.2}
           initialScale={defaultScale}
           onWheel={handleScroll}
           doubleClick={{
             disabled: true,
           }}
           alignmentAnimation={{
-            disabled: true,
+            disabled: false,
           }}
           limitToBounds={true}
           centerOnInit={false}

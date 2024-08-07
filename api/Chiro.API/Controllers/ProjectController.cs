@@ -36,7 +36,6 @@ namespace Chiro.API.Controllers
             }
 
             return Ok(projectCreated);
-            //return CreatedAtAction(nameof(GetProjectAsync), new { Id = projectCreated }, createProjectDTO);
         }
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace Chiro.API.Controllers
         }
 
         /// <summary>
-        /// Buscar um �nico projeto juntamente com o Board e a Board.
+        /// Buscar um único projeto juntamente com o Board e a Board.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -186,6 +185,29 @@ namespace Chiro.API.Controllers
         {
             var result = await _projectService.GetProjectNameAsync(id);
             return Ok(result);
+        }
+
+        [HttpGet("get-encrypt-projectId")]
+        public IActionResult GetEncryptProjectId(string projectId, string randomNumbers)
+        {
+            if (!long.TryParse(projectId, out long _projectId))
+            {
+                return BadRequest("ID do projeto inválido.");
+            }
+
+            if (!int.TryParse(randomNumbers, out int _randomNumbers))
+            {
+                return BadRequest("Número aleatório inválido");
+            }
+
+            var encryptProjectId = _projectService.GenerateToken(_projectId, _randomNumbers);
+            return Ok(encryptProjectId);
+        }
+        [HttpGet("get-decrypt-projectId")]
+        public IActionResult GetDecryptProjectId(string token)
+        {
+            var encryptProjectId = _projectService.DecryptToken(token);
+            return Ok(encryptProjectId);
         }
     }
 }
