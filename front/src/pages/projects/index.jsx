@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import RGL, { WidthProvider } from "react-grid-layout";
-import { useRouter } from "next/router";
 import AddIcon from "@mui/icons-material/Add";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import Navbar from "@/components/navbar/navbar";
 import Bubble from "@/components/bubble/bubble";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
-
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import "@/app/globals.css";
 import "./styles.css";
@@ -40,6 +39,7 @@ const ProjectBoard = () => {
     inicializeBubblesLayout();
   }, []);
 
+  //#region inicializeBubblesLayout
   const inicializeBubblesLayout = () => {
     setLoading(true);
     ProjectService.getAll()
@@ -77,7 +77,9 @@ const ProjectBoard = () => {
         setLoading(false);
       });
   };
+  //#endregion
 
+  //#region handleAddBubble
   const handleAddBubble = async () => {
     var projectId = await ProjectService.create({
       Name: "",
@@ -113,12 +115,16 @@ const ProjectBoard = () => {
       newCustomProps,
     ]);
   };
+  //#endregion
 
+  //#region handleDeleteBubble
   const handleDeleteBubble = (id) => {
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
     ProjectService.deleteAsync(id);
   };
+  //#endregion
 
+  //#region handleChangeColor
   const handleChangeColor = (id, color) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) => {
@@ -133,7 +139,9 @@ const ProjectBoard = () => {
       })
     );
   };
+  //#endregion
 
+  //#region handleChangeTitle
   const handleChangeTitle = (id, content, isLeaving = false) => {
     if (isLeaving) {
       ProjectService.changeName({
@@ -153,13 +161,17 @@ const ProjectBoard = () => {
       )
     );
   };
+  //#endregion
 
+  //#region handleDoubleClick
   const handleDoubleClick = async (id) => {
     const encryptId = await ProjectService.getEncryptProjectId(id);
     const url = `project-board?bubbleProjectId=${encryptId.data}`;
     router.push(url);
   };
+  //#endregion
 
+  //#region onUpdateBubble
   const onUpdateBubble = (e, v) => {
     const changedProject = e.find((w) => w.i == v.i);
     ProjectService.resize({
@@ -172,10 +184,13 @@ const ProjectBoard = () => {
 
     setCanPan(true);
   };
+  //#endregion
 
+  //#region onBubbleDragStart
   const onBubbleDragStart = () => {
     setCanPan(false);
   };
+  //#endregion
 
   return loading ? (
     <Loading />
