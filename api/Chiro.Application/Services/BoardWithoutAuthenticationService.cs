@@ -15,12 +15,12 @@ namespace Chiro.Application.Services
 
         public string? DecryptToken(string token)
         {
-            var tokenInCache = _cache.Get(token);
+            /*var tokenInCache = _cache.Get(token);
 
             if (tokenInCache == null)
             {
                 throw new Exception("Este link expirou...");
-            }
+            }*/
 
             return new AES().DecryptAesToken(token).Split("|")[0];
         }
@@ -28,7 +28,7 @@ namespace Chiro.Application.Services
         public string? GenerateToken(long projectId, int randomNumber)
         {
             var token = new AES().GenerateAesTokenWithProjectId(projectId, randomNumber);
-            _cache.Add(token, token, 30);
+            //_cache.Add(token, token, 30);
 
             return token;
         }
