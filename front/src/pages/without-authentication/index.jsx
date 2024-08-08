@@ -7,6 +7,7 @@ import ProjectService from "@/services/requests/project-service";
 import Bubble from "@/components/bubble/bubble";
 import Timeline from "@/components/timeline/timeline";
 import Navbar from "@/components/navbar/navbar";
+import { useError } from "@/components/context/error-network";
 
 import "@/app/globals.css";
 import "./styles.css";
@@ -24,6 +25,7 @@ function BoardWithOutAuthentication() {
   const [canDragBubbles, setCanDragBubbles] = useState(false);
   const [projectId, setProjectId] = useState(0);
   const [projectName, setProjectName] = useState("");
+  const { setErrorNetwork } = useError();
   const [error, setError] = useState("");
 
   const ReactGridLayout = WidthProvider(RGL);
@@ -43,19 +45,24 @@ function BoardWithOutAuthentication() {
   const handleGetProject = (param) => {
     BoardWithoutAuthenticationService.getProjectWithToken(param)
       .then((res) => {
+        setErrorNetwork(null);
         setProjectId(res);
         if (res) {
           setLoading(true);
           ProjectService.getProjectName(res)
             .then((res) => {
+              setErrorNetwork(null);
               setProjectName(res.data);
             })
             .catch((error) => {
               console.error("Error fetching project name: ", error);
+              setErrorNetwork(error.code);
             });
   
           ProjectService.getById(res)
             .then((res) => {
+              setErrorNetwork(null);
+
               res.data.boardActions.forEach((boardActions) => {
                 handleAddBubbles({
                   width: boardActions.width,
@@ -70,6 +77,7 @@ function BoardWithOutAuthentication() {
             })
             .catch((error) => {
               console.error("Error fetching project: ", error);
+              setErrorNetwork(error.code);
             })
             .finally(() => {
               setLoading(false);
@@ -80,6 +88,7 @@ function BoardWithOutAuthentication() {
       .catch((error) => {
         console.log("Error fetching project by token: ", error.response.data);
         setError(error.response.data.message + error.response.data.error);
+        setErrorNetwork(error.code);
       });
   };
 

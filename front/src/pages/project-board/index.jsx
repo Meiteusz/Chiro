@@ -14,8 +14,11 @@ import StartEndDateModal from "@/components/modal/date/starts-end-date-modal";
 import BoardActionService from "@/services/requests/board-action-service";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
+
 import { BoardActionType } from "@/utils/constants";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { useError } from "@/components/context/error-network";
+
 import "@/app/globals.css";
 import "./styles.css";
 
@@ -46,8 +49,10 @@ function ProjectBoard() {
   const [projectName, setProjectName] = useState("");
   const [loadingBoard, setLoadingBoard] = useState(true);
   const [canPan, setCanPan] = useState(true);
+  const { setErrorNetwork } = useError();
   const [bubbleProjectId, setBubbleProjectId] = useState(undefined);
   const [defaultScale, setDefaultScale] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
 
   const router = useRouter();
 
@@ -86,13 +91,16 @@ function ProjectBoard() {
     ProjectService.getProjectName(bubbleProjectId)
       .then((res) => {
         setProjectName(res.data);
+        setErrorNetwork(null);
       })
       .catch((error) => {
         console.error("Error fetching project name:", error);
+        setErrorNetwork(error.code);
       });
 
     ProjectService.getById(bubbleProjectId)
       .then((res) => {
+        setErrorNetwork(null);
         res.data.boardActions.forEach((boardAction) => {
           const newItem = {
             i: boardAction.id.toString(),
@@ -125,6 +133,7 @@ function ProjectBoard() {
       })
       .catch((error) => {
         console.error("Error fetching bubbles project:", error);
+        setErrorNetwork(error.code);
       });
 
     setLoadingBoard(false);
@@ -160,18 +169,23 @@ function ProjectBoard() {
       trace: false,
     };
 
-    var boardActionId = await BoardActionService.create({
-      Content: newCustomProps.title,
-      BoardActionType: newCustomProps.type,
-      PositionY: newItem.y,
-      PositionX: newItem.x,
-      Width: newItem.w,
-      Height: newItem.h,
-      Color: newCustomProps.color,
-      StartsDate: newCustomProps.startsDate,
-      EndsDate: newCustomProps.endsDate,
-      ProjectId: bubbleProjectId,
-    });
+    try{
+      var boardActionId = await BoardActionService.create({
+        Content: newCustomProps.title,
+        BoardActionType: newCustomProps.type,
+        PositionY: newItem.y,
+        PositionX: newItem.x,
+        Width: newItem.w,
+        Height: newItem.h,
+        Color: newCustomProps.color,
+        StartsDate: newCustomProps.startsDate,
+        EndsDate: newCustomProps.endsDate,
+        ProjectId: bubbleProjectId,
+      });
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
 
     newItem.i = boardActionId;
     newCustomProps.bubbleId = boardActionId;
@@ -184,7 +198,7 @@ function ProjectBoard() {
     handleCloseMenuBubbleOptions();
   };
 
-  const handleDeleteBubble = (id) => {
+  const handleDeleteBubble = async (id) => {
     const a = layoutCustomProps.filter((item) => item.bubbleId !== id);
     const b = layout.filter((item) => item.i !== id);
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
@@ -193,14 +207,26 @@ function ProjectBoard() {
     );
     setBubbleBeingDeleted(id);
 
-    BoardActionService.deleteAsync(id);
+    try{
+      await BoardActionService.deleteAsync(id);
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
   };
 
   const handleChangeColor = (id, color) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) => {
         if (prevBox.bubbleId === id) {
-          BoardActionService.changeColor({ Id: id, Color: color.hex });
+          
+          try{
+            BoardActionService.changeColor({ Id: id, Color: color.hex });
+            setErrorNetwork(null);
+          }catch (error){
+            setErrorNetwork(error.code);
+          }
+
           return {
             ...prevBox,
             color: color.hex,
@@ -216,12 +242,18 @@ function ProjectBoard() {
     });
   };
 
-  const handleChangeTitle = (id, content, isLeaving = false) => {
+  const handleChangeTitle = async (id, content, isLeaving = false) => {
     if (isLeaving) {
-      BoardActionService.changeContent({
-        Id: id,
-        Content: content,
-      });
+      try{
+       await BoardActionService.changeContent({
+          Id: id,
+          Content: content,
+        });
+
+        setErrorNetwork(null);
+      }catch (error){
+        setErrorNetwork(error.code);
+      }
     }
 
     setLayoutCustomProps((prevBubble) =>
@@ -245,20 +277,38 @@ function ProjectBoard() {
     setCanPan(false);
   };
 
-  const onBubbleDragStop = (e, v) => {
-    const changedBubble = e.find((w) => w.i == v.i);
-    BoardActionService.resize({
-      Id: changedBubble.i,
-      Width: changedBubble.w,
-      Height: changedBubble.h,
-      PositionX: changedBubble.x,
-      PositionY: changedBubble.y,
-    });
+  const onDragging = () => {
+    setIsDragging(true);
+  }
 
-    //setDateModalOpened(true);
-    setSelectedIdBubble(v.i);
-    setCanPan(true);
-    console.log(canPan);
+  const onDraggingStop = () => {
+    setIsDragging(false);
+  }
+
+  const onBubbleDragStop = async (e, v) => {
+    if (!isDragging) {
+      return;
+    }
+
+    const changedBubble = e.find((w) => w.i == v.i);
+
+    try{
+      await BoardActionService.resize({
+        Id: changedBubble.i,
+        Width: changedBubble.w,
+        Height: changedBubble.h,
+        PositionX: changedBubble.x,
+        PositionY: changedBubble.y,
+      });
+      
+      setSelectedIdBubble(v.i);
+      setCanPan(true);
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
+
+    onDraggingStop();
   };
 
   const isOverlapping = (bubbleId) => {
@@ -304,18 +354,29 @@ function ProjectBoard() {
     return x_overlap * y_overlap;
   };
 
-  const onBubbleResizeStop = (e, v) => {
+  const onBubbleResizeStop = async (e, v) => {
+    if (!isDragging) {
+      return;
+    }
+
     const changedBubble = e.find((w) => w.i == v.i);
-    BoardActionService.resize({
-      Id: changedBubble.i,
-      Width: changedBubble.w,
-      Height: changedBubble.h,
-      PositionX: changedBubble.x,
-      PositionY: changedBubble.y,
-    });
+
+    try{
+      await BoardActionService.resize({
+        Id: changedBubble.i,
+        Width: changedBubble.w,
+        Height: changedBubble.h,
+        PositionX: changedBubble.x,
+        PositionY: changedBubble.y,
+      });
+      
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
 
     setCanPan(true);
-    console.log(canPan);
+    onDraggingStop();
   };
 
   //#region ConfirmStartEndDate
@@ -553,6 +614,7 @@ function ProjectBoard() {
             panning={{
               disabled: canPan === false,
               velocityDisabled: true,
+              excluded: ["input"]
             }}
             maxScale={5}
             minScale={0.2}
@@ -582,8 +644,10 @@ function ProjectBoard() {
                 rowHeight={10}
                 cols={1000}
                 maxRows={636.7}
+                onDrag={onDragging}
                 onDragStop={onBubbleDragStop}
                 onDragStart={onBubbleDragStart}
+                onResize={onDragging}
                 onResizeStop={onBubbleResizeStop}
                 onResizeStart={onBubbleDragStart}
                 style={{

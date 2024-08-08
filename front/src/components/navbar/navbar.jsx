@@ -15,6 +15,7 @@ import { TextField, Button } from "@mui/material";
 
 import ShareableLinkModal from "@/components/modal/link/shareable-link-modal";
 import BoardWithoutAuthenticationService from "@/services/requests/board-without-authentication-service";
+import { useError } from "@/components/context/error-network"; 
 
 import "@/app/globals.css";
 import DeleteDialog from "@/components/modal/delete-dialog/delete-dialog";
@@ -25,6 +26,7 @@ function Navbar({ projectName, showMenu, projectId }) {
   const [url, setUrl] = useState("");
   const [editing, setEditing] = useState(false);
   const [newProjectName, setNewProjectName] = useState(projectName);
+  const { setErrorNetwork } = useError();
   const textFieldRef = useRef(null);
   const openMenu = Boolean(anchorEl);
   const router = useRouter();
@@ -45,8 +47,14 @@ function Navbar({ projectName, showMenu, projectId }) {
   const handleOpen = () => setModalOpen(true);
   const handleClose = () => setModalOpen(false);
 
-  const handleConfirm = () => {
-    ProjectService.deleteAsync(projectId);
+  const handleConfirm = async () => {
+    try{
+      await ProjectService.deleteAsync(projectId);
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
+    
     setModalOpen(false);
     router.push("/projects");
   };
@@ -60,10 +68,16 @@ function Navbar({ projectName, showMenu, projectId }) {
   };
 
   const handleOpenShareableLinkModal = async () => {
-    const url = await BoardWithoutAuthenticationService.createLink(projectId);
-    setUrl(url);
-    setAnchorEl(null);
-    setOpenModal(true);
+    try{
+      const url = await BoardWithoutAuthenticationService.createLink(projectId);
+
+      setUrl(url);
+      setAnchorEl(null);
+      setOpenModal(true);
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
+    }
   };
 
   const handleCloseShareableLinkModal = () => {
@@ -74,18 +88,23 @@ function Navbar({ projectName, showMenu, projectId }) {
     setEditing(true);
   };
 
-  const handleSaveClick = () => {
-    if (newProjectName) {
-      ProjectService.changeName({
-        Id: projectId,
-        Name: newProjectName,
-      });
-      setNewProjectName(newProjectName);
-    } else {
-      setNewProjectName(projectName);
+  const handleSaveClick = async () => {
+    try{
+      if (newProjectName) {
+        ProjectService.changeName({
+          Id: projectId,
+          Name: newProjectName,
+        });
+        setNewProjectName(newProjectName);
+      } else {
+        setNewProjectName(projectName);
+      }
+  
+      setEditing(false);
+      setErrorNetwork(null);
+    }catch (error){
+      setErrorNetwork(error.code);
     }
-
-    setEditing(false);
   };
 
   const handleChange = (event) => {

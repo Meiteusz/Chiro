@@ -11,6 +11,9 @@ import Bubble from "@/components/bubble/bubble";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
 
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { useError } from "@/components/context/error-network";
+
 import "@/app/globals.css";
 import "./styles.css";
 
@@ -23,6 +26,8 @@ const ProjectBoard = () => {
   const [canDragBubbles, setCanDragBubbles] = useState(true);
   const [defaultScale, setDefaultScale] = useState(1);
   const [canPan, setCanPan] = useState(true);
+  const { setErrorNetwork } = useError();
+  const [isDragging, setIsDragging] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -39,11 +44,12 @@ const ProjectBoard = () => {
     inicializeBubblesLayout();
   }, []);
 
-  //#region inicializeBubblesLayout
-  const inicializeBubblesLayout = () => {
+  const inicializeBubblesLayout = async () => {
     setLoading(true);
     ProjectService.getAll()
       .then((res) => {
+        setErrorNetwork(null);
+
         res.data.map((project) => {
           const newItem = {
             x: project.positionX,
@@ -72,6 +78,7 @@ const ProjectBoard = () => {
       })
       .catch((error) => {
         console.log("Error fetching projects: ", error);
+        setErrorNetwork(error.code);
       })
       .finally(() => {
         setLoading(false);
@@ -81,15 +88,21 @@ const ProjectBoard = () => {
 
   //#region handleAddBubble
   const handleAddBubble = async () => {
-    var projectId = await ProjectService.create({
-      Name: "",
-      Password: "1234",
-      PositionY: 5,
-      PositionX: 3,
-      Width: 2,
-      Height: 3,
-      Color: "white",
-    });
+    try {
+      var projectId = await ProjectService.create({
+        Name: "",
+        Password: "1234",
+        PositionY: 5,
+        PositionX: 3,
+        Width: 2,
+        Height: 3,
+        Color: "white",
+      });
+
+      setErrorNetwork(null);
+    } catch (error) {
+      setErrorNetwork(error.code);
+    }
 
     const newItem = {
       i: projectId,
@@ -117,19 +130,28 @@ const ProjectBoard = () => {
   };
   //#endregion
 
-  //#region handleDeleteBubble
-  const handleDeleteBubble = (id) => {
+  const handleDeleteBubble = async (id) => {
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
-    ProjectService.deleteAsync(id);
-  };
-  //#endregion
 
-  //#region handleChangeColor
+    try {
+      await ProjectService.deleteAsync(id);
+      setErrorNetwork(null);
+    } catch (error) {
+      setErrorNetwork(error.code);
+    }
+  };
+
   const handleChangeColor = (id, color) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) => {
         if (prevBox.bubbleId === id) {
-          ProjectService.changeColor({ Id: id, Color: color.hex });
+          try {
+            ProjectService.changeColor({ Id: id, Color: color.hex });
+            setErrorNetwork(null);
+          } catch (error) {
+            setErrorNetwork(error.code);
+          }
+
           return {
             ...prevBox,
             color: color.hex,
@@ -144,10 +166,15 @@ const ProjectBoard = () => {
   //#region handleChangeTitle
   const handleChangeTitle = (id, content, isLeaving = false) => {
     if (isLeaving) {
-      ProjectService.changeName({
-        Id: id,
-        Name: content,
-      });
+      try {
+        ProjectService.changeName({
+          Id: id,
+          Name: content,
+        });
+        setErrorNetwork(null);
+      } catch (error) {
+        setErrorNetwork(error.code);
+      }
     }
 
     setLayoutCustomProps((prevBubble) =>
@@ -171,18 +198,37 @@ const ProjectBoard = () => {
   };
   //#endregion
 
-  //#region onUpdateBubble
-  const onUpdateBubble = (e, v) => {
-    const changedProject = e.find((w) => w.i == v.i);
-    ProjectService.resize({
-      Id: changedProject.i,
-      Width: changedProject.w,
-      Height: changedProject.h,
-      PositionX: changedProject.x,
-      PositionY: changedProject.y,
-    });
+  const onDragging = () => {
+    setIsDragging(true);
+  };
 
-    setCanPan(true);
+  const onDraggingStop = () => {
+    setIsDragging(false);
+  };
+
+  const onUpdateBubble = async (e, v) => {
+    if (!isDragging) {
+      return;
+    }
+
+    const changedProject = e.find((w) => w.i == v.i);
+
+    try {
+      await ProjectService.resize({
+        Id: changedProject.i,
+        Width: changedProject.w,
+        Height: changedProject.h,
+        PositionX: changedProject.x,
+        PositionY: changedProject.y,
+      });
+
+      setErrorNetwork(null);
+      setCanPan(true);
+    } catch (error) {
+      setErrorNetwork(error.code);
+    }
+
+    onDraggingStop();
   };
   //#endregion
 
@@ -212,6 +258,7 @@ const ProjectBoard = () => {
           panning={{
             disabled: canPan === false,
             velocityDisabled: true,
+            excluded: ["input"],
           }}
           maxScale={5}
           minScale={0.2}
@@ -242,7 +289,9 @@ const ProjectBoard = () => {
               rowHeight={10}
               maxRows={636.7}
               cols={1000}
+              onDrag={onDragging}
               onDragStop={onUpdateBubble}
+              onResize={onDragging}
               onResizeStop={onUpdateBubble}
               onResizeStart={onBubbleDragStart}
               onDragStart={onBubbleDragStart}
