@@ -7,12 +7,14 @@ import ProjectService from "@/services/requests/project-service";
 import Bubble from "@/components/bubble/bubble";
 import Timeline from "@/components/timeline/timeline";
 import Navbar from "@/components/navbar/navbar";
+import Loading from "@/components/loading/Loading";
+
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useError } from "@/components/context/error-network";
 
 import "@/app/globals.css";
 import "./styles.css";
 import "../projects/styles.css";
-import Loading from "@/components/loading/Loading";
 
 function BoardWithOutAuthentication() {
   const router = useRouter();
@@ -22,11 +24,11 @@ function BoardWithOutAuthentication() {
   const [paramValue, setParamValue] = useState("");
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
-  const [canDragBubbles, setCanDragBubbles] = useState(false);
   const [projectId, setProjectId] = useState(0);
   const [projectName, setProjectName] = useState("");
   const { setErrorNetwork } = useError();
   const [error, setError] = useState("");
+  const [defaultScale, setDefaultScale] = useState(1);
 
   const ReactGridLayout = WidthProvider(RGL);
 
@@ -103,6 +105,7 @@ function BoardWithOutAuthentication() {
       maxW: 10,
       minH: 2,
       maxH: 5,
+      static:true
     };
 
     const newCustomProps = {
@@ -154,46 +157,76 @@ function BoardWithOutAuthentication() {
     ]);
   };
 
+  const handleScroll = (e) => {
+    setDefaultScale(e.state.scale);
+  };
+
   return loading ? (
     <Loading />
   ) : (
-    <div className="container-boards">
+    <div>
       <Navbar projectName={projectName} />
-      {error && <h1 style={{textAlign: 'center', fontSize: '3rem', marginTop: '20vh'}}>{error}</h1>}
-      <div className="top-board">
-        <ReactGridLayout
-          isResizable={false}
-          layout={layout}
-          compactType={null}
-          isDraggable={canDragBubbles}
-          margin={[1, 1]}
-          rowHeight={25}
-          cols={50}
-          containerPadding={[0, 0]}
-          maxRows={23.3}
-          style={{ height: "100%" }}
-        >
-          {layout.map((bubble) => (
-            <div key={bubble.i} style={{ borderRadius: "5px" }}>
-              <Bubble
-                bubble={bubble}
-                bubbleCustomProps={
-                  layoutCustomProps &&
-                  layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                }
-                notAuthenticate={true}
-              />
-            </div>
-          ))}
-        </ReactGridLayout>
-      </div>
-      <div id="timeline" className="time-line">
-        <Timeline
-          bubbleProjectId={projectId}
-          onBubbleLoad={onBubbleLoad}
-          notAuthenticate={true}
-          setLoading={setLoading}
-        />
+      <div className="container-boards">
+        {error && <h1 style={{textAlign: 'center', fontSize: '3rem', marginTop: '20vh'}}>{error}</h1>}
+        <div className="top-board">
+          <TransformWrapper
+            initialPositionY={1}
+            initialPositionX={1}
+            maxScale={5}
+            minScale={0.2}    
+            doubleClick={{disabled: true}}
+            alignmentAnimation={{disabled: false}}
+            limitToBounds={true}
+            centerOnInit={false}
+            centerZoomedOut={true}
+            disablePadding={false}
+            defaultScale={defaultScale}
+            initialScale={defaultScale}
+            onWheel={handleScroll}
+            panning={{
+              disabled: false,
+              velocityDisabled: true
+            }}
+          >
+            <TransformComponent>
+              <ReactGridLayout
+                layout={layout}
+                compactType={null}
+                isDraggable={false}
+                margin={[1, 1]}
+                rowHeight={10}
+                cols={1000}
+                maxRows={636.7}
+                style={{
+                  width: "8000px !important",
+                  height: "7008px !important",
+                  position: "fixed",
+                }}
+              >
+                {layout.map((bubble) => (
+                  <div key={bubble.i} style={{ borderRadius: "5px" }}>
+                    <Bubble
+                      bubble={bubble}
+                      bubbleCustomProps={
+                        layoutCustomProps &&
+                        layoutCustomProps.find((x) => x.bubbleId === bubble.i)
+                      }
+                      notAuthenticate={true}
+                    />
+                  </div>
+                ))}
+              </ReactGridLayout>
+            </TransformComponent>
+          </TransformWrapper>   
+        </div>
+        <div id="timeline" className="time-line">
+          <Timeline
+            bubbleProjectId={projectId}
+            onBubbleLoad={onBubbleLoad}
+            notAuthenticate={true}
+            setLoading={setLoading}
+          />
+        </div>
       </div>
     </div>
   );
