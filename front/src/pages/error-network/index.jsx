@@ -1,16 +1,24 @@
-import React from 'react';
+import WifiOffRoundedIcon from "@mui/icons-material/WifiOffRounded"; // Ícone de rede fora do ar
 
-import BuildRoundedIcon from '@mui/icons-material/BuildRounded';
-import './styles.css';
+import "./styles.css";
 
-function APIUnavailable() {
+const ErrorNetwork = () => {
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
   return (
-    <div className="container">
-      <BuildRoundedIcon fontSize="large" className="icon" />
-      <h1>Serviço temporariamente fora do ar!</h1>
-      <p>Estamos enfrentando problemas técnicos. Tente novamente mais tarde.</p>
-    </div>       
+    <div className="error-container">
+      <div className="error-content">
+        <WifiOffRoundedIcon fontSize="large" className="icon" />
+        <h1 className="error-title">Serviço temporariamente fora do ar!</h1>
+        <p className="error-description">Tente novamente mais tarde.</p>
+        <button onClick={handleRetry} className="error-link">
+          Tentar novamente
+        </button>
+      </div>
+    </div>
   );
-}
+};
 
-export default APIUnavailable;  
+export default ErrorNetwork;

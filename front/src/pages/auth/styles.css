@@ -3,18 +3,34 @@
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: linear-gradient(to right, black, #1C1C1C);
-  background-image: url('/images/mountain.jpg'); 
+  background: linear-gradient(to right, black, #1C1C1C), url('/images/mountain.jpg') no-repeat center center;
   background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.container-auth {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 100%;
 }
 
 .token-field {
-  width: 300px;
+  width: 100%;
   padding: 10px;
   border-radius: 5px;
   border: none;
   background-color: rgba(248, 243, 243, 0.952);
-  color: rgb(0, 0, 0, 0.5);
+  color: rgba(0, 0, 0, 0.5);
   font-size: 16px;
   margin-bottom: 20px;
 }
@@ -24,7 +40,7 @@
 }
 
 .button-auth {
-  width: 300px;
+  width: 100%;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -33,17 +49,11 @@
   font-weight: bold;
   font-size: 16px;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .button-auth:hover {
   background: rgba(255, 255, 255, 0.9);
-}
-
-.container-auth {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 .auth-error-message {

@@ -16,13 +16,13 @@ function DeleteDialog({ open, handleClose, handleConfirm }) {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 400,
+          width: 450,
           bgcolor: "#D6DBDC",
           borderRadius: 2,
           boxShadow: 24,
           p: 4,
           textAlign: "center",
-          padding: "20px",
+          padding: "10px",
         }}
       >
         <div className="icon-container">

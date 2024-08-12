@@ -2,7 +2,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 16px;
 }
 
 .icon {
@@ -11,7 +10,7 @@
 }
 
 .modal-title {
-  margin-bottom: 16px;
+  margin-bottom: 15px;
   font-size: 1.5rem;
   font-weight: bold;
 }
@@ -33,7 +32,6 @@
 }
 
 .base-btn.delete {
-  margin-bottom: 12px;
   background-color: #FF4141;
   color: white;
   border: 1px solid #FF4141;
