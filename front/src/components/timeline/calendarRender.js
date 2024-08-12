@@ -32,7 +32,7 @@ const renderDays = (widthDays, events, ref, startDateTimelinePeriod, quantityYea
               height: "35px",
               textAlign: "center",
               display: "inline-block",
-              backgroundColor: "rgba(168, 168, 168, 0.7)",
+              backgroundColor: "rgba(168, 168, 168, 1)",
               padding: "5px",
             }}
           >

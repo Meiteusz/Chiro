@@ -33,7 +33,7 @@ const Timeline = ({
   layoutBubble,
   layoutBubbleProps,
   bubbleProjectId,
-  onBubbleLoad,
+  //onBubbleLoad,
   bubbleBeingDeleted,
   onContentChanged,
   onColorChanged,
@@ -72,6 +72,17 @@ const Timeline = ({
   const [timelineRow, setTimelineRow] = useState(0);
   const [validateColision, setValidateColision] = useState(false);
 
+  //#region useEffect's
+
+  useEffect(() => {
+    getConfiguration();
+
+    if (timelineConfigured) {
+      loadBubbles();
+      scrollToCurrentDate();
+    }
+  }, [bubbleProjectId, timelineConfigured]);
+
   useEffect(() => {
     loadThrowedBubbles();
   }, [layoutBubble]);
@@ -79,17 +90,6 @@ const Timeline = ({
   useEffect(() => {
     scrollToCurrentDate();
   }, [viewMode]);
-
-  useEffect(() => {
-    if (bubbleProjectId) {
-      getConfiguration();
-
-      if (timelineConfigured) {
-        loadBubbles();
-        scrollToCurrentDate();
-      }
-    }
-  }, [bubbleProjectId, timelineConfigured]);
 
   useEffect(() => {
     if (bubbleBeingDeleted) {
@@ -117,6 +117,7 @@ const Timeline = ({
       setLayout(adjustedLayout);
     }
   }, [validateColision]);
+  //#endregion
 
   //#region loadThrowedBubbles
   const loadThrowedBubbles = () => {
@@ -219,7 +220,7 @@ const Timeline = ({
             ]);
           }
 
-          onBubbleLoad(boardAction);
+          //onBubbleLoad(boardAction);
           setValidateColision(!validateColision);
 
           if (boardAction.concludedAt != undefined) {
@@ -395,6 +396,7 @@ const Timeline = ({
   };
   //#endregion
 
+  //#region handleZoom
   const handleZoom = (e) => {
     if (e.deltaY > 0) {
       if (viewMode === timelineViewMode.day) {
@@ -418,7 +420,9 @@ const Timeline = ({
       }
     }
   };
+  //#endregion
 
+  //#region onBubbleDragStop
   const onBubbleDragStop = (updatedLayout, oldItem, newItem) => {
     const hasCollision = updatedLayout.some(
       (bubble) => bubble.i !== newItem.i && isColliding(newItem, bubble)
@@ -446,7 +450,9 @@ const Timeline = ({
 
     setLayout([...newLayout]);
   };
+  //#endregion
 
+  //#region getNumberOfRowsToIncrease
   const getNumberOfRowsToIncrease = (updatedBubble, updatedLayout) => {
     let hasCollision = isNewBubbleColliding(updatedBubble, updatedLayout);
     let increaseBy = 0;
@@ -462,14 +468,18 @@ const Timeline = ({
 
     return increaseBy;
   };
+  //#endregion
 
+  //#region isNewBubbleColliding
   const isNewBubbleColliding = (updatedBubble, updatedLayout) => {
     updatedLayout.some(
       (bubble) =>
         bubble.i !== updatedBubble.i && isColliding(updatedBubble, bubble)
     );
   };
+  //#endregion
 
+  //#region onBubbleResizeStop
   const onBubbleResizeStop = (updatedLayout) => {
     const adjustedLayout = adjustLayout(updatedLayout);
     setLayout(adjustedLayout);
@@ -495,7 +505,9 @@ const Timeline = ({
         getNumberOfRowsToIncrease(updatedBubble, updatedLayout),
     });
   };
+  //#endregion
 
+  //#region getStartAndEndDate
   const getStartAndEndDate = (bubble) => {
     const initialDate = new Date("2024-01-01");
     const newStartDate = new Date(initialDate);
@@ -509,6 +521,7 @@ const Timeline = ({
       endDate: newEndDate,
     };
   };
+  //#endregion
 
   //#region calculateProfitDays
 
@@ -548,6 +561,7 @@ const Timeline = ({
 
   //#endregion
 
+  //#region onBubbleComplete
   const onBubbleComplete = (id, update) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
@@ -583,7 +597,9 @@ const Timeline = ({
       });
     }
   };
+  //#endregion
 
+  //#region handleContentChanged
   const handleContentChanged = (bubble) => {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
@@ -596,9 +612,10 @@ const Timeline = ({
       )
     );
   };
+  //#endregion
 
+  //#region handleColorChanged
   const handleColorChanged = (bubble) => {
-    console.log(bubble);
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) =>
         prevBox.bubbleId === bubble.id
@@ -610,10 +627,13 @@ const Timeline = ({
       )
     );
   };
+  //#endregion
 
+  //#region handleDeleteTimelineBubble
   const handleDeleteTimelineBubble = (id) => {
     setLayout((prevLayout) => [...prevLayout.filter((item) => item.i !== id)]);
   };
+  //#endregion
 
   return (
     <div
@@ -622,8 +642,19 @@ const Timeline = ({
       {...events}
       ref={ref}
     >
-      <div style={{ position: "absolute" }}>
-        <div onWheel={handleZoom} style={{ marginBottom: "5px" }}>
+      <div
+        style={{
+          position: "absolute",
+          //backgroundColor: "rgba(168, 168, 168, 0.7)",
+        }}
+      >
+        <div
+          onWheel={handleZoom}
+          style={{
+            marginBottom: "5px",
+            backgroundColor: "rgba(214, 219, 220)",
+          }}
+        >
           {viewMode === timelineViewMode.day
             ? renderDays(
                 widthDays,
@@ -691,37 +722,41 @@ const Timeline = ({
             </div>
           ))}
         </ReactGridLayout>
-        <div
-          id="timeline-body"
-          style={{ marginTop: "0px", whiteSpace: "nowrap" }}
-        >
-          {Array.from({ length: timelineRow < 8 ? 8 : timelineRow }).map(
-            (_, rowIndex) => (
-              <div key={rowIndex}>
-                {viewMode !== timelineViewMode.year &&
-                  new Date().getFullYear() <=
-                    startTimelinePeriod + quantityYearsPeriod && (
-                    <div
-                      className="current-day-timeline"
-                      style={{
-                        left: `${currentDayPosition}px`,
-                      }}
-                    />
+        {
+          <div
+            id="timeline-body"
+            style={{ marginTop: "0px", whiteSpace: "nowrap" }}
+          >
+            {Array.from({ length: timelineRow < 8 ? 8 : timelineRow }).map(
+              (_, rowIndex) => (
+                <div key={rowIndex}>
+                  {viewMode !== timelineViewMode.year &&
+                    new Date().getFullYear() <=
+                      startTimelinePeriod + quantityYearsPeriod && (
+                      <div
+                        className="current-day-timeline"
+                        style={{
+                          left: `${currentDayPosition}px`,
+                        }}
+                      />
+                    )}
+                  {Array.from({ length: quantityColumns }).map(
+                    (_, colIndex) => (
+                      <div
+                        key={colIndex}
+                        className="cell-matriz"
+                        style={{
+                          width: `${getCellWidth()}px`,
+                          height: `${initialHeight}px`,
+                        }}
+                      ></div>
+                    )
                   )}
-                {Array.from({ length: quantityColumns }).map((_, colIndex) => (
-                  <div
-                    key={colIndex}
-                    className="cell-matriz"
-                    style={{
-                      width: `${getCellWidth()}px`,
-                      height: `${initialHeight}px`,
-                    }}
-                  ></div>
-                ))}
-              </div>
-            )
-          )}
-        </div>
+                </div>
+              )
+            )}
+          </div>
+        }
       </div>
     </div>
   );

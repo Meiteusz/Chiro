@@ -23,15 +23,16 @@ import "@/app/globals.css";
 import "./styles.css";
 
 import "../../../node_modules/react-grid-layout/css/styles.css";
+import dayjs from "dayjs";
 
 const ReactGridLayout = WidthProvider(RGL);
 
-function ProjectBoard() {
+export default function ProjectBoard() {
   const [loading, setLoading] = useState(false);
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
   const [dateModalOpened, setDateModalOpened] = useState(false);
-  const [currentStartsDate, setCurrentStartsDate] = useState(null);
-  const [currentEndsDate, setCurrentEndsDate] = useState(null);
+  const [currentStartsDate, setCurrentStartsDate] = useState(dayjs());
+  const [currentEndsDate, setCurrentEndsDate] = useState(dayjs());
   const [canDragBubbles, setCanDragBubbles] = useState(true);
   const [menuBubbleOptions, setMenuBubbleOptions] = useState(null);
   const bubbleRefs = useRef([]);
@@ -47,25 +48,23 @@ function ProjectBoard() {
   const [bubbleContentChanged, setBubbleContentChanged] = useState();
   const [bubbleColorChanged, setBubbleColorChanged] = useState();
   const [projectName, setProjectName] = useState("");
-  const [loadingBoard, setLoadingBoard] = useState(true);
   const [canPan, setCanPan] = useState(true);
   const { setErrorNetwork } = useError();
-  const [bubbleProjectId, setBubbleProjectId] = useState(undefined);
-  const [defaultScale, setDefaultScale] = useState(1);
+  const [bubbleProjectId, setBubbleProjectId] = useState(null);
+  const [defaultScale, setDefaultScale] = useState(0.2);
   const [isDragging, setIsDragging] = useState(false);
 
   const router = useRouter();
+  const { encryptedProjectBoardId } = router.query;
 
   useEffect(() => {
     const fetchData = async () => {
-      const queryEncryptProjectId = router.query.bubbleProjectId;
-
-      if (queryEncryptProjectId) {
+      if (encryptedProjectBoardId) {
         try {
-          const id = await ProjectService.getDecryptProjectId(
-            queryEncryptProjectId
+          const response = await ProjectService.getDecryptProjectId(
+            encryptedProjectBoardId
           );
-          setBubbleProjectId(id.data);
+          setBubbleProjectId(response.data);
         } catch (error) {
           console.error("Falha ao descriptografar token:", error);
         }
@@ -73,11 +72,10 @@ function ProjectBoard() {
     };
 
     fetchData();
-  }, [router.query.bubbleProjectId]);
+  }, [encryptedProjectBoardId]);
 
   useEffect(() => {
     if (bubbleProjectId) {
-      console.log(bubbleProjectId);
       inicializeBubblesBoard();
     }
   }, [bubbleProjectId]);
@@ -135,8 +133,6 @@ function ProjectBoard() {
         console.error("Error fetching bubbles project:", error);
         setErrorNetwork(error.code);
       });
-
-    setLoadingBoard(false);
   };
 
   const handleOpenMenuBubbleOptions = (event) => {
@@ -149,14 +145,14 @@ function ProjectBoard() {
 
   const handleAddBubble = async (bubbleType) => {
     const newItem = {
-      w: 45,
-      h: 8,
-      x: 10,
-      y: 5,
-      minW: 4,
-      maxW: 100,
-      minH: 8,
-      maxH: 25,
+      w: 30,
+      h: 20,
+      x: 50,
+      y: 70,
+      minW: 20,
+      maxW: 60,
+      minH: 10,
+      maxH: 40,
     };
 
     const newCustomProps = {
@@ -169,7 +165,7 @@ function ProjectBoard() {
       trace: false,
     };
 
-    try{
+    try {
       var boardActionId = await BoardActionService.create({
         Content: newCustomProps.title,
         BoardActionType: newCustomProps.type,
@@ -183,7 +179,7 @@ function ProjectBoard() {
         ProjectId: bubbleProjectId,
       });
       setErrorNetwork(null);
-    }catch (error){
+    } catch (error) {
       setErrorNetwork(error.code);
     }
 
@@ -207,10 +203,10 @@ function ProjectBoard() {
     );
     setBubbleBeingDeleted(id);
 
-    try{
+    try {
       await BoardActionService.deleteAsync(id);
       setErrorNetwork(null);
-    }catch (error){
+    } catch (error) {
       setErrorNetwork(error.code);
     }
   };
@@ -219,11 +215,10 @@ function ProjectBoard() {
     setLayoutCustomProps((prevBubble) =>
       prevBubble.map((prevBox) => {
         if (prevBox.bubbleId === id) {
-          
-          try{
+          try {
             BoardActionService.changeColor({ Id: id, Color: color.hex });
             setErrorNetwork(null);
-          }catch (error){
+          } catch (error) {
             setErrorNetwork(error.code);
           }
 
@@ -244,14 +239,14 @@ function ProjectBoard() {
 
   const handleChangeTitle = async (id, content, isLeaving = false) => {
     if (isLeaving) {
-      try{
-       await BoardActionService.changeContent({
+      try {
+        await BoardActionService.changeContent({
           Id: id,
           Content: content,
         });
 
         setErrorNetwork(null);
-      }catch (error){
+      } catch (error) {
         setErrorNetwork(error.code);
       }
     }
@@ -279,11 +274,11 @@ function ProjectBoard() {
 
   const onDragging = () => {
     setIsDragging(true);
-  }
+  };
 
   const onDraggingStop = () => {
     setIsDragging(false);
-  }
+  };
 
   const onBubbleDragStop = async (e, v) => {
     if (!isDragging) {
@@ -292,7 +287,7 @@ function ProjectBoard() {
 
     const changedBubble = e.find((w) => w.i == v.i);
 
-    try{
+    try {
       await BoardActionService.resize({
         Id: changedBubble.i,
         Width: changedBubble.w,
@@ -300,11 +295,11 @@ function ProjectBoard() {
         PositionX: changedBubble.x,
         PositionY: changedBubble.y,
       });
-      
+
       setSelectedIdBubble(v.i);
       setCanPan(true);
       setErrorNetwork(null);
-    }catch (error){
+    } catch (error) {
       setErrorNetwork(error.code);
     }
 
@@ -361,7 +356,7 @@ function ProjectBoard() {
 
     const changedBubble = e.find((w) => w.i == v.i);
 
-    try{
+    try {
       await BoardActionService.resize({
         Id: changedBubble.i,
         Width: changedBubble.w,
@@ -369,9 +364,9 @@ function ProjectBoard() {
         PositionX: changedBubble.x,
         PositionY: changedBubble.y,
       });
-      
+
       setErrorNetwork(null);
-    }catch (error){
+    } catch (error) {
       setErrorNetwork(error.code);
     }
 
@@ -461,8 +456,8 @@ function ProjectBoard() {
       ]);
 
       //#endregion
-      setCurrentStartsDate(null);
-      setCurrentEndsDate(null);
+      setCurrentStartsDate(dayjs());
+      setCurrentEndsDate(dayjs());
       setDateModalOpened(false);
     }
   };
@@ -522,8 +517,8 @@ function ProjectBoard() {
     //  setCurrentEndsDate(null);
     //}
 
-    setCurrentStartsDate(null);
-    setCurrentEndsDate(null);
+    setCurrentStartsDate(dayjs());
+    setCurrentEndsDate(dayjs());
     setDateModalOpened(false);
   };
 
@@ -562,9 +557,11 @@ function ProjectBoard() {
   };
   //#endregion
 
-  return loading ? (
-    <Loading />
-  ) : (
+  if (loading) {
+    return <Loading />;
+  }
+
+  return (
     <div>
       <Navbar showMenu projectName={projectName} projectId={bubbleProjectId} />
       <div className="container-boards">
@@ -614,7 +611,7 @@ function ProjectBoard() {
             panning={{
               disabled: canPan === false,
               velocityDisabled: true,
-              excluded: ["input"]
+              excluded: ["input"],
             }}
             maxScale={5}
             minScale={0.2}
@@ -687,21 +684,21 @@ function ProjectBoard() {
             </TransformComponent>
           </TransformWrapper>
         </div>
-        <div id="timeline" className="time-line">
-          <Timeline
-            layoutBubble={layoutTimeline}
-            layoutBubbleProps={layoutCustomPropsTimeline}
-            bubbleProjectId={bubbleProjectId}
-            onBubbleLoad={onBubbleLoad}
-            bubbleBeingDeleted={bubbleBeingDeleted}
-            onContentChanged={bubbleContentChanged}
-            onColorChanged={bubbleColorChanged}
-            setLoading={setLoading}
-          />
-        </div>
+        {bubbleProjectId && (
+          <div id="timeline" className="time-line">
+            <Timeline
+              layoutBubble={layoutTimeline}
+              layoutBubbleProps={layoutCustomPropsTimeline}
+              bubbleProjectId={bubbleProjectId}
+              //onBubbleLoad={onBubbleLoad}
+              bubbleBeingDeleted={bubbleBeingDeleted}
+              onContentChanged={bubbleContentChanged}
+              onColorChanged={bubbleColorChanged}
+              setLoading={setLoading}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-export default ProjectBoard;

@@ -10,8 +10,6 @@ import Navbar from "@/components/navbar/navbar";
 import Bubble from "@/components/bubble/bubble";
 import ProjectService from "@/services/requests/project-service";
 import Loading from "@/components/loading/Loading";
-
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useError } from "@/components/context/error-network";
 
 import "@/app/globals.css";
@@ -19,12 +17,12 @@ import "./styles.css";
 
 const ReactGridLayout = WidthProvider(RGL);
 
-const ProjectBoard = () => {
+const Projects = () => {
   const [loading, setLoading] = useState(false);
   const [layout, setLayout] = useState([]);
   const [layoutCustomProps, setLayoutCustomProps] = useState([]);
   const [canDragBubbles, setCanDragBubbles] = useState(true);
-  const [defaultScale, setDefaultScale] = useState(1);
+  const [defaultScale, setDefaultScale] = useState(0.2);
   const [canPan, setCanPan] = useState(true);
   const { setErrorNetwork } = useError();
   const [isDragging, setIsDragging] = useState(false);
@@ -44,6 +42,7 @@ const ProjectBoard = () => {
     inicializeBubblesLayout();
   }, []);
 
+  //#region inicializeBubblesLayout
   const inicializeBubblesLayout = async () => {
     setLoading(true);
     ProjectService.getAll()
@@ -92,10 +91,10 @@ const ProjectBoard = () => {
       var projectId = await ProjectService.create({
         Name: "",
         Password: "1234",
-        PositionY: 5,
-        PositionX: 3,
-        Width: 2,
-        Height: 3,
+        PositionY: 70,
+        PositionX: 50,
+        Width: 30,
+        Height: 20,
         Color: "white",
       });
 
@@ -106,14 +105,14 @@ const ProjectBoard = () => {
 
     const newItem = {
       i: projectId,
-      x: 3,
-      y: 5,
-      w: 2,
-      h: 3,
-      minW: 4,
-      maxW: 100,
-      minH: 8,
-      maxH: 25,
+      x: 50,
+      y: 70,
+      w: 30,
+      h: 20,
+      minW: 20,
+      maxW: 60,
+      minH: 10,
+      maxH: 40,
     };
 
     const newCustomProps = {
@@ -130,6 +129,7 @@ const ProjectBoard = () => {
   };
   //#endregion
 
+  //#region handleDeleteBubble
   const handleDeleteBubble = async (id) => {
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== id));
 
@@ -193,19 +193,26 @@ const ProjectBoard = () => {
   //#region handleDoubleClick
   const handleDoubleClick = async (id) => {
     const encryptId = await ProjectService.getEncryptProjectId(id);
-    const url = `project-board?bubbleProjectId=${encryptId.data}`;
-    router.push(url);
+    router.push({
+      pathname: "project-board/[encryptedProjectBoardId]",
+      query: { encryptedProjectBoardId: encryptId.data },
+    });
   };
   //#endregion
 
+  //#region onDragging
   const onDragging = () => {
     setIsDragging(true);
   };
+  //#endregion
 
+  //#region onDraggingStop
   const onDraggingStop = () => {
     setIsDragging(false);
   };
+  //#endregion
 
+  //#region onUpdateBubble
   const onUpdateBubble = async (e, v) => {
     if (!isDragging) {
       return;
@@ -238,9 +245,11 @@ const ProjectBoard = () => {
   };
   //#endregion
 
-  return loading ? (
-    <Loading />
-  ) : (
+  if (loading) {
+    return <Loading />;
+  }
+
+  return (
     <div className="container-projects">
       <Navbar projectName="Projetos" />
       <button className="add-bubble" onClick={handleAddBubble}>
@@ -338,4 +347,4 @@ const ProjectBoard = () => {
   );
 };
 
-export default ProjectBoard;
+export default Projects;

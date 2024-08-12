@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import ProjectService from "@/services/requests/auth-service";
 import cookiesKeys from "@/data/keys";
 import { setCookie } from "@/data/cookies";
-import { useError } from '@/components/context/error-network';
+import { useError } from "@/components/context/error-network";
 
 import "@/app/globals.css";
 import "./styles.css";
@@ -22,15 +22,14 @@ const AuthScreen = () => {
   };
 
   const handleButtonClick = async () => {
-
-    try{
+    try {
       var token = await ProjectService.authenticate({ token: tokenValue });
-      setNetworkError(null);
-    }catch (error){
+      setErrorNetwork(null);
+    } catch (error) {
       setErrorNetwork(error.code);
     }
 
-    if ((token && token.data) != undefined) {
+    if (token && token.data) {
       setError(null);
       setCookie(cookiesKeys.token, token.data);
       router.push("/projects");
