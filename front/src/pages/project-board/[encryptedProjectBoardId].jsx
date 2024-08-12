@@ -31,8 +31,8 @@ export default function ProjectBoard() {
   const [loading, setLoading] = useState(false);
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
   const [dateModalOpened, setDateModalOpened] = useState(false);
-  const [currentStartsDate, setCurrentStartsDate] = useState(dayjs());
-  const [currentEndsDate, setCurrentEndsDate] = useState(dayjs());
+  const [currentStartsDate, setCurrentStartsDate] = useState(null);
+  const [currentEndsDate, setCurrentEndsDate] = useState(null); // INICIAR AS DATAS NO MOMENTO DO MODAL APARECER
   const [canDragBubbles, setCanDragBubbles] = useState(true);
   const [menuBubbleOptions, setMenuBubbleOptions] = useState(null);
   const bubbleRefs = useRef([]);
@@ -53,6 +53,7 @@ export default function ProjectBoard() {
   const [bubbleProjectId, setBubbleProjectId] = useState(null);
   const [defaultScale, setDefaultScale] = useState(0.2);
   const [isDragging, setIsDragging] = useState(false);
+  const [startTimelinePeriod, setStartTimelinePeriod] = useState(null);
 
   const router = useRouter();
   const { encryptedProjectBoardId } = router.query;
@@ -387,7 +388,7 @@ export default function ProjectBoard() {
         diferencaEmMilissegundos / (1000 * 60 * 60 * 24) + 1
       );
 
-      var dataInicial = new Date("2024-01-01");
+      var dataInicial = new Date(`${startTimelinePeriod}-01-01`);
       var diasComeco = Math.abs(currentStartsDate - dataInicial);
       var diasDif = Math.floor(diasComeco / (1000 * 60 * 60 * 24));
       var selectedBubbleCustomProps = layoutCustomProps.find(
@@ -695,6 +696,7 @@ export default function ProjectBoard() {
               onContentChanged={bubbleContentChanged}
               onColorChanged={bubbleColorChanged}
               setLoading={setLoading}
+              setStartTimelinePeriodParam={setStartTimelinePeriod}
             />
           </div>
         )}

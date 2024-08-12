@@ -39,6 +39,7 @@ const Timeline = ({
   onColorChanged,
   notAuthenticate,
   setLoading,
+  setStartTimelinePeriodParam,
 }) => {
   let widthDays = initialWidth;
   let widthMonths = initialWidth * multiplierWidth;
@@ -137,8 +138,6 @@ const Timeline = ({
         EndDate: layoutBubbleProps.endsDate,
         TimelineRow: layoutBubble.y,
       });
-
-      setTimelineConfigured(false);
     }
   };
   //#endregion
@@ -156,6 +155,7 @@ const Timeline = ({
           1;
 
         setStartTimelinePeriod(startDateTimelinePeriod);
+        setStartTimelinePeriodParam(startDateTimelinePeriod);
         setQuantityYearsPeriod(quantityDateYearsPeriod);
         setTimelineRow(res.data.biggestRow);
 
