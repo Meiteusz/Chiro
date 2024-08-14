@@ -203,7 +203,7 @@ function Bubble({
       }}
     >
       <input
-        autoFocus
+        autoFocus={!notAuthenticate}
         type="text"
         value={bubbleCustomProps.title ?? ""}
         onChange={handleBubbleNameChange}
