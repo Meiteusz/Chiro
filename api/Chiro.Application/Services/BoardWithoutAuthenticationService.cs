@@ -35,7 +35,7 @@ namespace Chiro.Application.Services
 
         public string? GenerateUrl(string token)
         {       
-            return $"http://localhost:3000/without-authentication?param={token}";
+            return $"http://localhost:3000/project-board-link?param={token}";
         }
     }
 }
