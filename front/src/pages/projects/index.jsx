@@ -27,6 +27,7 @@ const Projects = () => {
   const { setErrorNetwork } = useError();
   const [isDragging, setIsDragging] = useState(false);
   const router = useRouter();
+  const [editingBubble, setEditingBubblee] = useState(false);
 
   useEffect(() => {
     document.getElementsByClassName(
@@ -165,7 +166,7 @@ const Projects = () => {
 
   //#region handleChangeTitle
   const handleChangeTitle = (id, content, isLeaving = false) => {
-    if (isLeaving) {
+    if (isLeaving && content != "" && content != undefined && content != null) {
       try {
         ProjectService.changeName({
           Id: id,
@@ -242,6 +243,22 @@ const Projects = () => {
   //#region onBubbleDragStart
   const onBubbleDragStart = () => {
     setCanPan(false);
+  };
+  //#endregion
+
+  //#region handleBubbleEdit
+  const handleBubbleEdit = () => {
+    setEditingBubblee(true);
+  };
+  //#endregion
+  //#region handleBubbleEdit
+  const handleLeaveBubble = (event, bubbleId) => {
+    if (editingBubble) {
+      const newName = event.target.value;
+      handleChangeTitle(bubbleId, newName, true);
+    } 
+    
+    setEditingBubblee(false);
   };
   //#endregion
 
@@ -331,6 +348,8 @@ const Projects = () => {
                     onDoubleClick={handleDoubleClick}
                     onDelete={handleDeleteBubble}
                     canDrag={setCanDragBubbles}
+                    handleBubbleEdit={handleBubbleEdit}
+                    handleLeaveBubble={handleLeaveBubble}
                     bubble={bubble}
                     bubbleCustomProps={
                       layoutCustomProps &&

@@ -54,6 +54,7 @@ export default function ProjectBoard() {
   const [defaultScale, setDefaultScale] = useState(0.2);
   const [isDragging, setIsDragging] = useState(false);
   const [startTimelinePeriod, setStartTimelinePeriod] = useState(null);
+  const [editingBubble, setEditingBubblee] = useState(false);
 
   const router = useRouter();
   const { encryptedProjectBoardId } = router.query;
@@ -239,7 +240,7 @@ export default function ProjectBoard() {
   };
 
   const handleChangeTitle = async (id, content, isLeaving = false) => {
-    if (isLeaving) {
+    if (isLeaving && content != "" && content != undefined && content != null) {
       try {
         await BoardActionService.changeContent({
           Id: id,
@@ -558,6 +559,23 @@ export default function ProjectBoard() {
   };
   //#endregion
 
+  //#region handleBubbleEdit
+  const handleBubbleEdit = () => {
+    setEditingBubblee(true);
+  };
+  //#endregion
+
+  //#region handleBubbleEdit
+  const handleLeaveBubble = (event, bubbleId) => {
+    if (editingBubble) {
+      const newName = event.target.value;
+      handleChangeTitle(bubbleId, newName, true);
+    } 
+    
+    setEditingBubblee(false);
+  };
+  //#endregion
+
   if (loading) {
     return <Loading />;
   }
@@ -670,6 +688,8 @@ export default function ProjectBoard() {
                           onChangeTitle={handleChangeTitle}
                           onDelete={handleDeleteBubble}
                           canDrag={setCanDragBubbles}
+                          handleBubbleEdit={handleBubbleEdit}
+                          handleLeaveBubble={handleLeaveBubble}
                           bubble={bubble}
                           bubbleCustomProps={
                             layoutCustomProps &&
@@ -694,7 +714,7 @@ export default function ProjectBoard() {
               //onBubbleLoad={onBubbleLoad}
               bubbleBeingDeleted={bubbleBeingDeleted}
               onContentChanged={bubbleContentChanged}
-              onColorChanged={bubbleColorChanged}
+              onColorChanged={bubbleColorChanged}            
               setLoading={setLoading}
               setStartTimelinePeriodParam={setStartTimelinePeriod}
             />
