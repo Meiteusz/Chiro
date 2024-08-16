@@ -681,7 +681,7 @@ const Timeline = ({
         </div>
         <ReactGridLayout
           key={layoutUpdatedKey}
-          isResizable
+          isResizable={!notAuthenticate}
           allowOverlap
           layout={layout}
           margin={[0, 6]}
@@ -695,7 +695,7 @@ const Timeline = ({
           containerPadding={[0, 0]}
           maxRows={timelineRow < 8 ? 8 : timelineRow}
           resizeHandles={["e"]}
-          isDraggable={canDragBubbles}
+          isDraggable={canDragBubbles && !notAuthenticate}
           style={{
             height: "100%",
           }}

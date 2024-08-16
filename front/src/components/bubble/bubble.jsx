@@ -35,6 +35,8 @@ function Bubble({
   delayedTime,
   isTimeline,
   notAuthenticate,
+  handleBubbleEdit,
+  handleLeaveBubble,
 }) {
   const [contextMenu, setContextMenu] = useState(null);
   const [OpenChromePicker, setChromePicker] = useState(false);
@@ -203,12 +205,13 @@ function Bubble({
       }}
     >
       <input
-        autoFocus
         type="text"
         value={bubbleCustomProps.title ?? ""}
         onChange={handleBubbleNameChange}
         onBlur={(event) => handleBubbleNameChange(event, true)}
         onContextMenu={handleContextMenu}
+        onClick={handleBubbleEdit}
+        onMouseLeave={(event) => handleLeaveBubble(event, bubble.i)}
         disabled={canComplete ?? false}
         style={{
           position: "absolute",

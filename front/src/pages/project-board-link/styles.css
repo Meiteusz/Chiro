@@ -1,0 +1,70 @@
+.container-bubble {
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* padding: 1px; */
+  cursor: grab;
+  border: 1px solid;
+}
+
+.container-bubble input {
+  font-size: 5vmin !important;
+}
+
+#timeline input {
+  font-size: 18px !important;
+}
+
+.container-boards {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.top-board {
+  flex: 1;
+}
+
+.time-line {
+  display: "flex";
+}
+
+.add-bubble {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 20px;
+  border-radius: 50%;
+  background-color: #1C1C1C;
+  color: #fff;
+  z-index: 999;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.menu-item {
+  font-family: "Segoe UI", sans-serif;
+  font-weight: 600;
+}
+
+.react-transform-wrapper, .react-transform-element, .react-transform-component, .react-grid-layout  {
+  min-height: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  width: 100% !important;
+}
+
+.top-board .react-grid-layout {
+  border: 1px solid #bec1c2;
+  background-color: #d6dbdc;
+}
+
+.transform-component-module_content__FBWxo {
+  width: 25000px !important;
+  height: 7000px !important;
+  position: fixed;
+}
+
+#timeline-body {
+  background-color: #d6dbdc;
+}
