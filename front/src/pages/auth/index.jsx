@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import axios from "axios";
 import { useRouter } from "next/router";
 
 import ProjectService from "@/services/requests/auth-service";
@@ -32,6 +33,8 @@ const AuthScreen = () => {
     if (token && token.data) {
       setError(null);
       setCookie(cookiesKeys.token, token.data);
+      axios.defaults.headers.common.Authorization = `Bearer ${token.data}`;
+
       router.push("/projects");
     } else {
       setError("Token inválido.");

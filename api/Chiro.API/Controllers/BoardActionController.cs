@@ -1,5 +1,4 @@
 using Chiro.Application.Interfaces;
-using Chiro.Application.Services;
 using Chiro.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

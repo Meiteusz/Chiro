@@ -204,8 +204,8 @@ const Timeline = ({
               bubbleId: boardAction.id.toString(),
               title: boardAction.content,
               color: boardAction.color,
-              startsDate: new Date(boardAction.startDate),
-              endsDate: new Date(boardAction.endDate),
+              startsDate: boardAction.startDate,
+              endsDate: boardAction.endDate,
               isCompleted: bubbleCompleted,
             },
           ]);
@@ -727,6 +727,14 @@ const Timeline = ({
             id="timeline-body"
             style={{ marginTop: "0px", whiteSpace: "nowrap" }}
           >
+            {console.log("timelineRow:", timelineRow)}
+            {console.log("quantityColumns:", quantityColumns)}
+            {console.log("getCellWidth:", getCellWidth())}
+            {console.log("initialHeight:", initialHeight)}
+            {console.log(
+              "Array from rows:",
+              Array.from({ length: timelineRow < 8 ? 8 : timelineRow })
+            )}
             {Array.from({ length: timelineRow < 8 ? 8 : timelineRow }).map(
               (_, rowIndex) => (
                 <div key={rowIndex}>

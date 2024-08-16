@@ -31,8 +31,8 @@ export default function ProjectBoard() {
   const [loading, setLoading] = useState(false);
   const [selectedIdBubble, setSelectedIdBubble] = useState(null);
   const [dateModalOpened, setDateModalOpened] = useState(false);
-  const [currentStartsDate, setCurrentStartsDate] = useState(null);
-  const [currentEndsDate, setCurrentEndsDate] = useState(null); // INICIAR AS DATAS NO MOMENTO DO MODAL APARECER
+  const [currentStartsDate, setCurrentStartsDate] = useState(dayjs());
+  const [currentEndsDate, setCurrentEndsDate] = useState(dayjs());
   const [canDragBubbles, setCanDragBubbles] = useState(true);
   const [menuBubbleOptions, setMenuBubbleOptions] = useState(null);
   const bubbleRefs = useRef([]);
@@ -118,8 +118,8 @@ export default function ProjectBoard() {
             title: boardAction.content,
             color: boardAction.color,
             type: boardAction.boardActionType,
-            startsDate: new Date(boardAction.startDate),
-            endsDate: new Date(boardAction.endDate),
+            startsDate: boardAction.startDate,
+            endsDate: boardAction.endDate,
             trace: boardAction.startDate && boardAction.endDate,
           };
 

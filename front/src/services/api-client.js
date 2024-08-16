@@ -1,12 +1,15 @@
 import axios from "axios";
+import { jwtDecode } from 'jwt-decode';
+
 import { getCookie } from "@/data/cookies";
 import cookiesKeys from "@/data/keys";
 
-const BASE_URL =
-  process.env.REACT_APP_BASE_URL || `https://localhost:7170/api/v1`;
+const BASE_URL = process.env.REACT_APP_BASE_URL || `https://localhost:7170/api/v1`;
+const TIME_OUT = 10000;
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
+  timeout: TIME_OUT,
   headers: {
     "Content-Type": "application/json",
   },
@@ -29,18 +32,18 @@ apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    window.location.href = "/auth";
-    return Promise.reject(error);
+  error => {
+    console.log(error);
+    //var a = getCookie(cookiesKeys.token);
+    //var isValidToken = jwtDecode(a);
+    
+    //window.location.href = "/auth";
+    //return Promise.reject(error);
   }
 );
 
-const useGet = (url, config = {}) => {
-  try {
-    return apiClient.get(url, config);
-  } catch (error) {
-    console.log(error);    
-  }
+const useGet = async (url, config = {}) => {
+  return apiClient.get(url, config); 
 };
 
 const useDelete = (url, config = {}) => {
