@@ -18,11 +18,11 @@ namespace Chiro.Application.Services
 
         public async Task<string> AuthenticateAsync(AuthenticateDTO authenticateDTO)
         {
-            //var authenticated = await _repository.ExistsByTokenAsync(authenticateDTO.Token);
-            //if (!authenticated)
-            //{
-            //    return string.Empty;
-            //}
+            var authenticated = await _repository.ExistsByTokenAsync(authenticateDTO.Token);
+            if (!authenticated)
+            {
+                return string.Empty;
+            }
 
             return GenerateJwtToken();
         }

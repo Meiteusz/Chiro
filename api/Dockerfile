@@ -21,9 +21,15 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "Chiro.API.csproj" -c ${BUILD_CONFIGURATION} -o /app/publish
 
 FROM base AS final
-ENV JWT-ISSUER dispo@gmail.com
-ENV JWT-KEY ZP0AkyIvItZIJUNkNO8BbS4SR9VVEyab
-ENV CONNECTION-STRING Host=chiro-homolog.cx0gguaogyvl.us-east-1.rds.amazonaws.com; Port=5432; Username=postgres; Password=0PTti#ux&JJM*yuCA^jF; Database=chiro_hom
+
+ARG JWT_ISSUER
+ARG JWT_KEY
+ARG CONNECTION_STRING
+
+ENV JWT_ISSUER=${JWT_ISSUER}
+ENV JWT_KEY=${JWT_KEY}
+ENV CONNECTION_STRING=${CONNECTION_STRING}
+
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT [ "dotnet", "Chiro.API.dll" ]
