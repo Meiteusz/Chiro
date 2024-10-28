@@ -4,7 +4,8 @@ import { jwtDecode } from 'jwt-decode';
 import { getCookie } from "@/data/cookies";
 import cookiesKeys from "@/data/keys";
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || `https://localhost:7170/api/v1`;
+//const BASE_URL = process.env.REACT_APP_BASE_URL || `https://localhost:7170/api/v1`;
+const BASE_URL = "http://159.203.158.248:8080/api/v1";
 const TIME_OUT = 10000;
 
 const apiClient = axios.create({
