@@ -28,7 +28,7 @@ function BoardWithOutAuthentication() {
   const [projectName, setProjectName] = useState("");
   const { setErrorNetwork } = useError();
   const [error, setError] = useState("");
-  const [defaultScale, setDefaultScale] = useState(1);
+  const [defaultScale, setDefaultScale] = useState(0.2);
   const [layoutTimeline, setLayoutTimeline] = useState();
   const [layoutCustomPropsTimeline, setLayoutCustomPropsTimeline] = useState();
   const [startTimelinePeriod, setStartTimelinePeriod] = useState(null);
@@ -70,7 +70,7 @@ function BoardWithOutAuthentication() {
           ProjectService.getById(res)
             .then((res) => {
               setErrorNetwork(null);
-              
+
               res.data.boardActions.forEach((boardActions) => {
                 handleAddBubbles({
                   width: boardActions.width,
@@ -94,7 +94,6 @@ function BoardWithOutAuthentication() {
               setLoading(false);
             });
         }
-
       })
       .catch((error) => {
         console.log("Error fetching project by token: ", error.response.data);
@@ -103,7 +102,18 @@ function BoardWithOutAuthentication() {
       });
   };
 
-  const handleAddBubbles = ({ width, height, x, y, id, content, color, type, startDate, endDate }) => {
+  const handleAddBubbles = ({
+    width,
+    height,
+    x,
+    y,
+    id,
+    content,
+    color,
+    type,
+    startDate,
+    endDate,
+  }) => {
     const newItem = {
       w: width,
       h: height,
@@ -114,7 +124,7 @@ function BoardWithOutAuthentication() {
       maxW: 100,
       minH: 8,
       maxH: 25,
-      static:true
+      static: true,
     };
 
     const newCustomProps = {
@@ -144,15 +154,21 @@ function BoardWithOutAuthentication() {
     <div>
       <Navbar projectName={projectName} />
       <div className="container-boards">
-        {error && <h1 style={{textAlign: 'center', fontSize: '3rem', marginTop: '20vh'}}>{error}</h1>}
+        {error && (
+          <h1
+            style={{ textAlign: "center", fontSize: "3rem", marginTop: "20vh" }}
+          >
+            {error}
+          </h1>
+        )}
         <div className="top-board">
           <TransformWrapper
             initialPositionY={1}
             initialPositionX={1}
             maxScale={5}
-            minScale={0.2}    
-            doubleClick={{disabled: true}}
-            alignmentAnimation={{disabled: false}}
+            minScale={0.2}
+            doubleClick={{ disabled: true }}
+            alignmentAnimation={{ disabled: false }}
             limitToBounds={true}
             centerOnInit={false}
             centerZoomedOut={true}
@@ -162,7 +178,7 @@ function BoardWithOutAuthentication() {
             onWheel={handleScroll}
             panning={{
               disabled: false,
-              velocityDisabled: true
+              velocityDisabled: true,
             }}
           >
             <TransformComponent>
@@ -190,19 +206,21 @@ function BoardWithOutAuthentication() {
                     return (
                       <div key={bubble.i} style={{ borderRadius: "5px" }}>
                         <Bubble
-                            bubble={bubble}
-                            bubbleCustomProps={
-                              layoutCustomProps &&
-                              layoutCustomProps.find((x) => x.bubbleId === bubble.i)
-                            }
-                            notAuthenticate={true}
-                          />
+                          bubble={bubble}
+                          bubbleCustomProps={
+                            layoutCustomProps &&
+                            layoutCustomProps.find(
+                              (x) => x.bubbleId === bubble.i
+                            )
+                          }
+                          notAuthenticate={true}
+                        />
                       </div>
                     );
                   })}
               </ReactGridLayout>
             </TransformComponent>
-          </TransformWrapper>   
+          </TransformWrapper>
         </div>
         {projectId && (
           <div id="timeline" className="time-line">

@@ -187,6 +187,14 @@ function Bubble({
     setChromePicker(true);
   };
 
+  const handleLeaveBubbleTeste = (event) => {
+    if (notAuthenticate) {
+      return;
+    }
+
+    handleLeaveBubble(event, bubble.i);
+  };
+
   return (
     <div
       id={bubble.i}
@@ -211,7 +219,7 @@ function Bubble({
         onBlur={(event) => handleBubbleNameChange(event, true)}
         onContextMenu={handleContextMenu}
         onClick={handleBubbleEdit}
-        onMouseLeave={(event) => handleLeaveBubble(event, bubble.i)}
+        onMouseLeave={handleLeaveBubbleTeste}
         disabled={canComplete ?? false}
         style={{
           position: "absolute",

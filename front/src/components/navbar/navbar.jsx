@@ -15,7 +15,7 @@ import { TextField, Button } from "@mui/material";
 
 import ShareableLinkModal from "@/components/modal/link/shareable-link-modal";
 import BoardWithoutAuthenticationService from "@/services/requests/board-without-authentication-service";
-import { useError } from "@/components/context/error-network"; 
+import { useError } from "@/components/context/error-network";
 
 import "@/app/globals.css";
 import DeleteDialog from "@/components/modal/delete-dialog/delete-dialog";
@@ -48,13 +48,13 @@ function Navbar({ projectName, showMenu, projectId }) {
   const handleClose = () => setModalOpen(false);
 
   const handleConfirm = async () => {
-    try{
+    try {
       await ProjectService.deleteAsync(projectId);
       setErrorNetwork(null);
-    }catch (error){
+    } catch (error) {
       setErrorNetwork(error.code);
     }
-    
+
     setModalOpen(false);
     router.push("/projects");
   };
@@ -68,14 +68,14 @@ function Navbar({ projectName, showMenu, projectId }) {
   };
 
   const handleOpenShareableLinkModal = async () => {
-    try{
+    try {
       const url = await BoardWithoutAuthenticationService.createLink(projectId);
 
-      setUrl(url);
+      setUrl(window.location.origin + url);
       setAnchorEl(null);
       setOpenModal(true);
       setErrorNetwork(null);
-    }catch (error){
+    } catch (error) {
       setErrorNetwork(error.code);
     }
   };
@@ -89,7 +89,7 @@ function Navbar({ projectName, showMenu, projectId }) {
   };
 
   const handleSaveClick = async () => {
-    try{
+    try {
       if (newProjectName) {
         ProjectService.changeName({
           Id: projectId,
@@ -99,10 +99,10 @@ function Navbar({ projectName, showMenu, projectId }) {
       } else {
         setNewProjectName(projectName);
       }
-  
+
       setEditing(false);
       setErrorNetwork(null);
-    }catch (error){
+    } catch (error) {
       setErrorNetwork(error.code);
     }
   };

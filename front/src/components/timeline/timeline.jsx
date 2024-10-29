@@ -300,15 +300,21 @@ const Timeline = ({
     if (viewMode === timelineViewMode.day) {
       currentPosition = columnWidth * (dayOfYear - 1);
     } else if (viewMode === timelineViewMode.month) {
-      currentPosition = columnWidth * monthOfYear;
+      currentPosition = columnWidth * (monthOfYear + 1);
     }
 
     setCurrentDayPosition(currentPosition + columnWidth / 2);
 
     if (ref.current) {
-      ref.current.scrollTo({
-        left: currentPosition - columnWidth * 10,
-      });
+      if (viewMode === timelineViewMode.day) {
+        ref.current.scrollTo({
+          left: currentPosition - columnWidth * 10,
+        });
+      } else if (viewMode === timelineViewMode.month) {
+        ref.current.scrollTo({
+          left: currentPosition - columnWidth,
+        });
+      }
     }
   };
   //#endregion
@@ -693,7 +699,7 @@ const Timeline = ({
           onResizeStart={() => setScrollEnabled(false)}
           onResizeStop={onBubbleResizeStop}
           containerPadding={[0, 0]}
-          maxRows={timelineRow < 8 ? 8 : timelineRow}
+          maxRows={timelineRow < 7 ? 7 : timelineRow}
           resizeHandles={["e"]}
           isDraggable={canDragBubbles && !notAuthenticate}
           style={{
@@ -727,15 +733,7 @@ const Timeline = ({
             id="timeline-body"
             style={{ marginTop: "0px", whiteSpace: "nowrap" }}
           >
-            {console.log("timelineRow:", timelineRow)}
-            {console.log("quantityColumns:", quantityColumns)}
-            {console.log("getCellWidth:", getCellWidth())}
-            {console.log("initialHeight:", initialHeight)}
-            {console.log(
-              "Array from rows:",
-              Array.from({ length: timelineRow < 8 ? 8 : timelineRow })
-            )}
-            {Array.from({ length: timelineRow < 8 ? 8 : timelineRow }).map(
+            {Array.from({ length: timelineRow < 7 ? 7 : timelineRow }).map(
               (_, rowIndex) => (
                 <div key={rowIndex}>
                   {viewMode !== timelineViewMode.year &&
