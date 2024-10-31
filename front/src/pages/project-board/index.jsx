@@ -57,15 +57,13 @@ export default function ProjectBoard() {
   const [editingBubble, setEditingBubblee] = useState(false);
 
   const router = useRouter();
-  const { encryptedProjectBoardId } = router.query;
+  const { param } = router.query;
 
   useEffect(() => {
     const fetchData = async () => {
-      if (encryptedProjectBoardId) {
+      if (param) {
         try {
-          const response = await ProjectService.getDecryptProjectId(
-            encryptedProjectBoardId
-          );
+          const response = await ProjectService.getDecryptProjectId(param);
           setBubbleProjectId(response.data);
         } catch (error) {
           console.error("Falha ao descriptografar token:", error);
@@ -74,7 +72,7 @@ export default function ProjectBoard() {
     };
 
     fetchData();
-  }, [encryptedProjectBoardId]);
+  }, [param]);
 
   useEffect(() => {
     if (bubbleProjectId) {
@@ -570,8 +568,8 @@ export default function ProjectBoard() {
     if (editingBubble) {
       const newName = event.target.value;
       handleChangeTitle(bubbleId, newName, true);
-    } 
-    
+    }
+
     setEditingBubblee(false);
   };
   //#endregion
@@ -714,7 +712,7 @@ export default function ProjectBoard() {
               //onBubbleLoad={onBubbleLoad}
               bubbleBeingDeleted={bubbleBeingDeleted}
               onContentChanged={bubbleContentChanged}
-              onColorChanged={bubbleColorChanged}            
+              onColorChanged={bubbleColorChanged}
               setLoading={setLoading}
               setStartTimelinePeriodParam={setStartTimelinePeriod}
             />

@@ -194,10 +194,7 @@ const Projects = () => {
   //#region handleDoubleClick
   const handleDoubleClick = async (id) => {
     const encryptId = await ProjectService.getEncryptProjectId(id);
-    router.push({
-      pathname: "project-board/[encryptedProjectBoardId]",
-      query: { encryptedProjectBoardId: encryptId.data },
-    });
+    router.push(`project-board?param=${encryptId.data}`);
   };
   //#endregion
 
@@ -256,8 +253,8 @@ const Projects = () => {
     if (editingBubble) {
       const newName = event.target.value;
       handleChangeTitle(bubbleId, newName, true);
-    } 
-    
+    }
+
     setEditingBubblee(false);
   };
   //#endregion
